@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 110px;
+}
+
 @layer base {
   body {
     @apply bg-background text-gray-50 antialiased selection:bg-primary/30;
