@@ -463,7 +463,7 @@ const Landing = () => {
                         { name: 'Sumit', rank: 3, h: 'h-14', img: `${SUMIT_IMG}` },
                       ].map((u, i) => (
                         <motion.div
-                          key={u.name}
+                          key={u.rank}
                           initial={prefersReducedMotion ? undefined : { y: 15, opacity: 0 }}
                           animate={prefersReducedMotion ? undefined : { y: 0, opacity: 1 }}
                           transition={prefersReducedMotion ? undefined : { delay: 0.6 + i * 0.1, duration: 0.5 }}

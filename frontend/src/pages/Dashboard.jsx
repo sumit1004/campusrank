@@ -2,7 +2,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { Award, UploadCloud, ShieldAlert, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Award, UploadCloud, ShieldAlert, FileText, Trophy } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
@@ -38,20 +39,31 @@ const Dashboard = () => {
       {/* Welcome Banner - Compact */}
       <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 p-6 rounded-2xl relative overflow-hidden shadow-lg">
         <div className="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/20 blur-3xl rounded-full"></div>
-        <h1 className="text-2xl font-black text-white mb-1 relative z-10 tracking-tight">Welcome, {user?.name?.split(' ')[0]}!</h1>
-        <p className="text-sm text-gray-400 font-bold relative z-10 flex items-center opacity-80 uppercase tracking-wider gap-3">
-          <span className="flex items-center"><ShieldAlert size={14} className="mr-2 text-indigo-400"/> ERP: {user?.erp}</span>
-          {totalPoints >= 500 && (
-            <span className="flex items-center px-2 py-0.5 bg-accent/20 border border-accent/30 rounded text-accent text-[10px] font-black">
-              <Award size={12} className="mr-1" /> {
-                totalPoints >= 1500 ? 'ELITE' :
-                totalPoints >= 1000 ? 'LEVEL 3' :
-                totalPoints >= 800 ? 'LEVEL 2' : 'LEVEL 1'
-              }
-            </span>
-          )}
-        </p>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10 w-full">
+          <div>
+            <h1 className="text-2xl font-black text-white mb-1 tracking-tight">Welcome, {user?.name?.split(' ')[0]}!</h1>
+            <p className="text-sm text-gray-400 font-bold flex items-center opacity-80 uppercase tracking-wider gap-3">
+              <span className="flex items-center"><ShieldAlert size={14} className="mr-2 text-indigo-400"/> ERP: {user?.erp}</span>
+              {totalPoints >= 500 && (
+                <span className="flex items-center px-2 py-0.5 bg-accent/20 border border-accent/30 rounded text-accent text-[10px] font-black">
+                  <Award size={12} className="mr-1" /> {
+                    totalPoints >= 1500 ? 'ELITE' :
+                    totalPoints >= 1000 ? 'LEVEL 3' :
+                    totalPoints >= 800 ? 'LEVEL 2' : 'LEVEL 1'
+                  }
+                </span>
+              )}
+            </p>
+          </div>
+          
+          <div className="shrink-0">
+            <Link to="/leaderboard" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 text-xs font-black text-white shadow-xl shadow-indigo-500/10 transition-all border border-indigo-400/20">
+              EXPLORE LEADERBOARD <Trophy size={14} className="text-yellow-400" />
+            </Link>
+          </div>
+        </div>
       </div>
+
 
       {/* Metrics Row - Smaller Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

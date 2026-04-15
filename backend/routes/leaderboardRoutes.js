@@ -2,15 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const {
-  getGlobalLeaderboard,
-  getClubLeaderboard
+  getLeaderboard
 } = require('../controllers/leaderboardController');
 const { optionalProtect } = require('../middlewares/authMiddleware');
 
-// GET /api/leaderboard
-router.get('/', optionalProtect, getGlobalLeaderboard);
-
-// GET /api/leaderboard/club/:clubId
-router.get('/club/:clubId', optionalProtect, getClubLeaderboard);
+// GET /api/leaderboard?type=overall|club&club_id=1&filter=monthly|yearly
+router.get('/', optionalProtect, getLeaderboard);
 
 module.exports = router;
+
