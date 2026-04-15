@@ -20,6 +20,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
 import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import EventRegistration from './pages/EventRegistration';
+import AdminForms from './pages/AdminForms';
 import { getUser } from './utils/auth';
 
 const AuthRoute = ({ children }) => {
@@ -80,6 +82,20 @@ const AnimatedRoutes = () => {
               <Badges />
             </RoleRoute>
           } />
+          {/* Event Registration — Student */}
+          <Route path="/events" element={
+            <RoleRoute allowed={['student']}>
+              <EventRegistration />
+            </RoleRoute>
+          } />
+
+          {/* Admin Forms Management */}
+          <Route path="/admin-forms" element={
+            <RoleRoute allowed={['admin']}>
+              <AdminForms />
+            </RoleRoute>
+          } />
+
           <Route path="/settings" element={<Settings />} />
         </Route>
         

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Home, Trophy, Upload, LogOut, Settings, Bell, Search, Menu, X, Star } from 'lucide-react';
+import { Home, Trophy, Upload, LogOut, Settings, Bell, Search, Menu, X, Star, ClipboardList } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const DashboardLayout = () => {
@@ -22,12 +22,14 @@ const DashboardLayout = () => {
     navItems.push({ name: 'Settings', path: '/settings', icon: <Settings size={22} /> });
   } else if (user?.role === 'admin') {
     navItems.push({ name: 'Dashboard', path: '/admin-dashboard', icon: <Home size={22} /> });
+    navItems.push({ name: 'Events', path: '/admin-forms', icon: <ClipboardList size={22} /> });
     navItems.push({ name: 'Leaderboard', path: '/leaderboard', icon: <Trophy size={22} /> });
     navItems.push({ name: 'Notifications', path: '/notifications', icon: <Bell size={22} /> });
     navItems.push({ name: 'Settings', path: '/settings', icon: <Settings size={22} /> });
   } else {
     // Student
     navItems.push({ name: 'Dashboard', path: '/dashboard', icon: <Home size={22} /> });
+    navItems.push({ name: 'Registrations', path: '/events', icon: <ClipboardList size={22} /> });
     navItems.push({ name: 'Leaderboard', path: '/leaderboard', icon: <Trophy size={22} /> });
     navItems.push({ name: 'Notifications', path: '/notifications', icon: <Bell size={22} /> });
     navItems.push({ name: 'Badges', path: '/badges', icon: <Star size={22} /> });

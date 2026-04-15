@@ -28,3 +28,78 @@ CREATE TABLE IF NOT EXISTS certificates (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
 );
+
+-- ─── Event Registration System ────────────────────────────────────────────────
+
+-- Forms Table: Stores each registration form created by a club admin
+CREATE TABLE IF NOT EXISTS forms (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  club_id INT,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  event_date DATE,
+  venue VARCHAR(255),
+  type ENUM('solo','team') DEFAULT 'solo',
+  team_size INT DEFAULT 1,
+  start_date DATETIME,
+  end_date DATETIME,
+  status ENUM('active','closed') DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Form Fields Table: Custom fields defined by the admin per form
+CREATE TABLE IF NOT EXISTS form_fields (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  form_id INT NOT NULL,
+  field_name VARCHAR(255) NOT NULL,
+  field_type ENUM('text','number','email','select','file') DEFAULT 'text',
+  options TEXT,                                -- Comma-separated values for 'select' type
+  required BOOLEAN DEFAULT FALSE,
+  apply_to ENUM('leader','all') DEFAULT 'all', -- 'leader' = only team captain fills this
+  field_order INT DEFAULT 0,
+  is_default BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (form_id) REFERENCES forms(id) ON DELETE CASCADE
+);
+
+-- Template Tables
+CREATE TABLE IF NOT EXISTS form_templates (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255),
+  description TEXT,
+  type ENUM('solo','team'),
+  team_size INT,
+  created_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS template_fields (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  template_id INT,
+  field_name VARCHAR(255),
+  field_type ENUM('text','number','email','select','file'),
+  required BOOLEAN,
+  apply_to ENUM('leader','all'),
+  field_order INT,
+  FOREIGN KEY (template_id) REFERENCES form_templates(id) ON DELETE CASCADE
+);
+
+-- Submissions Table: One row per student (or team) registration
+CREATE TABLE IF NOT EXISTS submissions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  form_id INT NOT NULL,
+  user_id INT NOT NULL,                        -- The student (team leader for team events)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (form_id) REFERENCES forms(id) ON DELETE CASCADE
+);
+
+-- Submission Data Table: Stores the actual field values per submission
+CREATE TABLE IF NOT EXISTS submission_data (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  submission_id INT NOT NULL,
+  field_id INT NOT NULL,
+  value TEXT,
+  member_index INT DEFAULT 1,                  -- 1 = leader, 2+ = other team members
+  FOREIGN KEY (submission_id) REFERENCES submissions(id) ON DELETE CASCADE,
+  FOREIGN KEY (field_id) REFERENCES form_fields(id) ON DELETE CASCADE
+);

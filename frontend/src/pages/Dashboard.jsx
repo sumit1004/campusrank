@@ -3,7 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-import { Award, UploadCloud, ShieldAlert, FileText, Trophy } from 'lucide-react';
+import { Award, UploadCloud, ShieldAlert, FileText, Trophy, ClipboardList, ChevronRight } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
@@ -58,12 +58,30 @@ const Dashboard = () => {
           
           <div className="shrink-0">
             <Link to="/leaderboard" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-5 py-2.5 text-xs font-black text-white shadow-xl shadow-indigo-500/10 transition-all border border-indigo-400/20">
-              EXPLORE LEADERBOARD <Trophy size={14} className="text-yellow-400" />
+              LEADERBOARD <Trophy size={14} className="text-yellow-400" />
             </Link>
           </div>
         </div>
       </div>
 
+      {/* Events Quick-Access Banner */}
+      <div className="bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 border border-violet-500/20 p-5 rounded-2xl flex items-center justify-between gap-4 shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center shrink-0">
+            <ClipboardList size={20} className="text-violet-400" />
+          </div>
+          <div>
+            <p className="text-sm font-black text-white">Event Registrations</p>
+            <p className="text-xs text-gray-400 mt-0.5">Browse open events and register for upcoming competitions.</p>
+          </div>
+        </div>
+        <Link
+          to="/events"
+          className="shrink-0 flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white text-xs font-black px-4 py-2 rounded-xl transition-all shadow-md shadow-violet-500/20"
+        >
+          Browse Events <ChevronRight size={13} />
+        </Link>
+      </div>
 
       {/* Metrics Row - Smaller Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -74,6 +74,12 @@ app.use('/api/leaderboard', leaderboardRoutes);
 // --- Notification Routes ---
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 
+// --- Event Registration Form Routes ---
+app.use('/api/forms', require('./routes/formRoutes'));
+
+// --- Form Template Routes ---
+app.use('/api/templates', require('./routes/templateRoutes'));
+
 // --- Protected Routes ---
 // This test route requires a valid token attached to the "Authorization" header
 app.get('/api/protected', protect, (req, res) => {
