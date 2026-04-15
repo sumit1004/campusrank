@@ -31,6 +31,8 @@ const CAMPUS_IMG = `${BASE_URL}college-image.png`;
 const CAMPUS_IMG_FALLBACK = `${BASE_URL}college-image.png`;
 const LOGO_IMG = `${BASE_URL}logos.png`;
 const LOGO_IMG_FALLBACK = `${BASE_URL}logos.png`;
+const SUMIT_IMG = `${BASE_URL}myimg.jpg`;
+const SUMIT_IMG_FALLBACK = `${BASE_URL}myimg.jpg`;
 
 const Section = ({ id, children, className = '' }) => (
   <section id={id} className={`relative w-full px-5 sm:px-6 ${className}`}>
@@ -67,14 +69,21 @@ const Landing = () => {
   const [logoSrc, setLogoSrc] = useState(LOGO_IMG);
   const [points, setPoints] = useState(0);
   const [clubs, setClubs] = useState([
-    'Coding Club',
-    'Robotics Society',
-    'Debate Team',
-    'Entrepreneurship Cell',
-    'Music Club',
-    'Drama Society',
-    'Sports Committee',
-    'Art Club',
+    'Infnity Coders',
+    'Infinity E-sports',
+    'Rangmanch',
+    'Rangvijay',
+    'Carpedium',
+    'Rag',
+    'RUBI',
+    'Radiction',
+    'Toast Masters',
+    'Radiance',
+    'RISE',
+    'NSS',
+    'Beacon',
+    'COPE',
+    'Raise'
   ]);
   const [top3, setTop3] = useState([
     { name: 'Sumit', club: 'Infinity eSports', points: 1280 },
@@ -202,7 +211,7 @@ const Landing = () => {
 
         {/* NAVBAR */}
         <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0B0F19]/45 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-2 py-1 sm:px-6">
             <div className="flex items-center gap-3">
               <div className="relative flex h-20 w-20 items-center justify-center overflow-hidden">
                 <img
@@ -447,16 +456,40 @@ const Landing = () => {
                         #02
                       </motion.div>
                     </div>
-                    <div className="mt-4 grid grid-cols-3 gap-2">
-                      {[72, 84, 96].map((v, i) => (
+                    <div className="mt-6 flex items-end justify-center gap-3">
+                      {[
+                        { name: 'Sumit', rank: 2, h: 'h-16', img: `${SUMIT_IMG}` },
+                        { name: 'Sumit', rank: 1, h: 'h-20', img: `${SUMIT_IMG}` },
+                        { name: 'Sumit', rank: 3, h: 'h-14', img: `${SUMIT_IMG}` },
+                      ].map((u, i) => (
                         <motion.div
-                          key={v}
-                          initial={prefersReducedMotion ? undefined : { scaleY: 0.6, opacity: 0.6 }}
-                          animate={prefersReducedMotion ? undefined : { scaleY: 1, opacity: 1 }}
-                          transition={prefersReducedMotion ? undefined : { delay: 0.5 + i * 0.08, duration: 0.4 }}
-                          className="h-14 origin-bottom rounded-2xl bg-gradient-to-b from-indigo-500/30 to-fuchsia-500/10"
-                          style={{ height: `${v}px` }}
-                        />
+                          key={u.name}
+                          initial={prefersReducedMotion ? undefined : { y: 15, opacity: 0 }}
+                          animate={prefersReducedMotion ? undefined : { y: 0, opacity: 1 }}
+                          transition={prefersReducedMotion ? undefined : { delay: 0.6 + i * 0.1, duration: 0.5 }}
+                          whileHover={{ scale: 1.05 }}
+                          className={`relative flex flex-col items-center gap-2 ${u.h} w-16 group transition-all`}
+                        >
+                          <div className="relative w-full h-full">
+                            <img
+                              src={u.img}
+                              alt={u.name}
+                              className="h-full w-full object-cover rounded-xl border border-white/20 shadow-xl"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent rounded-xl" />
+                            {u.rank === 1 && (
+                              <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
+                                <Crown size={14} fill="currentColor" />
+                              </div>
+                            )}
+                            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-1.5 py-0.5 text-[7px] font-black text-white shadow-lg backdrop-blur-md border border-white/20">
+                              #{u.rank}
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-[10px] font-black leading-none">{u.name}</div>
+                          </div>
+                        </motion.div>
                       ))}
                     </div>
                   </div>
@@ -722,50 +755,89 @@ const Landing = () => {
       </Section>
 
       {/* CLUB SYSTEM */}
-      <Section id="clubs" className="py-16 sm:py-20">
-        <div className="flex items-end justify-between gap-6">
-          <div>
-            <div className={`text-sm font-extrabold tracking-wide ${palette.muted}`}>Club system</div>
-            <div className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#6D28D9] via-[#4F46E5] to-[#0EA5E9] dark:from-indigo-400 dark:via-fuchsia-400 dark:to-cyan-300">
-                Every club, one scoreboard
-              </span>
+      <Section id="clubs" className="h-screen relative flex items-center justify-center overflow-hidden bg-[#0B0F19] py-0">
+
+        {/* MASSIVE UNCONSTRAINED GLOW - Positioned at the very back */}
+        {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] bg-[#5850EC]/20 blur-[200px] pointer-events-none rounded-full z-0" /> */}
+
+        {/* CONTENT OVERLAY */}
+        <div className="relative z-30 text-center select-none pointer-events-none">
+          <div className="inline-block mb-4 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.3em] text-[#5850EC] shadow-2xl">
+            The Network
+          </div>
+          <h2 className="text-6xl sm:text-9xl font-black tracking-tighter text-white blur-[1px]">
+            <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/5 opacity-70 ">
+              Active Clubs
+            </span>
+          </h2>
+          <p className="mt-4 text-[10px] sm:text-sm font-bold text-white/30 tracking-[0.4em] uppercase">
+            Join the ecosystem
+          </p>
+        </div>
+
+        {/* STRIPS LAYER - Positioned behind/around the text */}
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-auto">
+          <style>{`
+            @keyframes horizontalMarquee {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .club-strip-container {
+              position: absolute;
+              width: 150vw;
+              min-width: 150vw;
+              overflow: hidden;
+              left: 50%;
+              transform: translateX(-50%);
+            }
+            .club-strip-content {
+              display: flex;
+              white-space: nowrap;
+              width: max-content;
+            }
+          `}</style>
+
+          {/* STRIP 1 - Slanted Downwards (Decreased height) */}
+          <div className="club-strip-container z-10 translate-y-[-20px] sm:translate-y-0" style={{ transform: 'translateX(-50%) rotate(var(--tilt-angle, 12deg))' }}>
+            <div className="bg-[#5850EC] py-2.5 sm:py-3.5 shadow-[0_10px_60px_rgba(88,80,236,0.4)]">
+              <div className="club-strip-content animate-[horizontalMarquee_45s_linear_infinite]">
+                {[...clubs, ...clubs, ...clubs, ...clubs].map((c, idx) => (
+                  <div key={`strip1-${idx}`} className="flex items-center">
+                    <span className="text-white text-base sm:text-xl font-bold uppercase tracking-wider px-8 sm:px-12 transition-all hover:scale-110">
+                      {c}
+                    </span>
+                    <span className="text-white/40 text-lg sm:text-2xl font-light">|</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="hidden items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-extrabold text-white/70 shadow-sm md:flex">
-            <Users size={16} />
-            <span>{clubs.length} clubs</span>
+
+          {/* STRIP 2 - Slanted Upwards (Decreased height) */}
+          <div className="club-strip-container z-20 translate-y-[20px] sm:translate-y-0" style={{ transform: 'translateX(-50%) rotate(var(--tilt-angle-neg, -12deg))' }}>
+            <div className="bg-[#5850EC] py-2.5 sm:py-3.5 shadow-[0_10px_60px_rgba(88,80,236,0.4)] border-y border-white/20">
+              <div className="club-strip-content animate-[horizontalMarquee_55s_linear_infinite]" style={{ direction: 'rtl' }}>
+                {[...clubs, ...clubs, ...clubs, ...clubs].map((c, idx) => (
+                  <div key={`strip2-${idx}`} className="flex items-center">
+                    <span className="text-white text-base sm:text-xl font-bold uppercase tracking-wider px-8 sm:px-12 transition-all hover:scale-110">
+                      {c}
+                    </span>
+                    <span className="text-white/40 text-lg sm:text-2xl font-light">|</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-[0_12px_45px_rgba(0,0,0,0.55)]">
-          <div className="relative">
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent dark:from-[#0B0F19]" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent dark:from-[#0B0F19]" />
-            <style>{`
-              @keyframes clubsMarquee {
-                0% { transform: translateX(0%); }
-                100% { transform: translateX(-50%); }
-              }
-            `}</style>
-            <div
-              className={[
-                'flex w-max gap-3 py-6 pl-6',
-                prefersReducedMotion ? '' : 'animate-[clubsMarquee_22s_linear_infinite]',
-              ].join(' ')}
-            >
-              {[...clubs, ...clubs].map((c, idx) => (
-                <div
-                  key={`${c}-${idx}`}
-                  className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-extrabold text-white/85 shadow-sm"
-                >
-                  <div className="h-2 w-2 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400" />
-                  <span className="whitespace-nowrap">{c}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* CSS Variables for Responsive Rotation */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+          :root { --tilt-angle: 12deg; --tilt-angle-neg: -12deg; }
+          @media (min-width: 640px) {
+            :root { --tilt-angle: 6deg; --tilt-angle-neg: -6deg; }
+          }
+        `}} />
       </Section>
 
       {/* LEADERBOARD PREVIEW */}
@@ -919,7 +991,7 @@ const Landing = () => {
       </Section>
 
       {/* FOOTER */}
-      <footer className={`border-t ${palette.border} bg-white/5 py-10 backdrop-blur-xl`}>
+      <footer className={`border-t ${palette.border} bg-white/5 py-5 backdrop-blur-xl`}>
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-400 text-white shadow-[0_18px_50px_rgba(99,102,241,0.25)]">
