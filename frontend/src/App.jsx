@@ -22,6 +22,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import EventRegistration from './pages/EventRegistration';
 import AdminForms from './pages/AdminForms';
+import AdminECertificates from './pages/AdminECertificates';
 import { getUser } from './utils/auth';
 
 const AuthRoute = ({ children }) => {
@@ -93,6 +94,12 @@ const AnimatedRoutes = () => {
           <Route path="/admin-forms" element={
             <RoleRoute allowed={['admin']}>
               <AdminForms />
+            </RoleRoute>
+          } />
+
+          <Route path="/admin-certificates" element={
+            <RoleRoute allowed={['admin']}>
+              <AdminECertificates />
             </RoleRoute>
           } />
 

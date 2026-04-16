@@ -30,6 +30,35 @@ async function migrate() {
       console.log('club_id already exists in users table.');
     }
 
+    // 3. Create e_certificates table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS e_certificates (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        club_id INT,
+        event_name VARCHAR(255),
+        event_date DATE,
+        position ENUM('winner','runnerup1','runnerup2','participant'),
+        certificate_url TEXT,
+        points INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+    `);
+    console.log('e_certificates table checked/created.');
+
+    // 4. Create certificate_batches table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS certificate_batches (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        club_id INT,
+        position ENUM('winner','runnerup1','runnerup2','participant'),
+        event_name VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('certificate_batches table checked/created.');
+
     await connection.end();
     console.log('Migrations complete.');
   } catch (error) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Medal, Crown, Star, Search, User, ChevronDown, Calendar, Globe, Users } from 'lucide-react';
+import { Trophy, Medal, Crown, Star, Search, User, ChevronDown, Calendar, Globe, Users, Award } from 'lucide-react';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -12,7 +12,7 @@ const pageVariants = {
 const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overall'); // 'overall' or 'club'
+  const [activeTab, setActiveTab] = useState('overall'); // 'overall', 'club', or 'ecert'
   const [filter, setFilter] = useState('monthly'); // 'monthly' or 'yearly'
   const [clubs, setClubs] = useState([]);
   const [selectedClubId, setSelectedClubId] = useState('');
@@ -33,9 +33,20 @@ const Leaderboard = () => {
   const fetchLeaderboard = async () => {
     try {
       setLoading(true);
-      let url = `/leaderboard?type=${activeTab}&filter=${filter}`;
-      if (activeTab === 'club' && selectedClubId) {
-        url += `&club_id=${selectedClubId}`;
+      let url = '';
+
+      if (activeTab === 'ecert') {
+        url = `/certificates/leaderboard?filter=${filter}`;
+        if (selectedClubId) {
+          url += `&type=club&club_id=${selectedClubId}`;
+        } else {
+          url += '&type=overall';
+        }
+      } else {
+        url = `/leaderboard?type=${activeTab}&filter=${filter}`;
+        if (activeTab === 'club' && selectedClubId) {
+          url += `&club_id=${selectedClubId}`;
+        }
       }
 
       const res = await api.get(url);
@@ -119,8 +130,14 @@ const Leaderboard = () => {
           >
             <Users size={16} /> CLUB-WISE
           </button>
+          <button
+            onClick={() => setActiveTab('ecert')}
+            className={`flex items-center gap-2 px-6 py-3 font-bold text-sm tracking-wide transition-all border-b-2 ${activeTab === 'ecert' ? 'text-indigo-400 border-indigo-400' : 'text-gray-500 border-transparent hover:text-gray-300'}`}
+          >
+            <Award size={16} /> E-CERTIFICATES
+          </button>
 
-          {activeTab === 'club' && (
+          {(activeTab === 'club' || activeTab === 'ecert') && (
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -132,7 +149,7 @@ const Leaderboard = () => {
                   onChange={(e) => setSelectedClubId(e.target.value)}
                   className="w-full bg-surfaceLight/50 border border-white/10 rounded-xl py-2.5 pl-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-primary/50 transition-all cursor-pointer"
                 >
-                  <option value="" disabled>Select a Club</option>
+                  <option value="">{activeTab === 'ecert' ? 'All Clubs (Overall)' : 'Select a Club'}</option>
                   {clubs.map(club => (
                     <option key={club.id} value={club.id}>{club.name}</option>
                   ))}

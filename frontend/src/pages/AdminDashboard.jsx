@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { getUser } from '../utils/auth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { Pickaxe, CheckCircle, XCircle } from 'lucide-react';
+import { Pickaxe, CheckCircle, XCircle, Award, PlusCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const user = getUser();
@@ -50,8 +51,20 @@ const AdminDashboard = () => {
     <div className="py-4 animate-fade-in space-y-6 max-w-7xl mx-auto px-4 sm:px-0">
       
       {/* Overview Stats - Compact */}
-      <div className="space-y-4">
-        <h1 className="text-2xl font-black text-white tracking-tight">Club Management</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-white tracking-tight">Club Management</h1>
+          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">Review student submissions and award points</p>
+        </div>
+        <div className="flex gap-3">
+          <Link to="/admin-certificates" className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20 uppercase tracking-widest">
+            <Award size={16} /> E-Certificate System
+          </Link>
+          <Link to="/admin-forms" className="bg-[#111827] border border-white/5 hover:bg-white/[0.05] text-gray-300 px-5 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all uppercase tracking-widest">
+            <PlusCircle size={16} /> Manage Forms
+          </Link>
+        </div>
+      </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div className="bg-[#111827]/80 backdrop-blur-md border border-white/5 p-5 rounded-2xl flex flex-col justify-center shadow-lg">
             <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Entries</p>
@@ -66,7 +79,6 @@ const AdminDashboard = () => {
             <h2 className="text-3xl text-green-100 font-black">{stats.approved}</h2>
           </div>
         </div>
-      </div>
 
       {/* Pending Reviews Table - Refined */}
       <div className="bg-[#111827] border border-white/5 p-5 rounded-2xl shadow-xl overflow-hidden">

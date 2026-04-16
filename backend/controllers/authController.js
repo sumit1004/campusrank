@@ -89,7 +89,8 @@ const login = async (req, res, next) => {
     // 4. Generate JWT payload
     const payload = {
       id: user.id,
-      role: user.role
+      role: user.role,
+      club_id: user.club_id
     };
 
     // 5. Create JWT Token
