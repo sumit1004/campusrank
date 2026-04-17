@@ -17,6 +17,8 @@ import {
   Trophy,
   Upload,
   Users,
+  Diamond,
+  Gem,
 } from 'lucide-react';
 
 import api from '../services/api';
@@ -57,6 +59,251 @@ const GlowCard = ({ children, className = '' }) => (
     <div className="relative">{children}</div>
   </div>
 );
+
+const BadgeCard = ({ name, tier, icon: Icon, progress, status, color }) => {
+  const isLocked = status === 'Locked';
+  return (
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -10 }}
+      className="relative group"
+    >
+      <div
+        className="relative w-full aspect-[4/5] p-[1px]"
+        style={{
+          clipPath: 'polygon(0 0, 85% 0, 100% 12%, 100% 100%, 15% 100%, 0 88%)',
+          background: `linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))`
+        }}
+      >
+        <div
+          className="w-full h-full bg-[#111319] flex flex-col items-center justify-between py-10 px-6"
+          style={{
+            clipPath: 'polygon(0 0, 85% 0, 100% 12%, 100% 100%, 15% 100%, 0 88%)',
+          }}
+        >
+          {/* Icon Box */}
+          <div className="relative mb-2">
+            <div className={`w-20 h-20 rounded-2xl border-2 flex items-center justify-center bg-white/[0.03] ${color.border} shadow-2xl`}>
+              <Icon size={32} className={color.text} strokeWidth={1.5} />
+            </div>
+            {/* Inner Glow */}
+            <div className={`absolute inset-0 blur-2xl opacity-20 ${color.bg} rounded-full`} />
+          </div>
+
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-white tracking-tight">{name}</h3>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold mt-1">{tier}</p>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full px-2">
+            <div className="h-1.5 w-full bg-white/[0.05] rounded-full overflow-hidden relative">
+              <motion.div
+                initial={{ width: 0 }}
+                whileInView={{ width: `${progress}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className={`h-full ${color.progressBg} relative rounded-full`}
+              >
+                {progress > 0 && (
+                  <div className={`absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 blur-md ${color.bg} rounded-full`} />
+                )}
+              </motion.div>
+            </div>
+          </div>
+
+          <button className={`w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border ${isLocked
+            ? 'bg-white/[0.02] border-white/10 text-white/20'
+            : `bg-white/[0.03] ${color.border} ${color.text} shadow-[0_0_20px_rgba(0,0,0,0.3)] hover:scale-[1.02]`
+            }`}>
+            {status}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const ProcessStep = ({ number, title, desc, icon: Icon, color, isFirst, isLast }) => {
+  return (
+    <motion.div
+      variants={fadeUp}
+      className="relative w-full group"
+    >
+      {/* Desktop Chevron Shape */}
+      <div
+        className="hidden lg:block relative p-[1px]"
+        style={{
+          clipPath: isFirst
+            ? 'polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%)'
+            : isLast
+              ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 15% 50%)'
+              : 'polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%, 15% 50%)',
+          background: `linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.02))`
+        }}
+      >
+        <div
+          className={`relative h-[350px] bg-[#0F1117] flex flex-col items-center justify-between py-12 ${isFirst ? 'px-10' : 'pl-20 pr-12'}`}
+          style={{
+            clipPath: isFirst
+              ? 'polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%)'
+              : isLast
+                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 15% 50%)'
+                : 'polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%, 15% 50%)',
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br opacity-5 group-hover:opacity-10 transition-opacity duration-500" style={{ background: color.gradient }} />
+
+          <div className="flex flex-col items-center gap-4 relative z-10">
+            <div className={`w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 group-hover:scale-110 group-hover:text-white transition-all duration-500`}>
+              <Icon size={24} />
+            </div>
+            <span className="text-4xl font-black text-white/10 group-hover:text-white/20 transition-colors duration-500 leading-none">{number}</span>
+          </div>
+
+          <div className="relative z-10 text-center">
+            <h3 className="text-xl font-black text-white mb-3 tracking-wider uppercase leading-tight">{title}</h3>
+            <p className="text-sm text-white/40 font-medium leading-relaxed max-w-[220px] mx-auto">
+              {desc}
+            </p>
+          </div>
+
+          <div className="w-24 h-1 rounded-full relative overflow-hidden bg-white/5">
+            <motion.div
+              initial={{ x: '-100%' }}
+              whileInView={{ x: '0%' }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className={`absolute inset-0 ${color.solid}`}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile/Tablet Card Shape */}
+      <div className="lg:hidden relative p-[1px] rounded-[2rem] overflow-hidden bg-gradient-to-br from-white/10 to-transparent">
+        <div className="relative bg-[#0F1117] p-8 rounded-[2rem] overflow-hidden">
+          <div className={`absolute top-0 right-0 w-32 h-32 blur-[80px] opacity-20 ${color.solid} -translate-y-1/2 translate-x-1/2`} />
+
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-4">
+              <span className="text-4xl font-black text-white/20">{number}</span>
+              <h3 className="text-lg font-black text-white tracking-widest uppercase">{title}</h3>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60">
+              <Icon size={18} />
+            </div>
+          </div>
+
+          <p className="text-sm text-white/40 font-medium leading-relaxed mb-6">
+            {desc}
+          </p>
+
+          <div className="h-1 w-full rounded-full bg-white/5 relative overflow-hidden">
+            <div className={`absolute left-0 top-0 h-full w-1/3 ${color.solid}`} />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const LeaderboardCard = ({ data, rank, isMain }) => {
+  if (!data) return null;
+
+  const config = {
+    1: {
+      bg: 'bg-amber-500',
+      glow: 'shadow-[0_0_50px_rgba(251,191,36,0.2)]',
+      border: 'border-amber-500/30',
+      badge: 'bg-amber-400 text-black',
+      imgBg: 'bg-gradient-to-t from-amber-600 to-amber-400',
+      rankText: 'RANK #01',
+      showStats: true,
+      clubColor: 'text-amber-400',
+    },
+    2: {
+      bg: 'bg-slate-400',
+      glow: 'shadow-none',
+      border: 'border-white/10',
+      badge: 'bg-slate-600 text-white',
+      imgBg: 'bg-slate-800',
+      rankText: '2',
+      showStats: false,
+      clubColor: 'text-white/40',
+    },
+    3: {
+      bg: 'bg-rose-500',
+      glow: 'shadow-none',
+      border: 'border-white/10',
+      badge: 'bg-rose-600 text-white',
+      imgBg: 'bg-gradient-to-t from-rose-700 to-rose-500',
+      rankText: '3',
+      showStats: false,
+      clubColor: 'text-white/40',
+    },
+  }[rank] || {};
+
+  return (
+    <motion.div
+      variants={fadeUp}
+      className={`relative ${isMain ? 'w-full lg:w-[42%] order-1 lg:order-2' : 'w-full lg:w-[29%] order-2 lg:order-1'} group`}
+    >
+      <div
+        className={`h-full rounded-[2.5rem] bg-[#111319] border ${isMain ? config.border : 'border-white/5'} p-8 flex flex-col items-center transition-all duration-500 group-hover:bg-[#151821] ${isMain ? config.glow : ''}`}
+      >
+        {isMain && (
+          <div className="absolute top-8 left-8 text-amber-500">
+            <Crown size={32} fill="currentColor" />
+          </div>
+        )}
+
+        {/* Avatar Section */}
+        <div className="relative mb-8">
+          <div className={`relative ${isMain ? 'w-48 h-48' : 'w-32 h-32'} rounded-3xl overflow-hidden p-[2px] ${isMain ? 'bg-amber-500/50' : 'bg-white/10'}`}>
+            <div className={`w-full h-full rounded-3xl overflow-hidden ${config.imgBg} relative`}>
+              <img
+                src={SUMIT_IMG}
+                alt={data.name}
+                className="w-full h-full object-cover mix-blend-luminosity hover:mix-blend-normal transition-all duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            </div>
+          </div>
+
+          {/* Rank Badge */}
+          {isMain ? (
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 rounded-xl bg-amber-400 text-black font-black text-xs shadow-xl min-w-[100px] text-center">
+              {config.rankText}
+            </div>
+          ) : (
+            <div className={`absolute -right-2 bottom-6 w-10 h-10 rounded-xl ${config.badge} flex items-center justify-center font-black text-sm shadow-xl`}>
+              {config.rankText}
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="text-center mb-8">
+          <h3 className={`${isMain ? 'text-4xl' : 'text-2xl'} font-black text-white mb-2`}>{data.name}</h3>
+          <p className={`text-xs font-black uppercase tracking-[0.2em] ${config.clubColor}`}>{data.club}</p>
+        </div>
+
+        {/* Stats */}
+        <div className={`w-full grid ${isMain ? 'grid-cols-2' : 'grid-cols-1'} gap-4 pt-8 border-t border-white/5`}>
+          <div className="text-center">
+            <p className="text-[10px] uppercase font-black text-white/30 tracking-widest mb-2">Total Points</p>
+            <p className={`${isMain ? 'text-3xl' : 'text-2xl'} font-black text-white`}>{data.points ? data.points.toLocaleString() : 0}</p>
+          </div>
+          {isMain && (
+            <div className="text-center border-l border-white/5">
+              <p className="text-[10px] uppercase font-black text-white/30 tracking-widest mb-2">Win Rate</p>
+              <p className="text-3xl font-black text-white">94%</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -540,56 +787,68 @@ const Landing = () => {
       </div>
 
       {/* HOW IT WORKS */}
-      <Section id="how" className="py-16 sm:py-20">
+      <Section id="how" className="py-24 sm:py-32 overflow-visible">
         <motion.div
-          initial={prefersReducedMotion ? undefined : { opacity: 0, y: 18 }}
-          whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.55, ease: 'easeOut' }}
-          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-16 text-center lg:text-left"
         >
-          <div className="flex items-end justify-between gap-6">
-            <div>
-              <div className={`text-sm font-extrabold tracking-wide ${palette.muted}`}>How it works</div>
-              <div className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">Three steps. All momentum.</div>
-            </div>
-          </div>
+          <div className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] mb-4">The Workflow</div>
+          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white mb-6">
+            Three steps. All momentum.
+          </h2>
+          <p className="text-lg text-white/40 font-medium max-w-2xl mx-auto lg:mx-0">
+            A frictionless ecosystem designed to verify your achievements and boost your campus reputation instantly.
+          </p>
         </motion.div>
 
         <motion.div
-          initial={prefersReducedMotion ? undefined : 'hidden'}
-          whileInView={prefersReducedMotion ? undefined : 'show'}
-          viewport={{ once: true, amount: 0.25 }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.1 }}
           variants={{
             hidden: {},
-            show: { transition: { staggerChildren: 0.12 } },
+            show: { transition: { staggerChildren: 0.2 } },
           }}
-          className="grid grid-cols-1 gap-4 md:grid-cols-3"
+          className="flex flex-col lg:flex-row items-center justify-center lg:gap-[-20px]"
         >
           {[
-            { icon: Upload, title: 'Upload Certificate', tint: 'from-indigo-500/35 to-cyan-400/10' },
-            { icon: ShieldCheck, title: 'Admin Verification', tint: 'from-emerald-500/30 to-cyan-400/10' },
-            { icon: Flame, title: 'Earn Points', tint: 'from-fuchsia-500/30 to-indigo-500/10' },
-          ].map((s) => {
-            const Icon = s.icon;
-            return (
-              <motion.div key={s.title} variants={fadeUp} whileHover={prefersReducedMotion ? undefined : { y: -6 }}>
-                <GlowCard className="p-5">
-                  <div className="relative overflow-hidden rounded-2xl px-6 py-8">
-                    <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${s.tint} opacity-50`} />
-                    <div className="flex items-start justify-between">
-                      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-white shadow-lg backdrop-blur-md border border-white/10">
-                        <Icon size={20} />
-                      </div>
-                      <div className={`text-xs font-black tracking-widest ${palette.muted} opacity-50`}>0{['Upload Certificate', 'Admin Verification', 'Earn Points'].indexOf(s.title) + 1}</div>
-                    </div>
-                    <div className="mt-8 text-2xl font-black tracking-tight">{s.title}</div>
-                    <div className={`mt-2 text-sm font-semibold ${palette.muted}`}>Visual progress, minimal effort.</div>
-                  </div>
-                </GlowCard>
-              </motion.div>
-            );
-          })}
+            {
+              number: '01',
+              title: 'Upload Certificate',
+              desc: 'Visual progress, minimal effort. Our AI instantly parses your document for key metadata and validates authenticity.',
+              icon: Upload,
+              color: {
+                gradient: 'linear-gradient(135deg, #4F46E5, #3B82F6)',
+                solid: 'bg-blue-600'
+              },
+              isFirst: true
+            },
+            {
+              number: '02',
+              title: 'Admin Verification',
+              desc: 'Visual progress, minimal effort. Human-in-the-loop validation ensures 100% data integrity and campus-wide trust.',
+              icon: ShieldCheck,
+              color: {
+                gradient: 'linear-gradient(135deg, #10B981, #34D399)',
+                solid: 'bg-emerald-500'
+              }
+            },
+            {
+              number: '03',
+              title: 'Earn Points',
+              desc: 'Visual progress, minimal effort. Your verified achievements translate directly into global rank and exclusive rewards.',
+              icon: Gem,
+              color: {
+                gradient: 'linear-gradient(135deg, #8B5CF6, #D946EF)',
+                solid: 'bg-purple-600'
+              },
+              isLast: true
+            }
+          ].map((step, idx) => (
+            <ProcessStep key={step.number} {...step} />
+          ))}
         </motion.div>
       </Section>
 
@@ -692,65 +951,140 @@ const Landing = () => {
       </Section>
 
       {/* BADGES */}
-      <Section id="badges" className="py-16 sm:py-20">
-        <motion.div
-          initial={prefersReducedMotion ? undefined : { opacity: 0, y: 18 }}
-          whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.55, ease: 'easeOut' }}
-          className="mb-8"
-        >
-          <div className={`text-sm font-extrabold tracking-wide ${palette.muted}`}>Badges</div>
-          <div className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Unlock status—visually</div>
-        </motion.div>
+      <Section id="badges" className="py-20 sm:py-32">
+        <div className="relative mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-white mb-4">
+              Campus Milestone Badges
+            </h2>
+            <p className="text-lg text-white/40 font-medium max-w-xl">
+              Elevate your campus journey to unlock premium honors and elite performance recognition.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase tracking-widest text-blue-400 self-start md:self-auto"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+            Season 04 Active
+          </motion.div>
+        </div>
 
         <motion.div
-          initial={prefersReducedMotion ? undefined : 'hidden'}
-          whileInView={prefersReducedMotion ? undefined : 'show'}
-          viewport={{ once: true, amount: 0.25 }}
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.15 } },
+          }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {[
-            { name: 'Bronze', color: 'from-[#CD7F32]/30 to-[#0B0F19]', unlocked: true, icon: Award },
-            { name: 'Silver', color: 'from-[#94A3B8]/30 to-[#0B0F19]', unlocked: true, icon: Award },
-            { name: 'Gold', color: 'from-[#F59E0B]/30 to-[#0B0F19]', unlocked: false, icon: Award },
-            { name: 'Elite', color: 'from-[#7C3AED]/30 to-[#0B0F19]', unlocked: false, icon: Crown },
-          ].map((b) => {
-            const Icon = b.icon;
-            return (
-              <motion.div key={b.name} variants={fadeUp} whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}>
-                <GlowCard className="p-5">
-                  <div className="relative overflow-hidden rounded-2xl px-7 py-8">
-                    <div className={`absolute inset-0 -z-10 bg-gradient-to-br ${b.color} opacity-60`} />
-                    <div className="flex items-start justify-between">
-                      <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/20 bg-white/10 text-white shadow-2xl backdrop-blur-sm">
-                        <Icon size={22} />
-                      </div>
-                      {!b.unlocked ? (
-                        <div className="grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-black/20 text-white/30 backdrop-blur-md">
-                          <Lock size={18} />
-                        </div>
-                      ) : (
-                        <motion.div
-                          initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.9 }}
-                          animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
-                          transition={prefersReducedMotion ? undefined : { duration: 0.45, ease: 'easeOut' }}
-                          className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/80 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] backdrop-blur-sm"
-                        >
-                          <CheckCircle2 size={18} />
-                        </motion.div>
-                      )}
-                    </div>
-                    <div className="mt-10 text-xl font-black">{b.name}</div>
-                    <div className={`mt-1 text-sm font-bold ${palette.muted} ${b.unlocked ? 'text-emerald-400/80' : ''}`}>
-                      {b.unlocked ? 'Unlocked' : 'Locked'}
-                    </div>
-                  </div>
-                </GlowCard>
-              </motion.div>
-            );
-          })}
+            {
+              name: 'Bronze',
+              tier: 'Foundation Tier',
+              icon: Award,
+              progress: 100,
+              status: 'Unlocked',
+              color: {
+                text: 'text-orange-400',
+                border: 'border-orange-500/30',
+                bg: 'bg-orange-500',
+                progressBg: 'bg-gradient-to-r from-orange-400 to-amber-600 shadow-[0_0_10px_rgba(249,115,22,0.5)]',
+              }
+            },
+            {
+              name: 'Silver',
+              tier: 'Practitioner Tier',
+              icon: BadgeCheck,
+              progress: 45,
+              status: 'Unlocked',
+              color: {
+                text: 'text-blue-400',
+                border: 'border-blue-500/30',
+                bg: 'bg-blue-500',
+                progressBg: 'bg-gradient-to-r from-blue-400 to-indigo-600 shadow-[0_0_10px_rgba(59,130,246,0.5)]',
+              }
+            },
+            {
+              name: 'Gold',
+              tier: 'Mastery Tier',
+              icon: Trophy,
+              progress: 30,
+              status: 'Locked',
+              color: {
+                text: 'text-amber-400',
+                border: 'border-amber-500/30',
+                bg: 'bg-amber-500',
+                progressBg: 'bg-gradient-to-r from-amber-400 to-orange-600 shadow-[0_0_10px_rgba(245,158,11,0.5)]',
+              }
+            },
+            {
+              name: 'Elite',
+              tier: 'Visionary Tier',
+              icon: Diamond,
+              progress: 0,
+              status: 'Locked',
+              color: {
+                text: 'text-cyan-400',
+                border: 'border-cyan-500/30',
+                bg: 'bg-cyan-500',
+                progressBg: 'bg-white/10',
+              }
+            },
+          ].map((badge) => (
+            <BadgeCard key={badge.name} {...badge} />
+          ))}
+        </motion.div>
+
+        {/* Community Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-20 w-full rounded-[2rem] bg-[#111319] border border-white/5 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group"
+        >
+          {/* Subtle background glow */}
+          <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none group-hover:bg-blue-600/20 transition-colors duration-700" />
+
+          <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
+            <div className="flex -space-x-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-12 h-12 rounded-full border-4 border-[#111319] overflow-hidden bg-white/5">
+                  <img
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 10}`}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+              <div className="w-12 h-12 rounded-full border-4 border-[#111319] bg-[#1a1d26] flex items-center justify-center text-[11px] font-black text-white/50">
+                +12
+              </div>
+            </div>
+            <div className="text-center md:text-left">
+              <p className="text-white/60 text-sm md:text-base font-medium">
+                Join <span className="text-white font-bold">14.2k Students</span> already earning badges this season.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            to="/dashboard"
+            className="w-full md:w-auto px-10 py-4 rounded-2xl bg-[#0052FF] hover:bg-[#1a66ff] text-white font-black text-sm uppercase tracking-widest transition-all shadow-[0_15px_35px_rgba(0,82,255,0.25)] hover:shadow-[0_20px_45px_rgba(0,82,255,0.35)] hover:-translate-y-1 relative z-10 text-center"
+          >
+            View My Achievements
+          </Link>
         </motion.div>
       </Section>
 
@@ -841,67 +1175,37 @@ const Landing = () => {
       </Section>
 
       {/* LEADERBOARD PREVIEW */}
-      <Section id="leaderboard" className="py-16 sm:py-20">
-        <div className="flex items-end justify-between gap-6">
+      <Section id="leaderboard" className="py-24 sm:py-32">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
-            <div className={`text-sm font-extrabold tracking-wide ${palette.muted}`}>Leaderboard</div>
-            <div className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Top 3 preview</div>
+            <div className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] mb-4">Global Standings</div>
+            <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white italic">
+              Top 3 Preview
+            </h2>
           </div>
           <Link
             to="/leaderboard"
-            className="hidden items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-extrabold text-white/80 shadow-sm transition hover:bg-white/10 md:inline-flex"
+            className="flex items-center gap-2 rounded-2xl bg-blue-600 hover:bg-blue-500 px-6 py-3 text-sm font-black text-white transition-all shadow-[0_10px_30px_rgba(37,99,235,0.2)]"
           >
             View full leaderboard
-            <ArrowRight size={16} />
+            <ArrowRight size={18} />
           </Link>
         </div>
 
         <motion.div
-          initial={prefersReducedMotion ? undefined : 'hidden'}
-          whileInView={prefersReducedMotion ? undefined : 'show'}
-          viewport={{ once: true, amount: 0.25 }}
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
-          className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-3"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.15 } },
+          }}
+          className="flex flex-col lg:flex-row items-stretch justify-center gap-6 lg:gap-8"
         >
-          {top3.map((u, i) => {
-            const isOne = i === 0;
-            return (
-              <motion.div key={`${u.name}-${i}`} variants={fadeUp} whileHover={prefersReducedMotion ? undefined : { y: -6, scale: isOne ? 1.02 : 1.01 }}>
-                <GlowCard className={`p-3 ${isOne ? 'ring-2 ring-amber-400/40' : ''}`}>
-                  <div className="relative overflow-hidden rounded-2xl px-6 py-8">
-                    <div
-                      className={`absolute inset-0 -z-10 bg-gradient-to-br ${isOne ? 'from-amber-400/30 via-fuchsia-500/15 to-cyan-400/15' : 'from-indigo-500/20 to-cyan-400/10'
-                        } opacity-60`}
-                    />
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className={`text-xs font-extrabold tracking-widest ${palette.muted} opacity-70 uppercase`}>Rank</div>
-                        <div className="mt-1 text-4xl font-black tracking-tighter">#{String(i + 1).padStart(2, '0')}</div>
-                      </div>
-                      <div
-                        className={`grid h-12 w-12 place-items-center rounded-2xl ${isOne
-                          ? 'bg-gradient-to-r from-amber-400 to-fuchsia-500 text-white shadow-[0_0_35px_rgba(251,191,36,0.3)] ring-1 ring-white/20'
-                          : 'border border-white/10 bg-white/10 text-white backdrop-blur-md'
-                          }`}
-                      >
-                        {isOne ? <Crown size={20} /> : <Trophy size={20} />}
-                      </div>
-                    </div>
-                    <div className="mt-8">
-                      <div className="text-2xl font-black tracking-tight">{u.name}</div>
-                      <div className={`mt-1 text-sm font-bold ${palette.muted} opacity-80 uppercase tracking-wider`}>{u.club}</div>
-                    </div>
-                    <div className={`mt-8 flex items-center justify-between rounded-2xl border ${isOne ? 'border-amber-400/20 bg-amber-400/5' : 'border-white/10 bg-white/5'} px-5 py-4 backdrop-blur-sm`}>
-                      <div className={`text-xs font-black uppercase tracking-widest ${palette.muted} opacity-60`}>Total Points</div>
-                      <div className={`text-lg font-black ${isOne ? 'text-amber-400' : 'text-white'}`}>
-                        {Number.isFinite(u.points) ? u.points.toLocaleString() : 0}
-                      </div>
-                    </div>
-                  </div>
-                </GlowCard>
-              </motion.div>
-            );
-          })}
+          {/* Order: Rank 2, Rank 1, Rank 3 */}
+          <LeaderboardCard data={top3[1]} rank={2} />
+          <LeaderboardCard data={top3[0]} rank={1} isMain={true} />
+          <LeaderboardCard data={top3[2]} rank={3} />
         </motion.div>
       </Section>
 

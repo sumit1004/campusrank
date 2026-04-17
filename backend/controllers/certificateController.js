@@ -236,58 +236,7 @@ const bulkGenerateCertificates = async (req, res, next) => {
   }
 };
 
-/**
- * @desc    Get E-Certificate Leaderboard (Advanced)
- * @route   GET /api/certificates/leaderboard
- * @query   type=overall|club, club_id=optional, filter=monthly|yearly
- */
-const getCertificateLeaderboard = async (req, res, next) => {
-  try {
-    const { type, club_id, filter } = req.query;
-    
-    let query = `
-      SELECT users.id, users.name, users.erp, SUM(event_participation.points) as total_points
-      FROM event_participation
-      JOIN users ON users.id = event_participation.user_id
-    `;
-    
-    const queryParams = [];
-    const whereClauses = [];
 
-    if (type === 'club' && (club_id || req.user?.club_id)) {
-      const cid = club_id || req.user.club_id;
-      whereClauses.push('event_participation.club_id = ?');
-      queryParams.push(cid);
-    }
-
-    if (filter === 'monthly') {
-      whereClauses.push('event_participation.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
-    } else if (filter === 'yearly') {
-      whereClauses.push('event_participation.created_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR)');
-    }
-
-    if (whereClauses.length > 0) {
-      query += ' WHERE ' + whereClauses.join(' AND ');
-    }
-
-    query += `
-      GROUP BY users.id
-      ORDER BY total_points DESC
-    `;
-
-    const [leaderboard] = await db.query(query, queryParams);
-    
-    // Add rank
-    const rankedData = leaderboard.map((item, index) => ({
-      ...item,
-      rank: index + 1
-    }));
-
-    res.status(200).json({ success: true, data: rankedData });
-  } catch (error) {
-    next(error);
-  }
-};
 
 /**
  * @desc    Get current user's E-Certificates
@@ -333,7 +282,6 @@ module.exports = {
   uploadCertificate,
   getStudentCertificates,
   bulkGenerateCertificates,
-  getCertificateLeaderboard,
   getMyECertificates,
   getMyParticipations
 };

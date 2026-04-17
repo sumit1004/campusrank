@@ -4,7 +4,6 @@ const {
   uploadCertificate, 
   getStudentCertificates,
   bulkGenerateCertificates,
-  getCertificateLeaderboard,
   getMyECertificates,
   getMyParticipations
 } = require('../controllers/certificateController');
@@ -24,8 +23,7 @@ router.get('/my-certificates', protect, getStudentCertificates);
 // POST /api/certificates/bulk-generate (Admin only)
 router.post('/bulk-generate', protect, authorize('admin', 'superadmin'), memoryUpload.single('file'), bulkGenerateCertificates);
 
-// GET /api/certificates/leaderboard (Public)
-router.get('/leaderboard', getCertificateLeaderboard);
+
 
 // GET /api/certificates/my-e-certificates (Student)
 router.get('/my-e-certificates', protect, getMyECertificates);

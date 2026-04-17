@@ -10,14 +10,10 @@ const getLeaderboard = async (req, res, next) => {
     const { type, club_id, filter } = req.query;
     
     let filterCondition = '';
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1;
-    const currentYear = now.getFullYear();
-
     if (filter === 'monthly') {
-      filterCondition = ` AND MONTH(event_participation.created_at) = ${currentMonth} AND YEAR(event_participation.created_at) = ${currentYear}`;
+      filterCondition = ` AND MONTH(event_participation.created_at) = MONTH(CURRENT_DATE()) AND YEAR(event_participation.created_at) = YEAR(CURRENT_DATE())`;
     } else if (filter === 'yearly') {
-      filterCondition = ` AND YEAR(event_participation.created_at) = ${currentYear}`;
+      filterCondition = ` AND YEAR(event_participation.created_at) = YEAR(CURRENT_DATE())`;
     }
 
     let query = '';
@@ -28,13 +24,9 @@ const getLeaderboard = async (req, res, next) => {
         return res.status(400).json({ success: false, message: 'club_id is required for type=club' });
       }
       query = `
-        SELECT 
-          users.id,
-          users.name,
-          users.erp,
-          SUM(event_participation.points) AS total_points
+        SELECT users.id, users.name, users.erp, SUM(event_participation.points) AS total_points
         FROM event_participation
-        JOIN users ON event_participation.user_id = users.id
+        JOIN users ON users.id = event_participation.user_id
         WHERE event_participation.club_id = ?
         ${filterCondition}
         GROUP BY users.id
@@ -45,13 +37,9 @@ const getLeaderboard = async (req, res, next) => {
     } else {
       // Overall Leaderboard (type = overall or default)
       query = `
-        SELECT 
-          users.id,
-          users.name,
-          users.erp,
-          SUM(event_participation.points) AS total_points
+        SELECT users.id, users.name, users.erp, SUM(event_participation.points) AS total_points
         FROM event_participation
-        JOIN users ON event_participation.user_id = users.id
+        JOIN users ON users.id = event_participation.user_id
         WHERE 1=1
         ${filterCondition}
         GROUP BY users.id
