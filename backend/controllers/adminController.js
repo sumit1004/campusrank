@@ -144,13 +144,31 @@ const approveCertificate = async (req, res, next) => {
     `;
     await connection.query(updateCertQuery, [finalPoints, adminId, certificateId]);
 
-    // 5. Update the user's total points securely
+    // 5. INSERT INTO event_participation (Centralized Points Control)
+    // For manual upload, we use IGNORE or simply handle duplicates.
+    // The user suggested: try insert, if duplicate: ignore OR update.
+    const insertParticipationQuery = `
+      INSERT IGNORE INTO event_participation 
+      (user_id, club_id, event_name, event_date, position, source, points)
+      VALUES (?, ?, ?, ?, ?, 'manual', ?)
+    `;
+    await connection.query(insertParticipationQuery, [
+      certificate.user_id,
+      certificate.club_id,
+      certificate.event_name || 'Legacy Event',
+      certificate.event_date,
+      certificate.position,
+      finalPoints
+    ]);
+
+    // 6. Update the user's total points securely
+    // We update based on the points added to the master table
     const updateUserQuery = `
       UPDATE users
-      SET total_points = total_points + ?
+      SET total_points = (SELECT SUM(points) FROM event_participation WHERE user_id = ?)
       WHERE id = ?
     `;
-    await connection.query(updateUserQuery, [finalPoints, certificate.user_id]);
+    await connection.query(updateUserQuery, [certificate.user_id, certificate.user_id]);
 
     // Commit all changes
     await connection.commit();

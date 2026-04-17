@@ -87,7 +87,7 @@ const AdminECertificates = () => {
                                     name="event_name"
                                     value={formData.event_name}
                                     onChange={handleInputChange}
-                                    placeholder="e.g. Code Rush 2024"
+                                    placeholder="e.g. Free Fire Tournament"
                                     className="w-full bg-[#0B0F19] border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-all font-medium"
                                 />
                             </div>
@@ -169,7 +169,7 @@ const AdminECertificates = () => {
                                         name="pastedData"
                                         value={formData.pastedData}
                                         onChange={handleInputChange}
-                                        placeholder="Sumit Kumar, 12345, CSE, B.Tech, 6th, MIET&#10;John Doe, 67890, IT, B.Tech, 4th, MIET"
+                                        placeholder="Sumit Kumar, 6605568, CSE, B.Tech, 4th, RCET&#10;Sweta Raj, 6605569, CSE, B.Tech, 4th, RCET"
                                         className="flex-1 bg-[#0B0F19] border border-white/10 rounded-2xl p-6 text-white text-sm font-medium focus:outline-none focus:border-indigo-500 transition-all font-mono resize-none"
                                     ></textarea>
                                 </div>

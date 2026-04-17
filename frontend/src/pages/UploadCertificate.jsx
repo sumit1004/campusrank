@@ -50,6 +50,7 @@ const UploadCertificate = () => {
     // Build FormData since we are transporting binary file
     const uploadData = new FormData();
     uploadData.append('club_id', formData.club_id);
+    uploadData.append('event_name', formData.event_name);
     uploadData.append('position', formData.position);
     uploadData.append('event_date', formData.event_date);
     uploadData.append('file', formData.file);
@@ -98,6 +99,17 @@ const UploadCertificate = () => {
               <option value="" disabled>Select the organizing club...</option>
               {clubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-bold tracking-widest uppercase text-gray-400">Event Name</label>
+            <input 
+              type="text" 
+              placeholder="e.g. CodeRush 2024, Web Design Workshop..."
+              className="w-full bg-[#0B0F19] text-white border border-white/10 rounded-xl px-4 py-3 focus:border-indigo-500 transition-colors"
+              value={formData.event_name}
+              onChange={(e)=>setFormData({...formData, event_name: e.target.value})}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

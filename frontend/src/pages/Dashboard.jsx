@@ -9,6 +9,7 @@ const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [certs, setCerts] = useState([]);
   const [eCerts, setECerts] = useState([]);
+  const [participations, setParticipations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,24 +18,24 @@ const Dashboard = () => {
 
   const fetchMyCerts = async () => {
     try {
-      const [resLegacy, resE] = await Promise.all([
+      const [resLegacy, resE, resP] = await Promise.all([
         api.get('/certificates/my-certificates'),
-        api.get('/certificates/my-e-certificates')
+        api.get('/certificates/my-e-certificates'),
+        api.get('/certificates/my-participations')
       ]);
       setCerts(resLegacy.data.data);
       setECerts(resE.data.data);
+      setParticipations(resP.data.data);
     } catch (error) {
-      toast.error("Failed to fetch your certificates");
+      toast.error("Failed to fetch your data");
     } finally {
       setLoading(false);
     }
   };
 
-  const legacyPoints = certs.filter(c => c.status === 'approved').reduce((acc, curr) => acc + (curr.points || 0), 0);
-  const ePoints = eCerts.reduce((acc, curr) => acc + (curr.points || 0), 0);
-  const totalPoints = legacyPoints + ePoints;
-
-  const approvedCount = certs.filter(c => c.status === 'approved').length + eCerts.length;
+  // Points and Counts from centralized table (Participation)
+  const totalPoints = participations.reduce((acc, curr) => acc + (curr.points || 0), 0);
+  const approvedCount = participations.length;
   const pendingCount = certs.filter(c => c.status === 'pending').length;
 
   // Club wise compilation
@@ -112,48 +113,50 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* E-Certificates Table */}
-      <div className="lg:col-span-2 bg-[#111827] border border-white/5 p-5 rounded-2xl shadow-xl overflow-hidden">
+      {/* Participation History (Central Source of Truth) */}
+      <div className="bg-[#111827] border border-white/5 p-5 rounded-2xl shadow-xl overflow-hidden">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-white flex items-center"><Award className="mr-2 text-yellow-400" size={18} /> Verified Certificates</h2>
-          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{eCerts.length} issued</span>
+          <h2 className="text-lg font-black text-white flex items-center gap-2">
+            <Trophy className="text-yellow-400" size={20} /> 
+            Event Participation History
+            <span className="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded ml-2 font-black uppercase">Points Control ✅</span>
+          </h2>
         </div>
 
         {loading ? (
           <div className="flex justify-center py-8"><span className="animate-spin h-6 w-6 border-2 border-indigo-500 border-t-transparent rounded-full"></span></div>
-        ) : eCerts.length === 0 ? (
-          <div className="text-center py-12 text-gray-500 font-bold bg-[#0B0F19] rounded-xl border border-white/5 border-dashed">No e-certificates issued yet.</div>
+        ) : participations.length === 0 ? (
+          <div className="text-center py-12 text-gray-500 font-bold bg-[#0B0F19] rounded-xl border border-white/5 border-dashed">No participation records yet. Points shown above are based on verified achievements.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-white/[0.02] text-gray-500 text-[10px] uppercase font-black tracking-widest border-b border-white/5">
                 <tr>
-                  <th className="p-4">Event & Club</th>
-                  <th className="p-4">Standing</th>
-                  <th className="p-4">Points</th>
-                  <th className="p-4 text-right">Certificate</th>
+                  <th className="p-4">Event</th>
+                  <th className="p-4">Club</th>
+                  <th className="p-4">Position</th>
+                  <th className="p-4">Source</th>
+                  <th className="p-4 text-right">Points</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {eCerts.map(c => (
-                  <tr key={c.id} className="hover:bg-white/[0.02] transition-colors group">
+                {participations.map(p => (
+                  <tr key={p.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="p-4">
-                      <div className="font-bold text-gray-100 text-sm">{c.event_name}</div>
-                      <div className="text-[10px] text-indigo-400 font-bold uppercase">{c.club_name}</div>
+                      <div className="font-bold text-gray-100 text-sm">{p.event_name}</div>
+                      <div className="text-[10px] text-gray-500">{new Date(p.event_date).toLocaleDateString()}</div>
                     </td>
-                    <td className="p-4 text-[11px] font-bold text-gray-500 uppercase tracking-wider">{c.position}</td>
                     <td className="p-4">
-                      <span className="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded text-[10px] font-black">+{c.points} PTS</span>
+                      <div className="text-[10px] text-indigo-400 font-black uppercase tracking-wider">{p.club_name}</div>
+                    </td>
+                    <td className="p-4 text-[11px] font-bold text-gray-400 uppercase tracking-wider">{p.position}</td>
+                    <td className="p-4">
+                       <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase ${p.source === 'e_certificate' ? 'bg-green-500/10 text-green-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                        {p.source === 'e_certificate' ? 'E-Certificate ✅' : 'Manual Upload'}
+                       </span>
                     </td>
                     <td className="p-4 text-right">
-                      <a
-                        href={`http://localhost:5000${c.certificate_url}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-lg text-xs font-black shadow-lg shadow-indigo-500/10 transition-all uppercase tracking-tight inline-flex items-center gap-1.5"
-                      >
-                        Download <FileText size={12} />
-                      </a>
+                      <span className="bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded text-[10px] font-black">+{p.points} PTS</span>
                     </td>
                   </tr>
                 ))}
@@ -161,6 +164,36 @@ const Dashboard = () => {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Verified E-Certificates (UI Only) */}
+      <div className="bg-[#111827] border border-white/5 p-5 rounded-2xl shadow-xl overflow-hidden">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-sm font-bold text-gray-400 flex items-center uppercase tracking-widest"><Award className="mr-2 text-yellow-400" size={16} /> Certificate Downloads</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {eCerts.map(c => (
+             <div key={c.id} className="bg-white/[0.02] border border-white/5 p-4 rounded-xl flex flex-col justify-between group hover:border-indigo-500/30 transition-all">
+                <div>
+                  <div className="font-bold text-gray-100 text-xs mb-1 truncate">{c.event_name}</div>
+                  <div className="text-[8px] text-gray-500 font-bold uppercase tracking-tighter mb-3">{c.club_name}</div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] text-indigo-400 font-black uppercase">{c.position}</span>
+                  <a
+                    href={`http://localhost:5000${c.certificate_url}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-white/40 hover:text-white transition-colors"
+                  >
+                    <FileText size={16} />
+                  </a>
+                </div>
+             </div>
+          ))}
+          {eCerts.length === 0 && <p className="text-gray-600 text-[10px] font-bold uppercase py-2">No e-certificates yet.</p>}
+        </div>
       </div>
 
       {/* Legacy Uploads Table */}

@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS certificates (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   club_id INT NOT NULL,
+  event_name VARCHAR(255) NOT NULL,
   position ENUM('winner', 'runnerup1', 'runnerup2', 'participant') NOT NULL,
   event_date DATE NOT NULL,
   file_url VARCHAR(255) NOT NULL,
@@ -27,6 +28,20 @@ CREATE TABLE IF NOT EXISTS certificates (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Event Participation (Central Source of Truth for Points)
+CREATE TABLE IF NOT EXISTS event_participation (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  club_id INT,
+  event_name VARCHAR(255),
+  event_date DATE,
+  position ENUM('winner','runnerup1','runnerup2','participant'),
+  source ENUM('manual','e_certificate'),
+  points INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_event (user_id, club_id, event_name, event_date)
 );
 
 -- ─── Event Registration System ────────────────────────────────────────────────

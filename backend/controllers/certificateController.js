@@ -12,16 +12,16 @@ const fs = require('fs-extra');
 const uploadCertificate = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { club_id, position, event_date } = req.body;
+    const { club_id, position, event_date, event_name } = req.body;
     let file_url = null;
 
     if (req.file) {
       file_url = `/uploads/${req.file.filename}`;
     }
 
-    if (!club_id || !position || !event_date || !file_url) {
+    if (!club_id || !position || !event_date || !file_url || !event_name) {
       res.status(400); 
-      throw new Error('Please provide club_id, position, event_date, and file.');
+      throw new Error('Please provide club_id, event_name, position, event_date, and file.');
     }
 
     const validPositions = ['winner', 'runnerup1', 'runnerup2', 'participant'];
@@ -31,13 +31,14 @@ const uploadCertificate = async (req, res, next) => {
     }
 
     const insertQuery = `
-      INSERT INTO certificates (user_id, club_id, position, event_date, file_url, status)
-      VALUES (?, ?, ?, ?, ?, 'pending')
+      INSERT INTO certificates (user_id, club_id, event_name, position, event_date, file_url, status)
+      VALUES (?, ?, ?, ?, ?, ?, 'pending')
     `;
 
     const [result] = await db.query(insertQuery, [
       userId, 
       club_id, 
+      event_name,
       position.toLowerCase(), 
       event_date, 
       file_url
@@ -188,7 +189,7 @@ const bulkGenerateCertificates = async (req, res, next) => {
           college
         });
 
-        // Store in e_certificates
+        // Store in e_certificates (display only as per requirement)
         await db.query(
           `INSERT INTO e_certificates 
            (user_id, club_id, event_name, event_date, position, certificate_url, points) 
@@ -196,8 +197,26 @@ const bulkGenerateCertificates = async (req, res, next) => {
           [userId, club_id, event_name, event_date, position.toLowerCase(), pdfUrl, points]
         );
 
-        // Update user total points
-        await db.query('UPDATE users SET total_points = total_points + ? WHERE id = ?', [points, userId]);
+        // SYNC WITH EVENT_PARTICIPATION (Centralized Points Control)
+        // E-Certificate ALWAYS Overrides manual or existing records for the same event
+        await db.query(
+          `INSERT INTO event_participation 
+           (user_id, club_id, event_name, event_date, position, source, points) 
+           VALUES (?, ?, ?, ?, ?, 'e_certificate', ?)
+           ON DUPLICATE KEY UPDATE
+           position = VALUES(position),
+           points = VALUES(points),
+           source = 'e_certificate'`,
+          [userId, club_id, event_name, event_date, position.toLowerCase(), points]
+        );
+
+        // Update user total points from central table
+        await db.query(
+          `UPDATE users 
+           SET total_points = (SELECT SUM(points) FROM event_participation WHERE user_id = ?) 
+           WHERE id = ?`, 
+          [userId, userId]
+        );
 
         results.success.push({ erp, name: studentName, url: pdfUrl });
 
@@ -227,9 +246,9 @@ const getCertificateLeaderboard = async (req, res, next) => {
     const { type, club_id, filter } = req.query;
     
     let query = `
-      SELECT users.id, users.name, users.erp, SUM(e_certificates.points) as total_points
-      FROM e_certificates
-      JOIN users ON users.id = e_certificates.user_id
+      SELECT users.id, users.name, users.erp, SUM(event_participation.points) as total_points
+      FROM event_participation
+      JOIN users ON users.id = event_participation.user_id
     `;
     
     const queryParams = [];
@@ -237,14 +256,14 @@ const getCertificateLeaderboard = async (req, res, next) => {
 
     if (type === 'club' && (club_id || req.user?.club_id)) {
       const cid = club_id || req.user.club_id;
-      whereClauses.push('e_certificates.club_id = ?');
+      whereClauses.push('event_participation.club_id = ?');
       queryParams.push(cid);
     }
 
     if (filter === 'monthly') {
-      whereClauses.push('e_certificates.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
+      whereClauses.push('event_participation.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)');
     } else if (filter === 'yearly') {
-      whereClauses.push('e_certificates.created_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR)');
+      whereClauses.push('event_participation.created_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR)');
     }
 
     if (whereClauses.length > 0) {
@@ -290,10 +309,31 @@ const getMyECertificates = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Get current user's Participation History (Centralized)
+ * @route   GET /api/certificates/my-participations
+ */
+const getMyParticipations = async (req, res, next) => {
+  try {
+    const query = `
+      SELECT ep.*, cl.name as club_name 
+      FROM event_participation ep
+      LEFT JOIN clubs cl ON ep.club_id = cl.id
+      WHERE ep.user_id = ?
+      ORDER BY ep.event_date DESC
+    `;
+    const [participations] = await db.query(query, [req.user.id]);
+    res.status(200).json({ success: true, count: participations.length, data: participations });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   uploadCertificate,
   getStudentCertificates,
   bulkGenerateCertificates,
   getCertificateLeaderboard,
-  getMyECertificates
+  getMyECertificates,
+  getMyParticipations
 };

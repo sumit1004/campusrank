@@ -5,7 +5,8 @@ const {
   getStudentCertificates,
   bulkGenerateCertificates,
   getCertificateLeaderboard,
-  getMyECertificates
+  getMyECertificates,
+  getMyParticipations
 } = require('../controllers/certificateController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
@@ -28,5 +29,8 @@ router.get('/leaderboard', getCertificateLeaderboard);
 
 // GET /api/certificates/my-e-certificates (Student)
 router.get('/my-e-certificates', protect, getMyECertificates);
+
+// GET /api/certificates/my-participations (Student)
+router.get('/my-participations', protect, getMyParticipations);
 
 module.exports = router;

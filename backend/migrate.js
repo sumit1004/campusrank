@@ -30,6 +30,15 @@ async function migrate() {
       console.log('club_id already exists in users table.');
     }
 
+    // 2.1 Add event_name to certificates table if not exists
+    const [certCols] = await connection.query(`SHOW COLUMNS FROM certificates LIKE 'event_name'`);
+    if (certCols.length === 0) {
+      await connection.query(`ALTER TABLE certificates ADD COLUMN event_name VARCHAR(255) AFTER club_id`);
+      console.log('Added event_name to certificates table.');
+    } else {
+      console.log('event_name already exists in certificates table.');
+    }
+
     // 3. Create e_certificates table
     await connection.query(`
       CREATE TABLE IF NOT EXISTS e_certificates (
@@ -58,6 +67,23 @@ async function migrate() {
       );
     `);
     console.log('certificate_batches table checked/created.');
+
+    // 5. Create event_participation table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS event_participation (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        club_id INT,
+        event_name VARCHAR(255),
+        event_date DATE,
+        position ENUM('winner','runnerup1','runnerup2','participant'),
+        source ENUM('manual','e_certificate'),
+        points INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_event (user_id, club_id, event_name, event_date)
+      );
+    `);
+    console.log('event_participation table checked/created.');
 
     await connection.end();
     console.log('Migrations complete.');

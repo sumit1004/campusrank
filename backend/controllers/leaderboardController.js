@@ -15,9 +15,9 @@ const getLeaderboard = async (req, res, next) => {
     const currentYear = now.getFullYear();
 
     if (filter === 'monthly') {
-      filterCondition = ` AND MONTH(certificates.created_at) = ${currentMonth} AND YEAR(certificates.created_at) = ${currentYear}`;
+      filterCondition = ` AND MONTH(event_participation.created_at) = ${currentMonth} AND YEAR(event_participation.created_at) = ${currentYear}`;
     } else if (filter === 'yearly') {
-      filterCondition = ` AND YEAR(certificates.created_at) = ${currentYear}`;
+      filterCondition = ` AND YEAR(event_participation.created_at) = ${currentYear}`;
     }
 
     let query = '';
@@ -32,11 +32,10 @@ const getLeaderboard = async (req, res, next) => {
           users.id,
           users.name,
           users.erp,
-          SUM(certificates.points) AS total_points
-        FROM certificates
-        JOIN users ON certificates.user_id = users.id
-        WHERE certificates.status = 'approved'
-        AND certificates.club_id = ?
+          SUM(event_participation.points) AS total_points
+        FROM event_participation
+        JOIN users ON event_participation.user_id = users.id
+        WHERE event_participation.club_id = ?
         ${filterCondition}
         GROUP BY users.id
         ORDER BY total_points DESC
@@ -50,10 +49,10 @@ const getLeaderboard = async (req, res, next) => {
           users.id,
           users.name,
           users.erp,
-          SUM(certificates.points) AS total_points
-        FROM certificates
-        JOIN users ON certificates.user_id = users.id
-        WHERE certificates.status = 'approved'
+          SUM(event_participation.points) AS total_points
+        FROM event_participation
+        JOIN users ON event_participation.user_id = users.id
+        WHERE 1=1
         ${filterCondition}
         GROUP BY users.id
         ORDER BY total_points DESC
