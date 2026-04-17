@@ -1,4 +1,7 @@
 const db = require('../config/db');
+const { logActivity } = require('../utils/activityLogger');
+const { createNotification } = require('../utils/notificationHelper');
+const { updateLeaderboardCache } = require('../utils/leaderboardCache');
 const xlsx = require('xlsx');
 const { generateCertificatePDF } = require('../utils/pdfGenerator');
 const path = require('path');
@@ -220,10 +223,16 @@ const bulkGenerateCertificates = async (req, res, next) => {
 
         results.success.push({ erp, name: studentName, url: pdfUrl });
 
+        // NOTIFY STUDENT AND REFRESH CACHE
+        createNotification(userId, `You have received a ${position} certificate for ${event_name}! 🏆 (+${points} points)`, 'success', 'E-Certificate Received');
+        updateLeaderboardCache(userId, club_id, points, event_date);
       } catch (error) {
         results.failed.push({ student, error: error.message });
       }
     }
+
+    // LOG ACTION
+    logActivity(req.user.id, 'SEND_E_CERT', batchResult.insertId, { event_name, student_count: results.success.length });
 
     res.status(200).json({
       success: true,

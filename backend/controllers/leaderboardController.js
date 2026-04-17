@@ -7,48 +7,53 @@ const db = require('../config/db');
  */
 const getLeaderboard = async (req, res, next) => {
   try {
-    const { type, club_id, filter } = req.query;
+    const { type, club_id, filter = 'overall' } = req.query;
     
-    let filterCondition = '';
-    if (filter === 'monthly') {
-      filterCondition = ` AND MONTH(event_participation.created_at) = MONTH(CURRENT_DATE()) AND YEAR(event_participation.created_at) = YEAR(CURRENT_DATE())`;
-    } else if (filter === 'yearly') {
-      filterCondition = ` AND YEAR(event_participation.created_at) = YEAR(CURRENT_DATE())`;
-    }
+    const cid = (type === 'club' && club_id) ? club_id : 0;
+    
+    // Safety check for filter
+    const validFilters = ['overall', 'monthly', 'yearly'];
+    const activeFilter = validFilters.includes(filter) ? filter : 'overall';
 
     let query = '';
-    let queryParams = [];
+    let params = [];
 
-    if (type === 'club') {
-      if (!club_id) {
-        return res.status(400).json({ success: false, message: 'club_id is required for type=club' });
-      }
+    if (activeFilter === 'monthly') {
       query = `
-        SELECT users.id, users.name, users.erp, SUM(event_participation.points) AS total_points
-        FROM event_participation
-        JOIN users ON users.id = event_participation.user_id
-        WHERE event_participation.club_id = ?
-        ${filterCondition}
+        SELECT users.id, users.name, users.erp, lc.total_points
+        FROM leaderboard_cache lc
+        JOIN users ON lc.user_id = users.id
+        WHERE lc.club_id = ? AND lc.month = MONTH(NOW()) AND lc.year = YEAR(NOW())
+        ORDER BY lc.total_points DESC
+        LIMIT 50
+      `;
+      params = [cid];
+    } else if (activeFilter === 'yearly') {
+      query = `
+        SELECT users.id, users.name, users.erp, SUM(lc.total_points) as total_points
+        FROM leaderboard_cache lc
+        JOIN users ON lc.user_id = users.id
+        WHERE lc.club_id = ? AND lc.year = YEAR(NOW())
         GROUP BY users.id
         ORDER BY total_points DESC
-        LIMIT 50;
+        LIMIT 50
       `;
-      queryParams = [club_id];
+      params = [cid];
     } else {
-      // Overall Leaderboard (type = overall or default)
+      // Overall
       query = `
-        SELECT users.id, users.name, users.erp, SUM(event_participation.points) AS total_points
-        FROM event_participation
-        JOIN users ON users.id = event_participation.user_id
-        WHERE 1=1
-        ${filterCondition}
+        SELECT users.id, users.name, users.erp, SUM(lc.total_points) as total_points
+        FROM leaderboard_cache lc
+        JOIN users ON lc.user_id = users.id
+        WHERE lc.club_id = ?
         GROUP BY users.id
         ORDER BY total_points DESC
-        LIMIT 50;
+        LIMIT 50
       `;
+      params = [cid];
     }
 
-    const [rows] = await db.query(query, queryParams);
+    const [rows] = await db.query(query, params);
     
     // Add rank and ensure total_points is a number
     const data = rows.map((row, index) => ({

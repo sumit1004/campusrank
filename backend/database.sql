@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS submissions (
   FOREIGN KEY (form_id) REFERENCES forms(id) ON DELETE CASCADE
 );
 
--- Submission Data Table: Stores the actual field values per submission
+-- Submissions Data Table: Stores the actual field values per submission
 CREATE TABLE IF NOT EXISTS submission_data (
   id INT AUTO_INCREMENT PRIMARY KEY,
   submission_id INT NOT NULL,
@@ -117,4 +117,36 @@ CREATE TABLE IF NOT EXISTS submission_data (
   member_index INT DEFAULT 1,                  -- 1 = leader, 2+ = other team members
   FOREIGN KEY (submission_id) REFERENCES submissions(id) ON DELETE CASCADE,
   FOREIGN KEY (field_id) REFERENCES form_fields(id) ON DELETE CASCADE
+);
+
+-- Activity Logs
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  action_type VARCHAR(100),
+  target_id INT,
+  metadata JSON,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Notifications
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  title VARCHAR(255),
+  message TEXT,
+  type ENUM('info','success','warning'),
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Leaderboard Cache
+CREATE TABLE IF NOT EXISTS leaderboard_cache (
+  user_id INT,
+  club_id INT,
+  total_points INT,
+  month INT,
+  year INT,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, club_id, month, year)
 );

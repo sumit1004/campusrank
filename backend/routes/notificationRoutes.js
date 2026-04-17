@@ -1,14 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { sendNotification, getMyNotifications } = require('../controllers/notificationController');
+const { getNotifications, markAsRead, sendManualNotification } = require('../controllers/notificationController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
-// Base path: /api/notifications
+router.use(protect);
 
-// GET /api/notifications - Get user specific notifications
-router.get('/', protect, getMyNotifications);
-
-// POST /api/notifications/send - SuperAdmin only
-router.post('/send', protect, authorize('superadmin'), sendNotification);
+router.get('/', getNotifications);
+router.put('/:id/read', markAsRead);
+router.post('/send', authorize('admin', 'superadmin'), sendManualNotification);
 
 module.exports = router;

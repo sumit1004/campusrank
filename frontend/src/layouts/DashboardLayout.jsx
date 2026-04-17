@@ -3,6 +3,7 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Home, Trophy, Upload, LogOut, Settings, Bell, Search, Menu, X, Star, ClipboardList } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import NotificationDropdown from '../components/NotificationDropdown';
 
 const DashboardLayout = () => {
   const { user, logout } = useContext(AuthContext);
@@ -116,6 +117,8 @@ const DashboardLayout = () => {
               <Search size={18} className="text-gray-500" />
               <input type="text" placeholder="Search..." className="bg-transparent border-none outline-none text-sm text-white px-3 w-full placeholder-gray-500" />
             </div>
+
+            <NotificationDropdown />
 
 
             <div className="h-8 w-px bg-white/10 hidden sm:block"></div>

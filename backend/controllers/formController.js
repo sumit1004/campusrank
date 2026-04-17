@@ -1,5 +1,7 @@
 const db = require('../config/db');
 const ExcelJS = require('exceljs');
+const { logActivity } = require('../utils/activityLogger');
+const { createNotification } = require('../utils/notificationHelper');
 
 // ─── Helper: auto-close forms past end_date ────────────────────────────────
 const autoCloseExpired = async () => {
@@ -154,6 +156,9 @@ const createForm = async (req, res) => {
         );
       }
     }
+
+    // LOG ACTION
+    logActivity(req.user.id, 'CREATE_FORM', formId, { title });
 
     res.status(201).json({ success: true, message: 'Form created successfully', data: { id: formId } });
   } catch (err) {
@@ -332,6 +337,12 @@ const submitForm = async (req, res) => {
         );
       }
     }
+
+    // NOTIFY STUDENT 
+    createNotification(userId, `You successfully registered for ${form.title}! ✅`, 'success', 'Registration Confirmed');
+    
+    // LOG ACTION (Optional but good)
+    logActivity(userId, 'SUBMIT_FORM', submissionId, { form_id: formId });
 
     res.status(201).json({ success: true, message: 'Registered successfully!' });
   } catch (err) {

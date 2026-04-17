@@ -85,6 +85,47 @@ async function migrate() {
     `);
     console.log('event_participation table checked/created.');
 
+    // 6. Create activity_logs table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        action_type VARCHAR(100),
+        target_id INT,
+        metadata JSON,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('activity_logs table checked/created.');
+
+    // 7. Create notifications table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        title VARCHAR(255),
+        message TEXT,
+        type ENUM('info','success','warning'),
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('notifications table checked/created.');
+
+    // 8. Create leaderboard_cache table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS leaderboard_cache (
+        user_id INT,
+        club_id INT,
+        total_points INT,
+        month INT,
+        year INT,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id, club_id, month, year)
+      );
+    `);
+    console.log('leaderboard_cache table checked/created.');
+
     await connection.end();
     console.log('Migrations complete.');
   } catch (error) {

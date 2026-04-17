@@ -1,4 +1,7 @@
 const db = require('../config/db');
+const { logActivity } = require('../utils/activityLogger');
+const { createNotification } = require('../utils/notificationHelper');
+const { updateLeaderboardCache } = require('../utils/leaderboardCache');
 
 /**
  * @desc    Get all pending certificates
@@ -173,6 +176,11 @@ const approveCertificate = async (req, res, next) => {
     // Commit all changes
     await connection.commit();
 
+    // 7. ASYNC TASKS: Log, Notify, and Refresh Cache
+    logActivity(adminId, 'VERIFY_CERT', certificateId, { points: finalPoints, user_id: certificate.user_id });
+    createNotification(certificate.user_id, `Your certificate for ${certificate.event_name || 'Event'} has been approved! 🎉 (+${finalPoints} points)`, 'success', 'Certificate Approved');
+    updateLeaderboardCache(certificate.user_id, certificate.club_id, finalPoints, certificate.event_date);
+
     res.status(200).json({
       success: true,
       message: 'Certificate approved and points awarded',
@@ -238,6 +246,10 @@ const rejectCertificate = async (req, res, next) => {
     `;
     
     await db.query(updateQuery, [adminId, certificateId]);
+
+    // ASYNC TASKS: Log and Notify
+    logActivity(adminId, 'REJECT_CERT', certificateId, { user_id: certificate.user_id });
+    createNotification(certificate.user_id, `Your certificate for ${certificate.event_name || 'Event'} was rejected. ❌ Please contact the club admin.`, 'warning', 'Certificate Rejected');
 
     res.status(200).json({
       success: true,
