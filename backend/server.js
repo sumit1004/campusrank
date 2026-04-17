@@ -80,6 +80,9 @@ app.use('/api/forms', require('./routes/formRoutes'));
 // --- Form Template Routes ---
 app.use('/api/templates', require('./routes/templateRoutes'));
 
+// --- User Routes ---
+app.use('/api/users', require('./routes/userRoutes'));
+
 // --- Protected Routes ---
 // This test route requires a valid token attached to the "Authorization" header
 app.get('/api/protected', protect, (req, res) => {

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Home, Trophy, Upload, LogOut, Settings, Bell, Search, Menu, X, Star, ClipboardList } from 'lucide-react';
+import { Home, Trophy, Upload, LogOut, Settings, Bell, Search, Menu, X, Star, ClipboardList, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationDropdown from '../components/NotificationDropdown';
 
@@ -30,6 +30,7 @@ const DashboardLayout = () => {
   } else {
     // Student
     navItems.push({ name: 'Dashboard', path: '/dashboard', icon: <Home size={22} /> });
+    navItems.push({ name: 'Profile', path: '/profile', icon: <User size={22} /> });
     navItems.push({ name: 'Registrations', path: '/events', icon: <ClipboardList size={22} /> });
     navItems.push({ name: 'Leaderboard', path: '/leaderboard', icon: <Trophy size={22} /> });
     navItems.push({ name: 'Notifications', path: '/notifications', icon: <Bell size={22} /> });

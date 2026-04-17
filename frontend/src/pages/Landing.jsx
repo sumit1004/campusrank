@@ -334,8 +334,8 @@ const Landing = () => {
   ]);
   const [top3, setTop3] = useState([
     { name: 'Sumit', club: 'Infinity eSports', points: 1280 },
-    { name: 'Diya', club: 'Robotics Society', points: 1195 },
-    { name: 'Ishaan', club: 'Debate Team', points: 1110 },
+    { name: 'Sumit', club: 'Infinity Coders', points: 1195 },
+    { name: 'Sumit', club: 'Rangmanch', points: 1110 },
   ]);
 
   useEffect(() => {
@@ -536,7 +536,7 @@ const Landing = () => {
               {/* VISUAL FLOW */}
               <motion.div
                 variants={fadeUp}
-                className="mt-7 rounded-3xl border border-black/10 bg-white/70 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.10)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_22px_70px_rgba(0,0,0,0.55)]"
+                className="mt-7 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_22px_70px_rgba(0,0,0,0.4)] backdrop-blur-2xl"
               >
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-5 sm:gap-2">
                   {flow.map((f, idx) => {
@@ -551,20 +551,16 @@ const Landing = () => {
                         className="relative"
                       >
                         <div
-                          className={[
-                            'relative flex items-center justify-between gap-3 rounded-2xl border p-4 sm:flex-col sm:items-start sm:justify-start',
-                            'border-black/10 bg-white/75',
-                            'dark:border-white/10 dark:bg-white/5',
-                          ].join(' ')}
+                          className="relative flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:flex-col sm:items-start sm:justify-start backdrop-blur-md"
                         >
                           <div className={`absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br ${f.tint}`} />
                           <div className="flex items-center gap-3 sm:flex-col sm:items-start">
-                            <div className="grid h-12 w-12 place-items-center rounded-2xl border border-black/10 bg-white/85 text-black/80 dark:border-white/10 dark:bg-white/10 dark:text-white">
+                            <div className="grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/10 text-white">
                               <Icon size={18} />
                             </div>
-                            <div className="min-w-0">
+                            <div className="min-w-0 text-white">
                               <div className="text-sm font-extrabold tracking-tight">{f.label}</div>
-                              <div className={`text-xs ${palette.muted}`}>{idx === 1 ? 'Admin check' : idx === 3 ? 'Climb' : ' '}</div>
+                              <div className="text-xs text-white/50">{idx === 1 ? 'Admin check' : idx === 3 ? 'Climb' : ' '}</div>
                             </div>
                           </div>
 
@@ -574,7 +570,7 @@ const Landing = () => {
                                 initial={prefersReducedMotion ? undefined : { opacity: 0 }}
                                 animate={prefersReducedMotion ? undefined : { opacity: 1 }}
                                 transition={prefersReducedMotion ? undefined : { delay: 0.7, duration: 0.4 }}
-                                className="rounded-full border border-black/10 bg-black/5 px-3 py-1 text-xs font-extrabold text-black/70 dark:border-white/10 dark:bg-white/5 dark:text-white/70"
+                                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black text-white/70 uppercase tracking-widest"
                               >
                                 +{points}
                               </motion.div>
@@ -617,7 +613,7 @@ const Landing = () => {
               <motion.div variants={fadeUp} className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link
                   to="/signup"
-                  className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#6D28D9] to-[#4F46E5] px-6 py-4 text-base font-extrabold text-white shadow-lg transition hover:scale-105 active:scale-[0.99] sm:w-auto"
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 px-6 py-4 text-base font-extrabold text-white shadow-lg transition hover:scale-105 active:scale-[0.99] sm:w-auto"
                 >
                   Get Started
                   <ArrowRight size={18} className="transition group-hover:translate-x-0.5" />
@@ -648,30 +644,30 @@ const Landing = () => {
               transition={prefersReducedMotion ? undefined : { duration: 0.7, ease: 'easeOut', delay: 0.15 }}
               className="relative"
             >
-              <GlowCard className="p-5 sm:p-6">
+              <GlowCard className="p-5 sm:p-6 bg-[#111827]/40 ring-1 ring-white/10">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_12px_45px_rgba(0,0,0,0.55)] transition-all hover:-translate-y-1 hover:shadow-[0_18px_70px_rgba(0,0,0,0.65)]">
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl transition-all hover:-translate-y-1 backdrop-blur-xl">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-white shadow-lg ring-1 ring-black/10 dark:ring-white/10">
+                        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-white shadow-lg">
                           <ShieldCheck size={18} />
                         </div>
                         <div>
-                          <div className="text-sm font-extrabold">Verification</div>
-                          <div className={`text-xs ${palette.muted}`}>Trusted by admins</div>
+                          <div className="text-sm font-extrabold text-white">Verification</div>
+                          <div className="text-xs text-white/40">Trusted by admins</div>
                         </div>
                       </div>
                       <motion.div
                         initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.9 }}
                         animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
                         transition={prefersReducedMotion ? undefined : { delay: 0.55, type: 'spring', stiffness: 260, damping: 18 }}
-                        className="rounded-full border border-black/10 bg-black/5 px-3 py-1 text-xs font-extrabold text-black/70 dark:border-white/10 dark:bg-white/5 dark:text-white/70"
+                        className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-extrabold text-white/60"
                       >
                         Verified
                       </motion.div>
                     </div>
                     <div className="mt-4 space-y-2">
-                      <div className="h-2 w-full rounded-full bg-black/10 dark:bg-white/10">
+                      <div className="h-2 w-full rounded-full bg-white/5">
                         <motion.div
                           initial={prefersReducedMotion ? undefined : { width: '15%' }}
                           animate={prefersReducedMotion ? undefined : { width: '88%' }}
@@ -679,26 +675,26 @@ const Landing = () => {
                           className="h-2 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400"
                         />
                       </div>
-                      <div className={`text-xs ${palette.muted}`}>Auto-logged approvals</div>
+                      <div className="text-xs text-white/40 uppercase tracking-widest font-black text-[8px]">Auto-logged approvals</div>
                     </div>
                   </div>
 
-                  <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_12px_45px_rgba(0,0,0,0.55)] transition-all hover:-translate-y-1 hover:shadow-[0_18px_70px_rgba(0,0,0,0.65)]">
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl transition-all hover:-translate-y-1 backdrop-blur-xl">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-r from-[#6D28D9] to-[#4F46E5] text-white shadow-lg ring-1 ring-black/10 dark:ring-white/10">
+                      <div className="flex items-center gap-2 text-white">
+                        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-indigo-600 text-white shadow-lg">
                           <LayoutDashboard size={18} />
                         </div>
                         <div>
                           <div className="text-sm font-extrabold">Live Rank</div>
-                          <div className={`text-xs ${palette.muted}`}>Updates instantly</div>
+                          <div className="text-xs text-white/40">Updates instantly</div>
                         </div>
                       </div>
                       <motion.div
                         initial={prefersReducedMotion ? undefined : { y: 6, opacity: 0 }}
                         animate={prefersReducedMotion ? undefined : { y: 0, opacity: 1 }}
                         transition={prefersReducedMotion ? undefined : { delay: 0.65, duration: 0.45 }}
-                        className="text-sm font-black text-black/70 dark:text-white/70"
+                        className="text-sm font-black text-white/80"
                       >
                         #02
                       </motion.div>
@@ -742,22 +738,22 @@ const Landing = () => {
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_12px_45px_rgba(0,0,0,0.55)] transition-all hover:-translate-y-1 hover:shadow-[0_18px_70px_rgba(0,0,0,0.65)]">
+                <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl transition-all hover:-translate-y-1 backdrop-blur-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-r from-amber-400 via-fuchsia-500 to-cyan-400 text-white shadow-[0_0_30px_rgba(251,191,36,0.25)]">
+                      <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-r from-amber-400 via-fuchsia-500 to-cyan-400 text-white">
                         <Award size={18} />
                       </div>
                       <div>
-                        <div className="text-sm font-extrabold">Badge Unlock</div>
-                        <div className={`text-xs ${palette.muted}`}>Progress feels rewarding</div>
+                        <div className="text-sm font-extrabold text-white">Badge Unlock</div>
+                        <div className="text-xs text-white/40">Progress feels rewarding</div>
                       </div>
                     </div>
                     <motion.div
                       initial={prefersReducedMotion ? undefined : { opacity: 0, scale: 0.85 }}
                       animate={prefersReducedMotion ? undefined : { opacity: 1, scale: 1 }}
                       transition={prefersReducedMotion ? undefined : { delay: 0.85, type: 'spring', stiffness: 240, damping: 14 }}
-                      className="grid h-10 w-10 place-items-center rounded-2xl border border-black/10 bg-black/5 text-black/70 dark:border-white/10 dark:bg-white/5 dark:text-white/75"
+                      className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.05] text-white/70"
                     >
                       <CheckCircle2 size={18} />
                     </motion.div>
@@ -767,12 +763,12 @@ const Landing = () => {
                       <motion.div
                         key={b}
                         whileHover={prefersReducedMotion ? undefined : { scale: 1.04 }}
-                        className="relative overflow-hidden rounded-2xl border border-black/10 bg-white/70 p-3 dark:border-white/10 dark:bg-white/5"
+                        className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-3"
                       >
-                        <div className="text-[11px] font-extrabold">{b}</div>
-                        <div className={`mt-1 text-[10px] ${palette.muted}`}>{i < 2 ? 'Unlocked' : 'Locked'}</div>
+                        <div className="text-[11px] font-extrabold text-white">{b}</div>
+                        <div className="mt-1 text-[10px] text-white/40 uppercase tracking-widest font-black text-[7px]">{i < 2 ? 'Unlocked' : 'Locked'}</div>
                         {i >= 2 && (
-                          <div className="absolute right-2 top-2 text-black/35 dark:text-white/35">
+                          <div className="absolute right-2 top-2 text-white/10">
                             <Lock size={14} />
                           </div>
                         )}
@@ -874,7 +870,7 @@ const Landing = () => {
               </Link>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-2xl border border-black/10 bg-white/70 px-5 py-3 text-sm font-extrabold text-black/80 shadow-sm transition hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white/85 dark:hover:bg-white/10"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto"
               >
                 Open Dashboard
                 <LayoutDashboard size={16} />
@@ -889,7 +885,7 @@ const Landing = () => {
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
             <GlowCard className="p-5 sm:p-6">
-              <div className="rounded-3xl border border-black/10 bg-white/75 p-4 dark:border-white/10 dark:bg-white/5">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl transition-all hover:-translate-y-1 backdrop-blur-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -899,7 +895,7 @@ const Landing = () => {
                   <div className={`text-xs font-extrabold ${palette.muted}`}>CampusRank</div>
                 </div>
                 <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border border-black/10 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl transition-all hover:-translate-y-1 backdrop-blur-xl">
                     <div className="flex items-center justify-between">
                       <div className={`text-xs font-extrabold ${palette.muted}`}>Your Rank</div>
                       <div className="text-sm font-black">#02</div>
@@ -908,7 +904,7 @@ const Landing = () => {
                       <div className="h-2 w-2/3 rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500" />
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-black/10 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+                  <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl transition-all hover:-translate-y-1 backdrop-blur-xl">
                     <div className="flex items-center justify-between">
                       <div className={`text-xs font-extrabold ${palette.muted}`}>Points</div>
                       <div className="text-sm font-black">{points}</div>
@@ -916,7 +912,7 @@ const Landing = () => {
                     <div className={`mt-2 text-[11px] ${palette.muted}`}>Verified uploads boost faster</div>
                   </div>
                 </div>
-                <div className="mt-3 rounded-2xl border border-black/10 bg-white/70 p-4 dark:border-white/10 dark:bg-white/5">
+                <div className="mt-3 rounded-3xl border border-white/10 bg-white/[0.02] p-6 shadow-2xl transition-all hover:-translate-y-1 backdrop-blur-xl">
                   <div className="flex items-center justify-between">
                     <div className={`text-xs font-extrabold ${palette.muted}`}>Recent activity</div>
                     <div className={`text-[11px] ${palette.muted}`}>Live</div>
@@ -929,14 +925,14 @@ const Landing = () => {
                     ].map((a) => {
                       const Icon = a.icon;
                       return (
-                        <div key={a.text} className="flex items-center justify-between rounded-2xl border border-black/10 bg-white/70 px-3 py-2 dark:border-white/10 dark:bg-white/5">
+                        <div key={a.text} className="flex items-center justify-between rounded-2xl border border-black/10 bg-white/10 px-3 py-2 dark:border-white/10 dark:bg-white/5">
                           <div className="flex items-center gap-2">
-                            <div className="grid h-8 w-8 place-items-center rounded-2xl bg-black/5 text-black/70 dark:bg-white/5 dark:text-white/75">
+                            <div className="grid h-8 w-8 place-items-center rounded-2xl bg-black/5 text-white/70 dark:bg-white/5 dark:text-white/75">
                               <Icon size={16} />
                             </div>
                             <div className="text-sm font-semibold">{a.text}</div>
                           </div>
-                          <div className="rounded-full border border-black/10 bg-black/5 px-2 py-1 text-[10px] font-extrabold text-black/70 dark:border-white/10 dark:bg-white/5 dark:text-white/70">
+                          <div className="rounded-full border border-black/10 bg-black/5 px-2 py-1 text-[10px] font-extrabold text-white/70 dark:border-white/10 dark:bg-white/5 dark:text-white/70">
                             {a.chip}
                           </div>
                         </div>
@@ -974,7 +970,7 @@ const Landing = () => {
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] font-black uppercase tracking-widest text-blue-400 self-start md:self-auto"
           >
             <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-            Season 04 Active
+            Season 01 Active
           </motion.div>
         </div>
 
@@ -1046,46 +1042,8 @@ const Landing = () => {
           ))}
         </motion.div>
 
-        {/* Community Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-20 w-full rounded-[2rem] bg-[#111319] border border-white/5 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group"
-        >
-          {/* Subtle background glow */}
-          <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-blue-600/10 blur-[100px] pointer-events-none group-hover:bg-blue-600/20 transition-colors duration-700" />
 
-          <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
-            <div className="flex -space-x-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="w-12 h-12 rounded-full border-4 border-[#111319] overflow-hidden bg-white/5">
-                  <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 10}`}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-              <div className="w-12 h-12 rounded-full border-4 border-[#111319] bg-[#1a1d26] flex items-center justify-center text-[11px] font-black text-white/50">
-                +12
-              </div>
-            </div>
-            <div className="text-center md:text-left">
-              <p className="text-white/60 text-sm md:text-base font-medium">
-                Join <span className="text-white font-bold">14.2k Students</span> already earning badges this season.
-              </p>
-            </div>
-          </div>
 
-          <Link
-            to="/dashboard"
-            className="w-full md:w-auto px-10 py-4 rounded-2xl bg-[#0052FF] hover:bg-[#1a66ff] text-white font-black text-sm uppercase tracking-widest transition-all shadow-[0_15px_35px_rgba(0,82,255,0.25)] hover:shadow-[0_20px_45px_rgba(0,82,255,0.35)] hover:-translate-y-1 relative z-10 text-center"
-          >
-            View My Achievements
-          </Link>
-        </motion.div>
       </Section>
 
       {/* CLUB SYSTEM */}
@@ -1209,31 +1167,7 @@ const Landing = () => {
         </motion.div>
       </Section>
 
-      {/* CTA */}
-      <Section className="py-16 sm:py-20">
-        <motion.div
-          initial={prefersReducedMotion ? undefined : { opacity: 0, y: 18 }}
-          whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-          transition={{ duration: 0.55, ease: 'easeOut' }}
-        >
-          <GlowCard className="p-8 sm:p-10">
-            <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
-              <div>
-                <div className={`text-sm font-extrabold tracking-wide ${palette.muted}`}>{POWERED_BY}</div>
-                <div className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Start Building Your Campus Rank Today</div>
-              </div>
-              <Link
-                to="/signup"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-400 px-7 py-4 text-base font-extrabold text-white shadow-[0_22px_70px_rgba(99,102,241,0.35)] transition hover:scale-[1.02] active:scale-[0.99] md:w-auto"
-              >
-                Get Started
-                <ArrowRight size={18} />
-              </Link>
-            </div>
-          </GlowCard>
-        </motion.div>
-      </Section>
+
 
       {/* COLLEGE SECTION */}
       <Section id="about" className="py-16 sm:py-20">
@@ -1250,15 +1184,15 @@ const Landing = () => {
               A modern campus ecosystem where verified achievements turn into visible reputation—across clubs, events, and communities.
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-black/10 bg-white/70 px-4 py-2 text-sm font-extrabold text-black/70 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-white/70">
+              <div className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto">
                 <ShieldCheck size={16} />
                 Verified credentials
               </div>
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-black/10 bg-white/70 px-4 py-2 text-sm font-extrabold text-black/70 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-white/70">
+              <div className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto">
                 <Trophy size={16} />
                 Leaderboards
               </div>
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-black/10 bg-white/70 px-4 py-2 text-sm font-extrabold text-black/70 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-white/70">
+              <div className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto">
                 <Award size={16} />
                 Badges
               </div>

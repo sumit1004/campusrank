@@ -22,12 +22,22 @@ async function migrate() {
     console.log('Clubs table checked/created.');
 
     // 2. Modify users table to add club_id, if not exists
-    const [columns] = await connection.query(`SHOW COLUMNS FROM users LIKE 'club_id'`);
-    if (columns.length === 0) {
+    const [userCols] = await connection.query(`SHOW COLUMNS FROM users`);
+    const userColNames = userCols.map(c => c.Field);
+
+    if (!userColNames.includes('club_id')) {
       await connection.query(`ALTER TABLE users ADD COLUMN club_id INT NULL`);
       console.log('Added club_id to users table.');
-    } else {
-      console.log('club_id already exists in users table.');
+    }
+    
+    if (!userColNames.includes('branch')) {
+      await connection.query(`ALTER TABLE users ADD COLUMN branch VARCHAR(255) NULL DEFAULT 'Unspecified'`);
+      console.log('Added branch to users table.');
+    }
+
+    if (!userColNames.includes('semester')) {
+      await connection.query(`ALTER TABLE users ADD COLUMN semester VARCHAR(100) NULL DEFAULT 'Not Set'`);
+      console.log('Added semester to users table.');
     }
 
     // 2.1 Add event_name to certificates table if not exists
@@ -124,7 +134,45 @@ async function migrate() {
         PRIMARY KEY (user_id, club_id, month, year)
       );
     `);
-    console.log('leaderboard_cache table checked/created.');
+
+    // Ensure month and year columns exist in case table was created with old schema
+    const [lbFilterCol] = await connection.query(`SHOW COLUMNS FROM leaderboard_cache LIKE 'filter'`);
+    if (lbFilterCol.length > 0) {
+      console.log('Old leaderboard_cache schema (with filter column) detected. Recreating table...');
+      await connection.query(`DROP TABLE IF EXISTS leaderboard_cache`);
+      await connection.query(`
+        CREATE TABLE leaderboard_cache (
+          user_id INT,
+          club_id INT,
+          total_points INT,
+          month INT,
+          year INT,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          PRIMARY KEY (user_id, club_id, month, year)
+        )
+      `);
+      console.log('leaderboard_cache table recreated with new schema.');
+    } else {
+      // One more check for month column just in case
+      const [lbMonthCol] = await connection.query(`SHOW COLUMNS FROM leaderboard_cache LIKE 'month'`);
+      if (lbMonthCol.length === 0) {
+        console.log('Missing month column in leaderboard_cache. Recreating...');
+        await connection.query(`DROP TABLE IF EXISTS leaderboard_cache`);
+        await connection.query(`
+          CREATE TABLE leaderboard_cache (
+            user_id INT,
+            club_id INT,
+            total_points INT,
+            month INT,
+            year INT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id, club_id, month, year)
+          )
+        `);
+      } else {
+        console.log('leaderboard_cache schema is up to date.');
+      }
+    }
 
     await connection.end();
     console.log('Migrations complete.');

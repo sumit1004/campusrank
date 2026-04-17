@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { getUser } from '../utils/auth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Medal, Crown, Star, Search, User, ChevronDown, Calendar, Globe, Users } from 'lucide-react';
-
-const pageVariants = {
-  initial: { opacity: 0, y: 20 },
-  in: { opacity: 1, y: 0 },
-  out: { opacity: 0, y: -20 }
-};
+import { Trophy, Medal, Crown, Star, User, ChevronDown, Globe, Users, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overall'); // 'overall' or 'club'
-  const [filter, setFilter] = useState('monthly'); // 'monthly' or 'yearly'
+  const [activeTab, setActiveTab] = useState('overall');
+  const [filter, setFilter] = useState('monthly');
   const [clubs, setClubs] = useState([]);
   const [selectedClubId, setSelectedClubId] = useState('');
+  const currentUser = getUser();
 
-  // Fetch clubs for the dropdown
   useEffect(() => {
     const fetchClubs = async () => {
       try {
         const res = await api.get('/clubs');
         setClubs(res.data.data || res.data);
-      } catch (err) {
-        console.error('Error fetching clubs:', err);
-      }
+      } catch (err) { }
     };
     fetchClubs();
   }, []);
@@ -34,11 +27,9 @@ const Leaderboard = () => {
     try {
       setLoading(true);
       const url = `/leaderboard?type=${activeTab}&filter=${filter}${activeTab === 'club' && selectedClubId ? `&club_id=${selectedClubId}` : ''}`;
-
       const res = await api.get(url);
       setLeaders(res.data.data);
     } catch (err) {
-      console.error('Error fetching leaderboard:', err);
       setLeaders([]);
     } finally {
       setLoading(false);
@@ -46,7 +37,6 @@ const Leaderboard = () => {
   };
 
   useEffect(() => {
-    // If club tab is active but no club selected, don't fetch yet if we want to wait for selection
     if (activeTab === 'club' && !selectedClubId && clubs.length > 0) {
       setSelectedClubId(clubs[0].id);
       return;
@@ -54,187 +44,198 @@ const Leaderboard = () => {
     fetchLeaderboard();
   }, [activeTab, filter, selectedClubId, clubs]);
 
-  const getRankBadge = (rank) => {
-    switch (rank) {
-      case 1: return <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-300 via-yellow-500 to-amber-600 text-white flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.3)] border border-white/40 transform -rotate-3"><Crown size={20} /></div>;
-      case 2: return <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-200 via-slate-400 to-slate-500 text-white flex items-center justify-center shadow-[0_0_15px_rgba(148,163,184,0.2)] border border-white/30"><Medal size={18} /></div>;
-      case 3: return <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-amber-700 to-yellow-900 text-white flex items-center justify-center shadow-[0_0_15px_rgba(180,83,9,0.2)] border border-white/20"><Medal size={18} /></div>;
-      default: return <div className="w-8 h-8 rounded-lg bg-surface border border-white/5 text-gray-500 flex items-center justify-center font-bold text-sm">{rank}</div>;
-    }
-  };
+  const top3 = leaders.slice(0, 3);
+  const others = leaders.slice(3);
+
+  // Reorder for podium: [2nd, 1st, 3rd]
+  const podiumOrder = [];
+  if (top3[1]) podiumOrder.push(top3[1]);
+  if (top3[0]) podiumOrder.push(top3[0]);
+  if (top3[2]) podiumOrder.push(top3[2]);
 
   return (
-    <motion.div
-      variants={pageVariants}
-      initial="initial"
-      animate="in"
-      exit="out"
-      transition={{ duration: 0.5 }}
-      className="max-w-[1100px] mx-auto px-4 py-8 md:py-12 space-y-8"
-    >
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight flex items-center gap-3">
-            Leaderboard <Trophy className="text-yellow-500 hidden sm:block" size={36} />
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-12">
+      {/* Header & Filters */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic">
+            Rankings <span className="text-indigo-500">Hub</span>
           </h1>
-          <p className="text-gray-400 font-medium mt-2 max-w-md">
-            Rise through the ranks by contributing to your favorite clubs and earning points.
-          </p>
-        </div>
+          <div className="h-1 w-24 bg-indigo-500 mt-2 rounded-full shadow-[0_0_15px_indigo]"></div>
+        </motion.div>
 
-        {/* Time Filter Toggle */}
-        <div className="flex p-1.5 bg-surfaceLight/50 backdrop-blur-md border border-white/10 rounded-2xl w-full md:w-auto shadow-inner">
-          <button
-            onClick={() => setFilter('monthly')}
-            className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${filter === 'monthly' ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105' : 'text-gray-500 hover:text-gray-300'}`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setFilter('yearly')}
-            className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${filter === 'yearly' ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105' : 'text-gray-500 hover:text-gray-300'}`}
-          >
-            Yearly
-          </button>
-        </div>
-      </div>
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          {/* Main Tabs */}
+          <div className="flex p-1 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl">
+            {[
+              { id: 'overall', icon: <Globe size={16} />, label: 'All Clubs' },
+              { id: 'club', icon: <Users size={16} />, label: 'Seperate Clubs' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-500 hover:text-gray-300'}`}
+              >
+                {tab.icon} {tab.label}
+              </button>
+            ))}
+          </div>
 
-      {/* Main Container */}
-      <div className="grid grid-cols-1 gap-6">
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-4 border-b border-white/5 pb-2">
-          <button
-            onClick={() => setActiveTab('overall')}
-            className={`flex items-center gap-2 px-6 py-3 font-bold text-sm tracking-wide transition-all border-b-2 ${activeTab === 'overall' ? 'text-primary border-primary' : 'text-gray-500 border-transparent hover:text-gray-300'}`}
-          >
-            <Globe size={16} /> OVERALL
-          </button>
-          <button
-            onClick={() => setActiveTab('club')}
-            className={`flex items-center gap-2 px-6 py-3 font-bold text-sm tracking-wide transition-all border-b-2 ${activeTab === 'club' ? 'text-primary border-primary' : 'text-gray-500 border-transparent hover:text-gray-300'}`}
-          >
-            <Users size={16} /> CLUB-WISE
-          </button>
-
-          {activeTab === 'club' && (
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="ml-auto w-full md:w-64"
-            >
-              <div className="relative">
-                <select
-                  value={selectedClubId}
-                  onChange={(e) => setSelectedClubId(e.target.value)}
-                  className="w-full bg-surfaceLight/50 border border-white/10 rounded-xl py-2.5 pl-4 pr-10 text-sm text-white appearance-none focus:outline-none focus:border-primary/50 transition-all cursor-pointer"
-                >
-                  <option value="">Select a Club</option>
-                  {clubs.map(club => (
-                    <option key={club.id} value={club.id}>{club.name}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={16} />
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Leaderboard Table Container */}
-        <div className="glass-card rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl relative">
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[600px]">
-              <thead>
-                <tr className="bg-white/[0.02] border-b border-white/5">
-                  <th className="px-8 py-6 w-24 text-center text-xs font-black text-gray-500 uppercase tracking-widest">Rank</th>
-                  <th className="px-6 py-6 text-xs font-black text-gray-500 uppercase tracking-widest">Student Details</th>
-                  <th className="px-8 py-6 text-right text-xs font-black text-gray-500 uppercase tracking-widest">Performance</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {loading ? (
-                  <tr>
-                    <td colSpan="3" className="px-8 py-24 text-center">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-                        <span className="text-gray-500 font-bold tracking-widest text-sm animate-pulse uppercase">Fetching ranks...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : leaders.length === 0 ? (
-                  <tr>
-                    <td colSpan="3" className="px-8 py-24 text-center">
-                      <div className="flex flex-col items-center gap-2 opacity-40">
-                        <User size={48} className="text-gray-500" />
-                        <span className="text-gray-500 font-black tracking-widest text-sm uppercase">No data available for this period.</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  leaders.map((student, idx) => {
-                    const isTop3 = student.rank <= 3;
-                    return (
-                      <motion.tr
-                        key={`${student.id}-${idx}`}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className={`group transition-all hover:bg-white/[0.02] ${isTop3 ? 'bg-primary/[0.02]' : ''}`}
-                      >
-                        <td className="px-8 py-5 text-center">
-                          <div className="flex justify-center items-center h-full">
-                            {getRankBadge(student.rank)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg border transition-all ${isTop3 ? 'bg-primary/20 border-primary/30 text-white shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]' : 'bg-surface border-white/5 text-gray-500'}`}>
-                              {student.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className={`font-black text-lg transition-all ${isTop3 ? 'text-white' : 'text-gray-300'}`}>
-                                {student.name}
-                              </div>
-                              <div className="text-xs font-bold text-gray-600 uppercase tracking-widest mt-0.5">
-                                {student.erp}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5 text-right">
-                          <div className="flex flex-col items-end">
-                            <div className="flex items-baseline gap-1.5">
-                              <span className={`text-2xl font-black ${isTop3 ? 'text-primary' : 'text-white'}`}>
-                                {student.total_points}
-                              </span>
-                              <span className="text-[10px] font-black text-gray-600 uppercase tracking-tighter">Points</span>
-                            </div>
-                            {isTop3 && (
-                              <div className="flex items-center gap-1 text-[9px] font-black text-primary/60 uppercase tracking-widest mt-1">
-                                <Star size={8} fill="currentColor" /> ELITE PERFORMANCE
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </motion.tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+          {/* Time Filters */}
+          <div className="flex p-1 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl">
+            {['monthly', 'yearly', 'overall'].map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all ${filter === f ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:text-gray-400'}`}
+              >
+                {f}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Responsive Note */}
-      <p className="text-center text-gray-600 text-[10px] font-black uppercase tracking-[0.2em] pt-4">
-        Updated in real-time based on approved certificates
-      </p>
-    </motion.div>
+      {activeTab === 'club' && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-center">
+          <div className="relative w-full max-w-xs group rounded-3xl  bg-blue/5 p-6 shadow-2xl transition-all hover:-translate-y-1 backdrop-blur-xl">
+            <select
+              value={selectedClubId}
+              onChange={(e) => setSelectedClubId(e.target.value)}
+              className="w-full bg-black/5 border border-white/10 rounded-2xl py-3 pl-6 pr-12 text-sm text-white appearance-none focus:outline-none focus:border-indigo-500 transition-all cursor-pointer font-bold"
+            >
+              <option value="" className='bg-black/90'> Select Club Context</option>
+              {clubs.map(club => <option key={club.id} value={club.id} className='bg-black/90'>{club.name}</option>)}
+            </select>
+            <ChevronDown className="absolute right-8 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-indigo-400 transition-colors" size={20} />
+          </div>
+        </motion.div>
+      )}
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 space-y-4">
+          <div className="w-16 h-16 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+          <p className="text-gray-500 font-black uppercase tracking-[0.3em] text-xs animate-pulse">Syncing Rankings...</p>
+        </div>
+      ) : leaders.length === 0 ? (
+        <div className="bg-white/5 border border-white/5 rounded-[3rem] p-20 text-center">
+          <User size={64} className="mx-auto text-gray-700 mb-6 opacity-20" />
+          <h3 className="text-2xl font-black text-white/20 uppercase tracking-widest">No Competitors Found</h3>
+        </div>
+      ) : (
+        <div className="space-y-16">
+          {/* Podium Section */}
+          <div className="flex flex-col items-end justify-center md:flex-row gap-4 md:gap-0 pt-16">
+            {podiumOrder.map((student, i) => {
+              const isFirst = student.rank === 1;
+              const isSecond = student.rank === 2;
+              const isThird = student.rank === 3;
+
+              return (
+                <motion.div
+                  key={student.id}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1, type: 'spring', stiffness: 100 }}
+                  className={`relative flex flex-col items-center order-${i === 1 ? '1' : i === 0 ? '0' : '2'}`}
+                >
+                  {/* Photo/Avatar Circle */}
+                  <div className={`relative mb-4 group ${isFirst ? 'scale-125 z-10 mx-8' : 'scale-100 z-0'}`}>
+                    <div className={`w-28 h-28 rounded-full p-1.5 bg-gradient-to-tr transition-all duration-500 group-hover:rotate-12 ${isFirst ? 'from-yellow-400 via-amber-200 to-yellow-600 shadow-[0_0_40px_rgba(234,179,8,0.2)]' : isSecond ? 'from-slate-300 to-slate-500' : 'from-orange-400 to-orange-800'}`}>
+                      <div className="w-full h-full rounded-full bg-slate-900 border-2 border-white/10 flex items-center justify-center relative overflow-hidden">
+                        <span className="text-4xl font-black text-white">{student.name.charAt(0)}</span>
+                        {isFirst && <div className="absolute top-0 right-0 p-1.5"><Crown className="text-yellow-400" size={16} fill="currentColor" /></div>}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className={`text-center transition-all ${isFirst ? 'mt-4' : 'mt-0'}`}>
+                    <h3 className={`font-black uppercase tracking-tight ${isFirst ? 'text-2xl text-white' : 'text-lg text-gray-400'}`}>{student.name}</h3>
+                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-0.5">{student.erp}</p>
+                    <div className={`mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-black text-sm border ${isFirst ? 'bg-indigo-600/20 border-indigo-500/30 text-indigo-400' : 'bg-white/5 border-white/5 text-gray-500'}`}>
+                      {student.total_points} <span className="text-[8px] opacity-60">PTS</span>
+                    </div>
+                  </div>
+
+                  {/* Podium Block */}
+                  <div className={`mt-10 w-32 md:w-48 bg-gradient-to-b from-white/10 to-transparent border-t border-white/20 rounded-t-3xl transition-all ${isFirst ? 'h-48 shadow-[0_-20px_50px_rgba(var(--primary-rgb),0.1)]' : isSecond ? 'h-32' : 'h-24'}`}>
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <span className={`text-4xl font-black italic border-b-4 ${isFirst ? 'text-yellow-400 border-yellow-400' : isSecond ? 'text-slate-400 border-slate-400' : 'text-orange-500 border-orange-500'}`}>{student.rank}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* List Section */}
+          <div className="grid grid-cols-1 gap-3">
+            <AnimatePresence mode='popLayout'>
+              {others.map((student, idx) => {
+                const isMe = currentUser?.id === student.id;
+                return (
+                  <motion.div
+                    layout
+                    key={student.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className={`group relative flex items-center p-6 rounded-[2rem] border transition-all hover:scale-[1.01] ${isMe ? 'bg-indigo-600/10 border-indigo-500/30 shadow-[0_0_30px_rgba(79,70,229,0.1)]' : 'bg-white/5 border-white/5 hover:bg-white/[0.08]'}`}
+                  >
+                    {/* Rank */}
+                    <div className="w-12 flex flex-col items-center pr-4 border-r border-white/5">
+                      <span className={`text-xl font-black italic ${isMe ? 'text-indigo-400' : 'text-gray-600 group-hover:text-gray-400'}`}>#{student.rank}</span>
+                      <TrendingUp size={10} className="text-green-500 mt-1 opacity-40 group-hover:opacity-100 transition-opacity" />
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 flex items-center px-6 gap-4">
+                      <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-gray-500 group-hover:bg-indigo-500 group-hover:text-white transition-all`}>
+                        {student.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-black text-white uppercase tracking-tight">{student.name} {isMe && <span className="ml-2 px-2 py-0.5 bg-indigo-500 text-[8px] rounded-md">Self</span>}</h4>
+                        <p className="text-[10px] font-mono text-gray-600">{student.erp}</p>
+                      </div>
+                    </div>
+
+                    {/* Points */}
+                    <div className="text-right">
+                      <div className="flex items-baseline gap-1 justify-end">
+                        <span className={`text-2xl font-black ${isMe ? 'text-indigo-400' : 'text-white'}`}>{student.total_points}</span>
+                        <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Points</span>
+                      </div>
+                      <div className="flex items-center gap-1 justify-end mt-0.5">
+                        <Minus size={10} className="text-gray-700" />
+                        <span className="text-[8px] font-bold text-gray-700 uppercase tracking-widest">Maintainance Grade</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        </div>
+      )}
+
+      {/* Note */}
+      <div className="pt-12 text-center">
+        <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 rounded-full border border-white/10 group cursor-help">
+          <Activity size={14} className="text-indigo-400 animate-pulse" />
+          <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Rankings refresh in real-time on every score update</p>
+        </div>
+      </div>
+    </div>
   );
 };
+
+const Activity = ({ className, size }) => (
+  <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+  </svg>
+);
 
 export default Leaderboard;
 

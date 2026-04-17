@@ -14,6 +14,7 @@ import Badges from './pages/Badges';
 import Notifications from './pages/Notifications';
 import DashboardLayout from './layouts/DashboardLayout';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 
 // Import new Role/Protected Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -104,6 +105,7 @@ const AnimatedRoutes = () => {
           } />
 
           <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/" replace />} />
