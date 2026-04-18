@@ -200,7 +200,15 @@ const bulkGenerateCertificates = async (req, res, next) => {
           [userId, club_id, event_name, event_date, position.toLowerCase(), pdfUrl, points]
         );
 
-        // SYNC WITH EVENT_PARTICIPATION (Centralized Points Control)
+        // 1. Fetch potential existing points to calculate delta (prevent duplicate points)
+        const [existing] = await db.query(
+          `SELECT points FROM event_participation 
+           WHERE user_id = ? AND club_id = ? AND event_name = ? AND event_date = ?`,
+          [userId, club_id, event_name, event_date]
+        );
+        const oldPoints = existing.length > 0 ? existing[0].points : 0;
+
+        // 2. SYNC WITH EVENT_PARTICIPATION (Centralized Points Control)
         // E-Certificate ALWAYS Overrides manual or existing records for the same event
         await db.query(
           `INSERT INTO event_participation 
@@ -213,7 +221,7 @@ const bulkGenerateCertificates = async (req, res, next) => {
           [userId, club_id, event_name, event_date, position.toLowerCase(), points]
         );
 
-        // Update user total points from central table
+        // 3. Update user total points from central table
         await db.query(
           `UPDATE users 
            SET total_points = (SELECT SUM(points) FROM event_participation WHERE user_id = ?) 
@@ -222,10 +230,15 @@ const bulkGenerateCertificates = async (req, res, next) => {
         );
 
         results.success.push({ erp, name: studentName, url: pdfUrl });
-
-        // NOTIFY STUDENT AND REFRESH CACHE
-        createNotification(userId, `You have received a ${position} certificate for ${event_name}! 🏆 (+${points} points)`, 'success', 'E-Certificate Received');
-        updateLeaderboardCache(userId, club_id, points, event_date);
+        
+        // 4. NOTIFY STUDENT AND REFRESH CACHE WITH DELTA
+        if (oldPoints > 0) {
+           createNotification(userId, `You received a certificate for ${event_name} 🏆. Points were not added because this event was already counted.`, 'info', 'E-Certificate Received');
+        } else {
+           createNotification(userId, `You received a certificate for ${event_name}! 🏆 (+${points} points added)`, 'success', 'E-Certificate Received');
+        }
+        
+        updateLeaderboardCache(userId, club_id, points, event_date, oldPoints);
       } catch (error) {
         results.failed.push({ student, error: error.message });
       }

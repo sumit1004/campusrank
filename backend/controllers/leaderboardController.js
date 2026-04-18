@@ -23,7 +23,9 @@ const getLeaderboard = async (req, res, next) => {
         SELECT users.id, users.name, users.erp, lc.total_points
         FROM leaderboard_cache lc
         JOIN users ON lc.user_id = users.id
-        WHERE lc.club_id = ? AND lc.month = MONTH(NOW()) AND lc.year = YEAR(NOW())
+        WHERE lc.club_id = ? 
+        AND lc.month = MONTH(CURRENT_DATE()) 
+        AND lc.year = YEAR(CURRENT_DATE())
         ORDER BY lc.total_points DESC
         LIMIT 50
       `;
@@ -33,7 +35,8 @@ const getLeaderboard = async (req, res, next) => {
         SELECT users.id, users.name, users.erp, SUM(lc.total_points) as total_points
         FROM leaderboard_cache lc
         JOIN users ON lc.user_id = users.id
-        WHERE lc.club_id = ? AND lc.year = YEAR(NOW())
+        WHERE lc.club_id = ? 
+        AND lc.year = YEAR(CURRENT_DATE())
         GROUP BY users.id
         ORDER BY total_points DESC
         LIMIT 50

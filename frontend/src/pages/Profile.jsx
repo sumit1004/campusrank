@@ -26,11 +26,12 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/users/profile');
+      const res = await api.get('/profile');
       setProfileData(res.data.data);
+      const { user: profileUser } = res.data.data;
       setEditForm({
-        branch: res.data.data.user.branch || 'Unspecified',
-        semester: res.data.data.user.semester || 'Not Set'
+        branch: profileUser.branch || 'Unspecified',
+        semester: profileUser.semester || 'Not Set'
       });
     } catch (error) {
       toast.error("Failed to load profile data");
@@ -42,7 +43,7 @@ const Profile = () => {
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      await api.put('/users/profile', editForm);
+      await api.put('/profile', editForm);
       const updatedUser = { ...user, ...editForm };
       updateUser(updatedUser);
       setIsEditing(false);
@@ -65,6 +66,7 @@ const Profile = () => {
   }
 
   const { rank, certificates, approvedCount, pendingCount, eCertsCount, monthlyStats, activityLogs, manualHistory } = profileData;
+  const currentTotalXP = profileData.user.total_points;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -75,6 +77,9 @@ const Profile = () => {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1 }
   };
+
+  // Calculate max points for graph scaling
+  const maxPoints = Math.max(...(monthlyStats?.map(s => s.points) || [0]), 100);
 
   return (
     <motion.div 
@@ -107,8 +112,8 @@ const Profile = () => {
                 <span className="flex items-center gap-2"><Hash size={14} className="text-indigo-500" /> {user.erp}</span>
                 {user.role !== 'superadmin' && (
                   <>
-                    <span className="flex items-center gap-2"><BookOpen size={14} className="text-indigo-500" /> {user.branch || 'Unspecified'}</span>
-                    <span className="flex items-center gap-2"><GraduationCap size={14} className="text-indigo-500" /> Sem {user.semester || 'N/A'}</span>
+                    <span className="flex items-center gap-2"><BookOpen size={14} className="text-indigo-500" /> {editForm.branch}</span>
+                    <span className="flex items-center gap-2"><GraduationCap size={14} className="text-indigo-500" /> Sem {editForm.semester}</span>
                   </>
                 )}
               </div>
@@ -124,25 +129,69 @@ const Profile = () => {
         </div>
       </motion.div>
 
-      {/* STATS GRID - STUDENT ONLY */}
-      {user.role === 'student' && (
-        <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { label: 'Total XP', value: user.total_points, icon: <Award className="text-indigo-400" />, color: 'from-indigo-500/10 to-transparent' },
-            { label: 'Global Rank', value: `#${rank}`, icon: <Trophy className="text-yellow-400" />, color: 'from-yellow-500/10 to-transparent' },
-            { label: 'Certificates', value: eCertsCount, icon: <ShieldCheck className="text-green-400" />, color: 'from-green-500/10 to-transparent' },
-            { label: 'History', value: approvedCount, icon: <ClipboardList className="text-blue-400" />, color: 'from-blue-500/10 to-transparent' }
+      {/* STATS & GROWTH GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Stats Cards */}
+        <div className="lg:col-span-1 space-y-6">
+           {[
+            { label: 'Total XP', value: currentTotalXP, icon: <Award className="text-indigo-400" />, color: 'from-indigo-500/20 to-indigo-500/5' },
+            { label: 'Global Rank', value: `#${rank}`, icon: <Trophy className="text-yellow-400" />, color: 'from-yellow-500/20 to-yellow-500/5' },
+            { label: 'Verified Assets', value: eCertsCount, icon: <ShieldCheck className="text-green-400" />, color: 'from-green-500/20 to-green-500/5' }
           ].map((stat, i) => (
-            <div key={i} className={`bg-gradient-to-br ${stat.color} bg-[#111827]/40 border border-white/5 p-6 rounded-[2rem] relative overflow-hidden group shadow-xl transition-all hover:translate-y-[-4px]`}>
-               <div className="relative z-10 flex flex-col items-center">
-                  <div className="p-4 bg-white/5 rounded-2xl mb-4 group-hover:scale-110 transition-transform">{stat.icon}</div>
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">{stat.label}</p>
-                  <h3 className="text-3xl font-black text-white italic">{stat.value}</h3>
+            <motion.div key={i} variants={itemVariants} className={`bg-gradient-to-br ${stat.color} bg-[#111827]/40 border border-white/5 p-8 rounded-[2.5rem] relative overflow-hidden group shadow-xl transition-all hover:translate-y-[-4px]`}>
+               <div className="relative z-10 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">{stat.label}</p>
+                    <h3 className="text-4xl font-black text-white italic">{stat.value}</h3>
+                  </div>
+                  <div className="p-5 bg-white/5 rounded-[1.5rem] group-hover:scale-110 group-hover:bg-white/10 transition-all">{stat.icon}</div>
                </div>
-            </div>
+            </motion.div>
           ))}
+        </div>
+
+        {/* Right Column: Growth Pattern Graph */}
+        <motion.div variants={itemVariants} className="lg:col-span-2 bg-[#111827]/40 border border-white/5 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden flex flex-col">
+          <div className="flex justify-between items-center mb-10">
+            <h2 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-4">
+               <ActivityIcon className="text-indigo-500" size={24} />
+               Growth Pattern
+            </h2>
+            <div className="px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-[9px] font-black text-indigo-400 uppercase tracking-widest">Live Momentum</div>
+          </div>
+          
+          {/* Custom Performance Chart */}
+          <div className="flex-1 flex items-end justify-around gap-2 pt-4 min-h-[200px]">
+            {monthlyStats.length === 0 ? (
+               <div className="h-full w-full flex items-center justify-center text-gray-600 text-[10px] font-black uppercase tracking-widest">Initialize progress to see pattern</div>
+            ) : (
+              monthlyStats.map((stat, i) => {
+                const height = (stat.points / maxPoints) * 100;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-4 group">
+                    <div className="relative w-full flex flex-col items-center">
+                       {/* Value Tooltip on Hover */}
+                       <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded-lg">
+                          +{stat.points} XP
+                       </div>
+                       {/* The Bar */}
+                       <motion.div 
+                        initial={{ height: 0 }}
+                        animate={{ height: `${Math.max(height, 5)}%` }}
+                        transition={{ duration: 1, delay: i * 0.1, ease: [0.33, 1, 0.68, 1] }}
+                        className="w-full max-w-[40px] bg-gradient-to-t from-indigo-600/20 to-indigo-500 rounded-2xl relative shadow-[0_0_20px_rgba(79,70,229,0.2)] group-hover:shadow-[0_0_40px_rgba(79,70,229,0.4)] transition-all"
+                       >
+                         <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-2xl"></div>
+                       </motion.div>
+                    </div>
+                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-tighter truncate w-full text-center">{stat.month.substring(0, 3)}</span>
+                  </div>
+                )
+              })
+            )}
+          </div>
         </motion.div>
-      )}
+      </div>
 
       {/* VERIFIED DIGITAL ASSETS (FULL LIST) */}
       {user.role === 'student' && eCertsCount > 0 && (
@@ -204,7 +253,7 @@ const Profile = () => {
                            </td>
                            <td className="px-8 py-8 font-black text-gray-400 text-xs uppercase tracking-widest">{p.position}</td>
                            <td className="px-8 py-8 text-right font-black text-white text-xl italic tracking-tighter">
-                              +{p.source === 'e_certificate' ? '50' : '20'}
+                              +{p.points || 0}
                            </td>
                         </tr>
                      ))}

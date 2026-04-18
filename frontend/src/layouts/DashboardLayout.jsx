@@ -105,7 +105,7 @@ const DashboardLayout = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* Top Navbar */}
-        <header className="h-[70px] md:h-[100px] text-gray-50 px-4 md:px-10 flex items-center justify-between shrink-0 sticky top-0 z-10 w-full backdrop-blur-md mb-4 bg-gradient-to-b from-background to-transparent">
+        <header className="h-[70px] md:h-[100px] text-gray-50 px-4 md:px-10 flex items-center justify-between shrink-0 sticky top-0 z-[100] w-full backdrop-blur-md mb-4 bg-gradient-to-b from-background to-transparent">
           <div className="flex items-center space-x-3 md:space-x-4">
             <button className="lg:hidden text-gray-400 hover:text-white" onClick={() => setIsSidebarOpen(true)}>
               <Menu size={24} />

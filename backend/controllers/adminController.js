@@ -148,14 +148,13 @@ const approveCertificate = async (req, res, next) => {
     await connection.query(updateCertQuery, [finalPoints, adminId, certificateId]);
 
     // 5. INSERT INTO event_participation (Centralized Points Control)
-    // For manual upload, we use IGNORE or simply handle duplicates.
-    // The user suggested: try insert, if duplicate: ignore OR update.
+    // For manual upload, we use IGNORE. If it already exists (from e-cert or previous manual), affectedRows will be 0.
     const insertParticipationQuery = `
       INSERT IGNORE INTO event_participation 
       (user_id, club_id, event_name, event_date, position, source, points)
       VALUES (?, ?, ?, ?, ?, 'manual', ?)
     `;
-    await connection.query(insertParticipationQuery, [
+    const [result] = await connection.query(insertParticipationQuery, [
       certificate.user_id,
       certificate.club_id,
       certificate.event_name || 'Legacy Event',
@@ -164,22 +163,27 @@ const approveCertificate = async (req, res, next) => {
       finalPoints
     ]);
 
-    // 6. Update the user's total points securely
-    // We update based on the points added to the master table
-    const updateUserQuery = `
-      UPDATE users
-      SET total_points = (SELECT SUM(points) FROM event_participation WHERE user_id = ?)
-      WHERE id = ?
-    `;
-    await connection.query(updateUserQuery, [certificate.user_id, certificate.user_id]);
-
     // Commit all changes
     await connection.commit();
 
+    // 6. Update the user's total points securely (Redundancy sync)
+    await db.query(
+      `UPDATE users 
+       SET total_points = (SELECT SUM(points) FROM event_participation WHERE user_id = ?) 
+       WHERE id = ?`, 
+      [certificate.user_id, certificate.user_id]
+    );
+
     // 7. ASYNC TASKS: Log, Notify, and Refresh Cache
     logActivity(adminId, 'VERIFY_CERT', certificateId, { points: finalPoints, user_id: certificate.user_id });
-    createNotification(certificate.user_id, `Your certificate for ${certificate.event_name || 'Event'} has been approved! 🎉 (+${finalPoints} points)`, 'success', 'Certificate Approved');
-    updateLeaderboardCache(certificate.user_id, certificate.club_id, finalPoints, certificate.event_date);
+    
+    // ONLY update cache and notify with points if this was a NEW participation record (prevent double counting)
+    if (result.affectedRows > 0) {
+      createNotification(certificate.user_id, `Your certificate for ${certificate.event_name || 'Event'} has been approved! 🎉 (+${finalPoints} points added)`, 'success', 'Certificate Approved');
+      updateLeaderboardCache(certificate.user_id, certificate.club_id, finalPoints, certificate.event_date);
+    } else {
+      createNotification(certificate.user_id, `Your certificate for ${certificate.event_name || 'Event'} has been approved! 🏆 (Points were not added because this event was already counted)`, 'success', 'Certificate Approved');
+    }
 
     res.status(200).json({
       success: true,

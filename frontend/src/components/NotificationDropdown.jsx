@@ -87,7 +87,7 @@ const NotificationDropdown = () => {
             initial={{ opacity: 0, y: 15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 15, scale: 0.95 }}
-            className="absolute right-0 mt-4 w-[320px] md:w-[380px] bg-surface/95 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden z-50 origin-top-right"
+            className="absolute right-0 mt-4 w-[320px] md:w-[380px] bg-surface border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden z-[9999] origin-top-right shadow-[#000000]/50"
           >
             <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <div>

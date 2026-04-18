@@ -81,7 +81,10 @@ app.use('/api/forms', require('./routes/formRoutes'));
 app.use('/api/templates', require('./routes/templateRoutes'));
 
 // --- User Routes ---
+const { getUserProfile, updateProfile } = require('./controllers/userController');
 app.use('/api/users', require('./routes/userRoutes'));
+app.get('/api/profile', protect, getUserProfile);
+app.put('/api/profile', protect, updateProfile);
 
 // --- Protected Routes ---
 // This test route requires a valid token attached to the "Authorization" header
