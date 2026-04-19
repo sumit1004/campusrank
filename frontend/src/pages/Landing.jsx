@@ -37,7 +37,7 @@ const SUMIT_IMG = `${BASE_URL}myimg.jpg`;
 const SUMIT_IMG_FALLBACK = `${BASE_URL}myimg.jpg`;
 
 const Section = ({ id, children, className = '' }) => (
-  <section id={id} className={`relative w-full px-5 sm:px-6 ${className}`}>
+  <section id={id} className={`relative w-full px-4 sm:px-6 md:px-12 py-10 sm:py-16 md:py-24 ${className.replace(/py-\d+|pt-\d+|pb-\d+|sm:py-\d+|sm:pt-\d+|sm:pb-\d+/g, '')}`}>
     <div className="mx-auto w-full max-w-7xl">{children}</div>
   </section>
 );
@@ -76,28 +76,28 @@ const BadgeCard = ({ name, tier, icon: Icon, progress, status, color }) => {
         }}
       >
         <div
-          className="w-full h-full bg-[#111319] flex flex-col items-center justify-between py-10 px-6"
+          className="w-full h-full bg-[#111319] flex flex-col items-center justify-between py-6 px-3 sm:py-10 sm:px-6"
           style={{
             clipPath: 'polygon(0 0, 85% 0, 100% 12%, 100% 100%, 15% 100%, 0 88%)',
           }}
         >
           {/* Icon Box */}
           <div className="relative mb-2">
-            <div className={`w-20 h-20 rounded-2xl border-2 flex items-center justify-center bg-white/[0.03] ${color.border} shadow-2xl`}>
-              <Icon size={32} className={color.text} strokeWidth={1.5} />
+            <div className={`w-12 h-12 sm:w-20 sm:h-20 rounded-[0.8rem] sm:rounded-2xl border-2 flex items-center justify-center bg-white/[0.03] ${color.border} shadow-2xl`}>
+              <Icon className={`w-6 h-6 sm:w-8 sm:h-8 ${color.text}`} strokeWidth={1.5} />
             </div>
             {/* Inner Glow */}
             <div className={`absolute inset-0 blur-2xl opacity-20 ${color.bg} rounded-full`} />
           </div>
 
           <div className="text-center">
-            <h3 className="text-2xl font-bold text-white tracking-tight">{name}</h3>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold mt-1">{tier}</p>
+            <h3 className="text-sm sm:text-2xl font-bold text-white tracking-tight">{name}</h3>
+            <p className="text-[8px] sm:text-[10px] uppercase tracking-[0.2em] text-white/30 font-bold mt-1">{tier}</p>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full px-2">
-            <div className="h-1.5 w-full bg-white/[0.05] rounded-full overflow-hidden relative">
+          <div className="w-full px-1 sm:px-2">
+            <div className="h-1 sm:h-1.5 w-full bg-white/[0.05] rounded-full overflow-hidden relative">
               <motion.div
                 initial={{ width: 0 }}
                 whileInView={{ width: `${progress}%` }}
@@ -105,13 +105,13 @@ const BadgeCard = ({ name, tier, icon: Icon, progress, status, color }) => {
                 className={`h-full ${color.progressBg} relative rounded-full`}
               >
                 {progress > 0 && (
-                  <div className={`absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 blur-md ${color.bg} rounded-full`} />
+                  <div className={`absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 sm:w-4 sm:h-4 blur-md ${color.bg} rounded-full`} />
                 )}
               </motion.div>
             </div>
           </div>
 
-          <button className={`w-full py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all border ${isLocked
+          <button className={`w-full py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black uppercase tracking-widest transition-all border ${isLocked
             ? 'bg-white/[0.02] border-white/10 text-white/20'
             : `bg-white/[0.03] ${color.border} ${color.text} shadow-[0_0_20px_rgba(0,0,0,0.3)] hover:scale-[1.02]`
             }`}>
@@ -245,21 +245,21 @@ const LeaderboardCard = ({ data, rank, isMain }) => {
   return (
     <motion.div
       variants={fadeUp}
-      className={`relative ${isMain ? 'w-full lg:w-[42%] order-1 lg:order-2' : 'w-full lg:w-[29%] order-2 lg:order-1'} group`}
+      className={`relative ${isMain ? 'w-[36%] lg:w-[42%] order-1 lg:order-2 shrink-0' : 'w-[28%] lg:w-[29%] order-2 lg:order-1 shrink-0'} group`}
     >
       <div
-        className={`h-full rounded-[2.5rem] bg-[#111319] border ${isMain ? config.border : 'border-white/5'} p-8 flex flex-col items-center transition-all duration-500 group-hover:bg-[#151821] ${isMain ? config.glow : ''}`}
+        className={`h-full rounded-2xl sm:rounded-[2.5rem] bg-[#111319] border ${isMain ? config.border : 'border-white/5'} p-2 sm:p-8 flex flex-col items-center transition-all duration-500 group-hover:bg-[#151821] ${isMain ? config.glow : ''}`}
       >
         {isMain && (
-          <div className="absolute top-8 left-8 text-amber-500">
-            <Crown size={32} fill="currentColor" />
+          <div className="absolute top-2 left-2 sm:top-8 sm:left-8 text-amber-500">
+            <Crown className="w-4 h-4 sm:w-8 sm:h-8" fill="currentColor" />
           </div>
         )}
 
         {/* Avatar Section */}
-        <div className="relative mb-8">
-          <div className={`relative ${isMain ? 'w-48 h-48' : 'w-32 h-32'} rounded-3xl overflow-hidden p-[2px] ${isMain ? 'bg-amber-500/50' : 'bg-white/10'}`}>
-            <div className={`w-full h-full rounded-3xl overflow-hidden ${config.imgBg} relative`}>
+        <div className="relative mb-4 sm:mb-8 mt-2 sm:mt-0">
+          <div className={`relative ${isMain ? 'w-12 h-12 sm:w-48 sm:h-48' : 'w-10 h-10 sm:w-32 sm:h-32'} mx-auto overflow-hidden rounded-xl sm:rounded-3xl p-[2px] ${isMain ? 'bg-amber-500/50' : 'bg-white/10'}`}>
+            <div className={`w-full h-full rounded-xl sm:rounded-3xl overflow-hidden ${config.imgBg} relative`}>
               <img
                 src={SUMIT_IMG}
                 alt={data.name}
@@ -271,30 +271,30 @@ const LeaderboardCard = ({ data, rank, isMain }) => {
 
           {/* Rank Badge */}
           {isMain ? (
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 rounded-xl bg-amber-400 text-black font-black text-xs shadow-xl min-w-[100px] text-center">
+            <div className="absolute -bottom-3 sm:-bottom-4 left-1/2 -translate-x-1/2 px-2 sm:px-6 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-amber-400 text-black font-black text-[8px] sm:text-xs shadow-xl min-w-[50px] sm:min-w-[100px] text-center">
               {config.rankText}
             </div>
           ) : (
-            <div className={`absolute -right-2 bottom-6 w-10 h-10 rounded-xl ${config.badge} flex items-center justify-center font-black text-sm shadow-xl`}>
+            <div className={`absolute -right-1 sm:-right-2 -bottom-2 sm:bottom-6 w-6 h-6 sm:w-10 sm:h-10 rounded-md sm:rounded-xl ${config.badge} flex items-center justify-center font-black text-[10px] sm:text-sm shadow-xl`}>
               {config.rankText}
             </div>
           )}
         </div>
 
         {/* Info */}
-        <div className="text-center mb-8">
-          <h3 className={`${isMain ? 'text-4xl' : 'text-2xl'} font-black text-white mb-2`}>{data.name}</h3>
-          <p className={`text-xs font-black uppercase tracking-[0.2em] ${config.clubColor}`}>{data.club}</p>
+        <div className="text-center mb-4 sm:mb-8">
+          <h3 className={`${isMain ? 'text-xs sm:text-4xl' : 'text-[10px] sm:text-2xl'} font-black text-white mb-1 md:mb-2 truncate w-[70px] sm:w-auto mx-auto`}>{data.name}</h3>
+          <p className={`text-[6px] sm:text-xs font-black uppercase tracking-[0.2em] ${config.clubColor} truncate w-[60px] sm:w-auto mx-auto`}>{data.club}</p>
         </div>
 
         {/* Stats */}
-        <div className={`w-full grid ${isMain ? 'grid-cols-2' : 'grid-cols-1'} gap-4 pt-8 border-t border-white/5`}>
+        <div className={`w-full grid ${isMain ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'} gap-2 sm:gap-4 pt-2 sm:pt-8 border-t border-white/5`}>
           <div className="text-center">
-            <p className="text-[10px] uppercase font-black text-white/30 tracking-widest mb-2">Total Points</p>
-            <p className={`${isMain ? 'text-3xl' : 'text-2xl'} font-black text-white`}>{data.points ? data.points.toLocaleString() : 0}</p>
+            <p className="text-[6px] sm:text-[10px] uppercase font-black text-white/30 tracking-widest mb-1 sm:mb-2">Total Points</p>
+            <p className={`${isMain ? 'text-sm sm:text-3xl' : 'text-xs sm:text-2xl'} font-black text-white`}>{data.points ? data.points.toLocaleString() : 0}</p>
           </div>
           {isMain && (
-            <div className="text-center border-l border-white/5">
+            <div className="hidden sm:block text-center border-l border-white/5">
               <p className="text-[10px] uppercase font-black text-white/30 tracking-widest mb-2">Win Rate</p>
               <p className="text-3xl font-black text-white">94%</p>
             </div>
@@ -311,7 +311,9 @@ const fadeUp = {
 };
 
 const Landing = () => {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotionReal = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const prefersReducedMotion = prefersReducedMotionReal;
   const [campusSrc, setCampusSrc] = useState(CAMPUS_IMG);
   const [logoSrc, setLogoSrc] = useState(LOGO_IMG);
   const [points, setPoints] = useState(0);
@@ -340,6 +342,9 @@ const Landing = () => {
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -510,35 +515,52 @@ const Landing = () => {
 
         {/* HERO */}
         <Section className="pt-14 sm:pt-20">
-          <div className="grid grid-cols-1 items-center gap-10 pb-8 lg:grid-cols-2 lg:pb-16">
+          <div className="grid grid-cols-1 items-center gap-12 sm:gap-10 pb-8 lg:grid-cols-2 lg:pb-16">
             <MotionWrapper
               {...(!prefersReducedMotion
                 ? { initial: 'hidden', animate: 'show', variants: { hidden: {}, show: { transition: { staggerChildren: 0.08 } } } }
                 : {})}
-              className="relative"
+              className="relative pt-4 sm:pt-0"
             >
-              <motion.div variants={fadeUp} className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-xs font-extrabold tracking-wide text-black/70 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-white/70">
+              <motion.div variants={fadeUp} className="inline-flex self-start items-center gap-2 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-xs font-extrabold tracking-wide text-black/70 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-white/70">
                 <Sparkles size={14} />
                 <span>Certificates → Rank, instantly visual</span>
               </motion.div>
 
-              <motion.h1
-                variants={fadeUp}
-                className="mt-5 text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl"
-              >
-                CampusRank
-              </motion.h1>
+              {/* MOBILE TEXT */}
+              <div className="block sm:hidden">
+                <motion.h1
+                  variants={fadeUp}
+                  className="mt-6 text-4xl font-black tracking-tight leading-tight"
+                >
+                  Track your achievements, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">rank up.</span>
+                </motion.h1>
 
-              <motion.p variants={fadeUp} className={`mt-3 text-lg font-semibold sm:text-xl ${palette.muted}`}>
-                Your Certificates. Your Rank.
-              </motion.p>
+                <motion.p variants={fadeUp} className={`mt-4 text-[13px] font-medium ${palette.muted} leading-relaxed`}>
+                  Turn your participation certificates into global campus rankings, exclusive badges, and undeniable proof of your skills.
+                </motion.p>
+              </div>
+
+              {/* DESKTOP TEXT */}
+              <div className="hidden sm:block">
+                <motion.h1
+                  variants={fadeUp}
+                  className="mt-5 text-6xl md:text-7xl font-black tracking-tight"
+                >
+                  CampusRank
+                </motion.h1>
+
+                <motion.p variants={fadeUp} className={`mt-3 text-xl font-semibold ${palette.muted}`}>
+                  Your Certificates. Your Rank.
+                </motion.p>
+              </div>
 
               {/* VISUAL FLOW */}
               <motion.div
                 variants={fadeUp}
                 className="mt-7 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-[0_22px_70px_rgba(0,0,0,0.4)] backdrop-blur-2xl"
               >
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-5 sm:gap-2">
+                <div className="flex justify-between items-center sm:grid sm:grid-cols-5 sm:gap-2">
                   {flow.map((f, idx) => {
                     const Icon = f.icon;
                     const isLast = idx === flow.length - 1;
@@ -551,14 +573,19 @@ const Landing = () => {
                         className="relative"
                       >
                         <div
-                          className="relative flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:flex-col sm:items-start sm:justify-start backdrop-blur-md"
+                          className="relative flex items-center justify-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border border-white/10 bg-white/[0.03] p-2 sm:p-4 sm:flex-col sm:items-start sm:justify-start backdrop-blur-md"
                         >
-                          <div className={`absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br ${f.tint}`} />
-                          <div className="flex items-center gap-3 sm:flex-col sm:items-start">
-                            <div className="grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/10 text-white">
-                              <Icon size={18} />
+                          <div className={`absolute inset-0 -z-10 rounded-xl sm:rounded-2xl bg-gradient-to-br ${f.tint}`} />
+                          <div className="flex flex-col items-center gap-1.5 sm:gap-3 sm:items-start">
+                            <div className="grid h-10 w-10 sm:h-12 sm:w-12 place-items-center rounded-xl sm:rounded-2xl border border-white/10 bg-white/10 text-white">
+                              <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                             </div>
-                            <div className="min-w-0 text-white">
+                            {/* MOBILE LABEL */}
+                            <div className="block sm:hidden min-w-0 text-white text-center">
+                              <div className="text-[9px] font-extrabold tracking-tight leading-tight max-w-[50px] truncate">{f.label}</div>
+                            </div>
+                            {/* DESKTOP LABEL */}
+                            <div className="hidden sm:block min-w-0 text-white">
                               <div className="text-sm font-extrabold tracking-tight">{f.label}</div>
                               <div className="text-xs text-white/50">{idx === 1 ? 'Admin check' : idx === 3 ? 'Climb' : ' '}</div>
                             </div>
@@ -620,7 +647,7 @@ const Landing = () => {
                 </Link>
                 <Link
                   to="/leaderboard"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto"
+                  className="hidden sm:inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto"
                 >
                   View Leaderboard
                   <Trophy size={18} />
@@ -849,7 +876,7 @@ const Landing = () => {
       </Section>
 
       {/* DASHBOARD PREVIEW */}
-      <Section className="pb-16 sm:pb-20">
+      <Section className="hidden sm:block pb-16 sm:pb-20">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
           <motion.div
             initial={prefersReducedMotion ? undefined : { opacity: 0, x: -22 }}
@@ -982,7 +1009,7 @@ const Landing = () => {
             hidden: {},
             show: { transition: { staggerChildren: 0.15 } },
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6"
         >
           {[
             {
@@ -1047,17 +1074,14 @@ const Landing = () => {
       </Section>
 
       {/* CLUB SYSTEM */}
-      <Section id="clubs" className="h-screen relative flex items-center justify-center overflow-hidden bg-[#0B0F19] py-0">
-
-        {/* MASSIVE UNCONSTRAINED GLOW - Positioned at the very back */}
-        {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] bg-[#5850EC]/20 blur-[200px] pointer-events-none rounded-full z-0" /> */}
+      <Section id="clubs" className="py-20 sm:h-[80vh] relative flex flex-col items-center justify-center overflow-hidden bg-[#0B0F19]">
 
         {/* CONTENT OVERLAY */}
-        <div className="relative z-30 text-center select-none pointer-events-none">
+        <div className="relative z-30 text-center select-none pointer-events-none mb-10 sm:mb-0">
           <div className="inline-block mb-4 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.3em] text-[#5850EC] shadow-2xl">
             The Network
           </div>
-          <h2 className="text-6xl sm:text-9xl font-black tracking-tighter text-white blur-[1px]">
+          <h2 className="text-4xl sm:text-9xl font-black tracking-tighter text-white sm:blur-[1px]">
             <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/5 opacity-70 ">
               Active Clubs
             </span>
@@ -1068,7 +1092,7 @@ const Landing = () => {
         </div>
 
         {/* STRIPS LAYER - Positioned behind/around the text */}
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-auto">
+        <div className="relative sm:absolute inset-0 flex flex-col items-center justify-center overflow-hidden pointer-events-auto h-40 sm:h-auto z-10 sm:-z-0">
           <style>{`
             @keyframes horizontalMarquee {
               0% { transform: translateX(0); }
@@ -1158,7 +1182,8 @@ const Landing = () => {
             hidden: {},
             show: { transition: { staggerChildren: 0.15 } },
           }}
-          className="flex flex-col lg:flex-row items-stretch justify-center gap-6 lg:gap-8"
+          className="flex flex-row md:flex-row items-end justify-center gap-2 md:gap-8 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 [&::-webkit-scrollbar]:hidden"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {/* Order: Rank 2, Rank 1, Rank 3 */}
           <LeaderboardCard data={top3[1]} rank={2} />
@@ -1170,8 +1195,8 @@ const Landing = () => {
 
 
       {/* COLLEGE SECTION */}
-      <Section id="about" className="py-16 sm:py-20">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+      <Section id="about" className="py-10 sm:py-20">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 items-center gap-6 sm:gap-10">
           <motion.div
             initial={prefersReducedMotion ? undefined : { opacity: 0, x: -22 }}
             whileInView={prefersReducedMotion ? undefined : { opacity: 1, x: 0 }}
@@ -1183,20 +1208,7 @@ const Landing = () => {
             <div className={`mt-3 text-sm ${palette.muted}`}>
               A modern campus ecosystem where verified achievements turn into visible reputation—across clubs, events, and communities.
             </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <div className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto">
-                <ShieldCheck size={16} />
-                Verified credentials
-              </div>
-              <div className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto">
-                <Trophy size={16} />
-                Leaderboards
-              </div>
-              <div className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-extrabold text-white/90 shadow-sm transition hover:bg-white/10 sm:w-auto">
-                <Award size={16} />
-                Badges
-              </div>
-            </div>
+
           </motion.div>
 
           <motion.div
