@@ -33,6 +33,17 @@ const uploadCertificate = async (req, res, next) => {
       throw new Error('Invalid position.');
     }
 
+    // Check if user already has a pending or approved certificate for this exact event to prevent spam
+    const [existing] = await db.query(
+      'SELECT id FROM certificates WHERE user_id = ? AND club_id = ? AND event_name = ? AND event_date = ? AND status IN ("pending", "approved")',
+      [userId, club_id, event_name, event_date]
+    );
+
+    if (existing.length > 0) {
+      res.status(400);
+      throw new Error('You have already uploaded a certificate for this event.');
+    }
+
     const insertQuery = `
       INSERT INTO certificates (user_id, club_id, event_name, position, event_date, file_url, status)
       VALUES (?, ?, ?, ?, ?, ?, 'pending')
@@ -233,7 +244,13 @@ const bulkGenerateCertificates = async (req, res, next) => {
         
         // 4. NOTIFY STUDENT AND REFRESH CACHE WITH DELTA
         if (oldPoints > 0) {
-           createNotification(userId, `You received a certificate for ${event_name} 🏆. Points were not added because this event was already counted.`, 'info', 'E-Certificate Received');
+           if (oldPoints !== points) {
+               const diff = points - oldPoints;
+               const sign = diff > 0 ? '+' : '';
+               createNotification(userId, `Your certificate for ${event_name} was upgraded! 🏆 (${sign}${diff} points)`, 'success', 'E-Certificate Updated');
+           } else {
+               createNotification(userId, `You received a certificate for ${event_name} 🏆. Points were not added because this event was already counted.`, 'info', 'E-Certificate Received');
+           }
         } else {
            createNotification(userId, `You received a certificate for ${event_name}! 🏆 (+${points} points added)`, 'success', 'E-Certificate Received');
         }

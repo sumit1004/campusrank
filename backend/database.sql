@@ -41,7 +41,9 @@ CREATE TABLE IF NOT EXISTS event_participation (
   source ENUM('manual','e_certificate'),
   points INT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE KEY unique_event (user_id, club_id, event_name, event_date)
+  UNIQUE KEY unique_event (user_id, club_id, event_name, event_date),
+  CONSTRAINT fk_ep_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ep_club FOREIGN KEY (club_id) REFERENCES clubs(id) ON DELETE CASCADE
 );
 
 -- ─── Event Registration System ────────────────────────────────────────────────
@@ -148,5 +150,8 @@ CREATE TABLE IF NOT EXISTS leaderboard_cache (
   month INT,
   year INT,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (user_id, club_id, month, year)
+  PRIMARY KEY (user_id, club_id, month, year),
+  CONSTRAINT fk_lc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_lc_club FOREIGN KEY (club_id) REFERENCES clubs(id) ON DELETE CASCADE
 );
+

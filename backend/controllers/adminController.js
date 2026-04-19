@@ -266,7 +266,15 @@ const rejectCertificate = async (req, res, next) => {
 
 const getAdminStats = async (req, res, next) => {
   try {
-    const { id: adminId } = req.user;
+    const { id: adminId, role } = req.user;
+    
+    if (role === 'superadmin') {
+      const [[{ total }]] = await db.query('SELECT COUNT(*) as total FROM certificates');
+      const [[{ pending }]] = await db.query('SELECT COUNT(*) as pending FROM certificates WHERE status = "pending"');
+      const [[{ approved }]] = await db.query('SELECT COUNT(*) as approved FROM certificates WHERE status = "approved"');
+      return res.json({ success: true, data: { total, pending, approved } });
+    }
+
     const [admins] = await db.query('SELECT club_id FROM users WHERE id = ?', [adminId]);
     const adminClubId = admins[0]?.club_id;
     if (!adminClubId) return res.json({ success: true, data: { total: 0, pending: 0, approved: 0 }});
