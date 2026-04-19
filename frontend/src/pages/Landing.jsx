@@ -257,8 +257,8 @@ const LeaderboardCard = ({ data, rank, isMain }) => {
         )}
 
         {/* Avatar Section */}
-        <div className="relative mb-4 sm:mb-8 mt-2 sm:mt-0">
-          <div className={`relative ${isMain ? 'w-12 h-12 sm:w-48 sm:h-48' : 'w-10 h-10 sm:w-32 sm:h-32'} mx-auto overflow-hidden rounded-xl sm:rounded-3xl p-[2px] ${isMain ? 'bg-amber-500/50' : 'bg-white/10'}`}>
+        <div className="relative mb-5 sm:mb-8 mt-2 sm:mt-0">
+          <div className={`relative ${isMain ? 'w-20 h-20 sm:w-48 sm:h-48' : 'w-14 h-14 sm:w-32 sm:h-32'} mx-auto overflow-hidden rounded-xl sm:rounded-3xl p-[2px] ${isMain ? 'bg-amber-500/50' : 'bg-white/10'}`}>
             <div className={`w-full h-full rounded-xl sm:rounded-3xl overflow-hidden ${config.imgBg} relative`}>
               <img
                 src={SUMIT_IMG}
@@ -271,7 +271,7 @@ const LeaderboardCard = ({ data, rank, isMain }) => {
 
           {/* Rank Badge */}
           {isMain ? (
-            <div className="absolute -bottom-3 sm:-bottom-4 left-1/2 -translate-x-1/2 px-2 sm:px-6 py-1 sm:py-2 rounded-lg sm:rounded-xl bg-amber-400 text-black font-black text-[8px] sm:text-xs shadow-xl min-w-[50px] sm:min-w-[100px] text-center">
+            <div className="absolute -bottom-2 sm:-bottom-4 left-1/2 -translate-x-1/2 px-2 sm:px-6 py-0.5 sm:py-2 rounded-lg sm:rounded-xl bg-amber-400 text-black font-black text-[8px] sm:text-xs shadow-xl min-w-[60px] sm:min-w-[100px] text-center whitespace-nowrap">
               {config.rankText}
             </div>
           ) : (
