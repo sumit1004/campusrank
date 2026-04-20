@@ -35,18 +35,49 @@ const getUserProfile = async (req, res, next) => {
     );
     const rank = rankRows[0].rank;
 
-    // 4. Certificates List (Unified Approved Only)
+    // 4. Certificates List (Unified & Cross-referenced with event_participation)
     const [manualApproved] = await db.query(
-      'SELECT id, event_name, position, points, file_url as url, "manual" as source, created_at FROM certificates WHERE user_id = ? AND status = "approved"',
+      'SELECT id, club_id, event_name, event_date, position, points, file_url as url, "manual" as source, created_at FROM certificates WHERE user_id = ? AND status = "approved"',
       [userId]
     );
 
     const [eCerts] = await db.query(
-      'SELECT id, event_name, position, points, certificate_url as url, "e_certificate" as source, created_at FROM e_certificates WHERE user_id = ?',
+      'SELECT id, club_id, event_name, event_date, position, points, certificate_url as url, "e_certificate" as source, created_at FROM e_certificates WHERE user_id = ?',
       [userId]
     );
 
-    const certificates = [...manualApproved, ...eCerts].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const [participations] = await db.query(
+      'SELECT club_id, event_name, event_date, source FROM event_participation WHERE user_id = ?',
+      [userId]
+    );
+
+    const matchParticipation = (clubId, eventName, eventDate) => {
+      return participations.find(p => 
+        p.club_id === clubId &&
+        p.event_name.toLowerCase() === eventName.toLowerCase() &&
+        new Date(p.event_date).getTime() === new Date(eventDate).getTime()
+      );
+    };
+
+    const rawCertificates = [...manualApproved, ...eCerts].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    const certificates = rawCertificates.map(cert => {
+      const p = matchParticipation(cert.club_id, cert.event_name, cert.event_date);
+      const isCounted = p ? p.source === cert.source : false;
+      const winningSource = p ? p.source : null;
+      
+      return {
+        id: cert.id,
+        event_name: cert.event_name,
+        position: cert.position,
+        points: cert.points,
+        url: cert.url,
+        source: cert.source,
+        created_at: cert.created_at,
+        isCounted,
+        winningSource
+      };
+    });
 
     // 5. Monthly Stats for Graph
     const [monthlyStats] = await db.query(`

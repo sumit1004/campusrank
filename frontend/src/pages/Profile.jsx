@@ -253,9 +253,9 @@ const Profile = () => {
                <Trophy className="text-yellow-400" size={28} />
                System Registry
             </h2>
-            <div className="overflow-x-auto relative z-10 pb-2">
+            <div className="overflow-x-auto overflow-y-auto max-h-[500px] custom-scrollbar relative z-10 pb-2">
                <table className="w-full text-left min-w-[800px] border-separate border-spacing-y-2">
-                  <thead>
+                  <thead className="sticky top-0 z-20 bg-[#111319]">
                      <tr className="text-gray-500 text-[9px] uppercase font-black tracking-widest">
                         <th className="px-6 py-4 bg-white/[0.02] rounded-l-2xl">Success Unit</th>
                         <th className="px-6 py-4 bg-white/[0.02]">Source Type</th>
@@ -270,25 +270,41 @@ const Profile = () => {
                            <p className="text-gray-500 font-black uppercase text-[10px] tracking-widest">No registry items detected</p>
                         </td></tr>
                      ) : (
-                        certificates.map((p, idx) => (
-                           <tr key={idx} className="group transition-all">
-                              <td className="px-6 py-5 bg-white/[0.02] rounded-l-2xl group-hover:bg-white/[0.04]">
-                                 <div className="font-black text-white text-sm uppercase italic tracking-tighter truncate max-w-[250px] group-hover:text-indigo-400 transition-colors">{p.event_name}</div>
+                        certificates.map((p, idx) => {
+                           const isCounted = p.isCounted;
+                           return (
+                           <tr key={idx} className={`group transition-all ${!isCounted ? 'opacity-60' : ''}`}>
+                              <td className={`px-6 py-5 bg-white/[0.02] rounded-l-2xl group-hover:bg-white/[0.04] ${isCounted ? 'border-l-4 border-emerald-500' : ''}`}>
+                                 <div className={`font-black text-sm uppercase italic tracking-tighter truncate max-w-[250px] transition-colors ${isCounted ? 'text-white group-hover:text-emerald-400' : 'text-gray-400'}`}>{p.event_name}</div>
                                  <div className="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">{new Date(p.created_at).toLocaleDateString()}</div>
+                                 {!isCounted && p.winningSource && (
+                                   <div className="mt-2 text-[8px] text-yellow-500 font-bold uppercase tracking-widest bg-yellow-500/10 px-2 py-1 rounded inline-block">
+                                     Points already added from {p.winningSource === 'e_certificate' ? 'E-Certificate' : 'Manual Upload'} for this event
+                                   </div>
+                                 )}
                               </td>
                               <td className="px-6 py-5 bg-white/[0.02] group-hover:bg-white/[0.04]">
-                                 <span className={`px-2 py-1 text-[8px] font-black rounded-md uppercase tracking-widest border ${p.source === 'e_certificate' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'}`}>
-                                    {p.source === 'e_certificate' ? 'E-Certificate' : 'Manual Upload'}
-                                 </span>
+                                 <div className="flex flex-col items-start gap-2">
+                                     <span className={`px-2 py-1 text-[8px] font-black rounded-md uppercase tracking-widest border ${p.source === 'e_certificate' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'}`}>
+                                        {p.source === 'e_certificate' ? 'E-Certificate' : 'Manual Upload'}
+                                     </span>
+                                     <span className={`px-2 py-0.5 text-[8px] font-black rounded uppercase tracking-widest flex items-center justify-center gap-1 w-max ${isCounted ? 'text-emerald-400 bg-emerald-500/10' : 'text-gray-400 bg-gray-500/10'}`}>
+                                        {isCounted ? <><CheckCircle2 size={10}/> Counted</> : <><XCircle size={10}/> Not Counted</>}
+                                     </span>
+                                 </div>
                               </td>
                               <td className="px-6 py-5 bg-white/[0.02] group-hover:bg-white/[0.04] font-black text-gray-400 text-[10px] uppercase tracking-widest">
                                  {p.position}
                               </td>
-                              <td className="px-6 py-5 bg-white/[0.02] rounded-r-2xl group-hover:bg-white/[0.04] text-right font-black text-white text-xl italic tracking-tighter">
-                                 <span className="text-indigo-400">+</span>{p.points || 0}
+                              <td className="px-6 py-5 bg-white/[0.02] rounded-r-2xl group-hover:bg-white/[0.04] text-right font-black text-xl italic tracking-tighter">
+                                 {isCounted ? (
+                                   <><span className="text-emerald-400">+</span><span className="text-white">{p.points || 0}</span></>
+                                 ) : (
+                                   <span className="text-gray-500 font-bold text-lg">0</span>
+                                 )}
                               </td>
                            </tr>
-                        ))
+                        )})
                      )}
                   </tbody>
                </table>
@@ -296,71 +312,42 @@ const Profile = () => {
          </motion.div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* MANUAL SUBMISSION TRACKER */}
-        {user.role === 'student' && (
-           <motion.div variants={itemVariants} className="lg:col-span-2 bg-[#111319] border border-white/5 rounded-[3rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col">
-              <h2 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3 mb-8 relative z-10">
-                 <UploadCloud className="text-indigo-500" size={24} />
-                 Manual Tracking
-              </h2>
-              <div className="space-y-4 overflow-y-auto custom-scrollbar pr-2 flex-1 relative z-10 max-h-[400px]">
-                 {manualHistory.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full pt-10 text-gray-500">
-                       <UploadCloud size={30} className="mb-3 opacity-30" />
-                       <p className="text-[10px] font-black uppercase tracking-widest">No manual uploads detected</p>
-                    </div>
-                 ) : (
-                    manualHistory.map((m, i) => (
-                       <div key={i} className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex items-center justify-between group hover:bg-white/[0.04] hover:border-indigo-500/30 transition-all">
-                          <div className="space-y-1 max-w-[50%]">
-                             <h4 className="text-white text-sm font-black uppercase italic tracking-tighter truncate">{m.event_name}</h4>
-                             <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest truncate">{m.club_name} • {m.position}</p>
-                          </div>
-                          <div className="flex items-center gap-4 sm:gap-6">
-                             <div className="text-right">
-                                <div className="flex items-center justify-end gap-1.5 mb-1">
-                                   {m.status === 'approved' ? <CheckCircle2 size={12} className="text-green-500" /> : m.status === 'rejected' ? <XCircle size={12} className="text-red-500" /> : <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></div>}
-                                   <span className={`text-[9px] font-black uppercase tracking-widest ${m.status === 'approved' ? 'text-green-500' : m.status === 'rejected' ? 'text-red-500' : 'text-yellow-500'}`}>{m.status}</span>
-                                </div>
-                                <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest">{new Date(m.created_at).toLocaleDateString()}</p>
-                             </div>
-                             <a href={`http://localhost:5000${m.file_url}`} target="_blank" rel="noreferrer" className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-indigo-500 text-white rounded-xl transition-colors border border-white/10 shrink-0"><ExternalLink size={12} /></a>
-                          </div>
-                       </div>
-                    ))
-                 )}
-              </div>
-           </motion.div>
-        )}
-
-        {/* RECENT ACTIVITY LOGS */}
-        <motion.div variants={itemVariants} className="bg-[#111319] border border-white/5 p-8 sm:p-10 rounded-[3rem] shadow-2xl flex flex-col h-[400px] lg:h-auto relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
-              <Clock size={120} />
-           </div>
-           <h2 className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.25em] flex items-center gap-3 mb-8 bg-indigo-500/10 self-start px-4 py-2 rounded-xl border border-indigo-500/20 relative z-10">
-              <Clock size={14} />
-              Activity Stream
-           </h2>
-           <div className="space-y-6 flex-1 overflow-y-auto pr-4 custom-scrollbar relative z-10">
-              {activityLogs.length === 0 ? (
-                 <p className="text-gray-600 text-[10px] font-black uppercase text-center pt-10 tracking-widest">No system events logs</p>
-              ) : (
-                 activityLogs.map((log, i) => (
-                    <div key={i} className="flex gap-4 items-start group relative">
-                       <div className="absolute left-[3px] top-4 bottom-[-1.5rem] w-px bg-white/5 group-last:hidden"></div>
-                       <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0 group-hover:scale-150 transition-transform shadow-[0_0_10px_rgba(99,102,241,0.5)] z-10"></div>
-                       <div className="bg-white/5 border border-white/5 p-3 rounded-xl flex-1 group-hover:bg-white/10 transition-colors">
-                          <p className="text-[10px] font-black text-white uppercase tracking-widest">{log.action_type.replace(/_/g, ' ')}</p>
-                          <p className="text-[9px] text-indigo-300 font-bold mt-1 tracking-wider">{new Date(log.created_at).toLocaleDateString()}</p>
-                       </div>
-                    </div>
-                 ))
-              )}
-           </div>
-        </motion.div>
-      </div>
+      {/* MANUAL SUBMISSION TRACKER */}
+      {user.role === 'student' && (
+         <motion.div variants={itemVariants} className="bg-[#111319] border border-white/5 rounded-[3rem] p-8 sm:p-10 shadow-2xl relative overflow-hidden flex flex-col">
+            <h2 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3 mb-8 relative z-10">
+               <UploadCloud className="text-indigo-500" size={24} />
+               Manual Tracking
+            </h2>
+            <div className="space-y-4 overflow-y-auto custom-scrollbar pr-2 flex-1 relative z-10 max-h-[400px]">
+               {manualHistory.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full pt-10 text-gray-500">
+                     <UploadCloud size={30} className="mb-3 opacity-30" />
+                     <p className="text-[10px] font-black uppercase tracking-widest">No manual uploads detected</p>
+                  </div>
+               ) : (
+                  manualHistory.map((m, i) => (
+                     <div key={i} className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex items-center justify-between group hover:bg-white/[0.04] hover:border-indigo-500/30 transition-all">
+                        <div className="space-y-1 max-w-[50%]">
+                           <h4 className="text-white text-sm font-black uppercase italic tracking-tighter truncate">{m.event_name}</h4>
+                           <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest truncate">{m.club_name} • {m.position}</p>
+                        </div>
+                        <div className="flex items-center gap-4 sm:gap-6">
+                           <div className="text-right">
+                              <div className="flex items-center justify-end gap-1.5 mb-1">
+                                 {m.status === 'approved' ? <CheckCircle2 size={12} className="text-green-500" /> : m.status === 'rejected' ? <XCircle size={12} className="text-red-500" /> : <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></div>}
+                                 <span className={`text-[9px] font-black uppercase tracking-widest ${m.status === 'approved' ? 'text-green-500' : m.status === 'rejected' ? 'text-red-500' : 'text-yellow-500'}`}>{m.status}</span>
+                              </div>
+                              <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest">{new Date(m.created_at).toLocaleDateString()}</p>
+                           </div>
+                           <a href={`http://localhost:5000${m.file_url}`} target="_blank" rel="noreferrer" className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-indigo-500 text-white rounded-xl transition-colors border border-white/10 shrink-0"><ExternalLink size={12} /></a>
+                        </div>
+                     </div>
+                  ))
+               )}
+            </div>
+         </motion.div>
+      )}
 
       {/* IDENTITY MODAL */}
       <AnimatePresence>
