@@ -20,7 +20,7 @@ const getLeaderboard = async (req, res, next) => {
 
     if (activeFilter === 'monthly') {
       query = `
-        SELECT users.id, users.name, users.erp, lc.total_points
+        SELECT users.id, users.name, users.erp, users.avatar_url, lc.total_points
         FROM leaderboard_cache lc
         JOIN users ON lc.user_id = users.id
         WHERE lc.club_id = ? 
@@ -32,7 +32,7 @@ const getLeaderboard = async (req, res, next) => {
       params = [cid];
     } else if (activeFilter === 'yearly') {
       query = `
-        SELECT users.id, users.name, users.erp, SUM(lc.total_points) as total_points
+        SELECT users.id, users.name, users.erp, users.avatar_url, SUM(lc.total_points) as total_points
         FROM leaderboard_cache lc
         JOIN users ON lc.user_id = users.id
         WHERE lc.club_id = ? 
@@ -45,7 +45,7 @@ const getLeaderboard = async (req, res, next) => {
     } else {
       // Overall
       query = `
-        SELECT users.id, users.name, users.erp, SUM(lc.total_points) as total_points
+        SELECT users.id, users.name, users.erp, users.avatar_url, SUM(lc.total_points) as total_points
         FROM leaderboard_cache lc
         JOIN users ON lc.user_id = users.id
         WHERE lc.club_id = ?

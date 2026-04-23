@@ -11,7 +11,7 @@ const getUserProfile = async (req, res, next) => {
 
     // 1. Basic User Info
     const [userRows] = await db.query(
-      'SELECT id, name, erp, email, course, branch, semester, college, role FROM users WHERE id = ?',
+      'SELECT id, name, erp, email, course, branch, semester, college, role, avatar_url FROM users WHERE id = ?',
       [userId]
     );
 
@@ -161,7 +161,37 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Upload avatar image
+ * @route   POST /api/users/avatar
+ * @access  Private
+ */
+const uploadAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const userId = req.user.id;
+    const avatarPath = `/uploads/avatars/${req.file.filename}`;
+
+    await db.query(
+      'UPDATE users SET avatar_url = ? WHERE id = ?',
+      [avatarPath, userId]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Avatar uploaded successfully',
+      avatar_url: avatarPath
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getUserProfile,
-  updateProfile
+  updateProfile,
+  uploadAvatar
 };

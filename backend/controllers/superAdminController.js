@@ -160,6 +160,53 @@ const getAllCertificates = async (req, res, next) => {
   } catch(err) { next(err); }
 };
 
+const getAdminActivities = async (req, res, next) => {
+  try {
+    const [activities] = await db.query(`
+      SELECT al.*, u.name as admin_name, u.role as admin_role, cl.name as club_name 
+      FROM activity_logs al
+      JOIN users u ON al.user_id = u.id
+      LEFT JOIN clubs cl ON u.club_id = cl.id
+      WHERE u.role IN ('admin', 'superadmin')
+      ORDER BY al.created_at DESC
+      LIMIT 100
+    `);
+    res.json({ success: true, data: activities });
+  } catch (err) { next(err); }
+};
+
+const getFormsMonitoring = async (req, res, next) => {
+  try {
+    const [forms] = await db.query(`
+      SELECT f.*, cl.name as club_name, 
+        (SELECT COUNT(*) FROM submissions s WHERE s.form_id = f.id) as submission_count
+      FROM forms f
+      JOIN clubs cl ON f.club_id = cl.id
+      ORDER BY f.created_at DESC
+    `);
+    res.json({ success: true, data: forms });
+  } catch (err) { next(err); }
+};
+
+const getBadgeAudit = async (req, res, next) => {
+  try {
+    // Badges are defined by point thresholds in this system
+    const [users] = await db.query(`
+      SELECT id, name, erp, total_points, 
+        CASE 
+          WHEN total_points >= 1000 THEN 'Elite'
+          WHEN total_points >= 500 THEN 'Achiever'
+          WHEN total_points >= 100 THEN 'Starter'
+          ELSE 'Beginner'
+        END as badge_tier
+      FROM users 
+      WHERE total_points >= 100 AND role = 'student'
+      ORDER BY total_points DESC
+    `);
+    res.json({ success: true, data: users });
+  } catch (err) { next(err); }
+};
+
 module.exports = {
   getAllUsers,
   getClubs,
@@ -169,5 +216,8 @@ module.exports = {
   getAnalytics,
   searchUsers,
   deleteUser,
-  getAllCertificates
+  getAllCertificates,
+  getAdminActivities,
+  getFormsMonitoring,
+  getBadgeAudit
 };

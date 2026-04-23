@@ -8,7 +8,7 @@ const {
   getMyParticipations
 } = require('../controllers/certificateController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
-const upload = require('../middlewares/uploadMiddleware');
+const { upload, avatarUpload } = require('../middlewares/uploadMiddleware');
 const multer = require('multer');
 const memoryUpload = multer({ storage: multer.memoryStorage() });
 

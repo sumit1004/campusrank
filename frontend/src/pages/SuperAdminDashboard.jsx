@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getUser } from '../utils/auth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { ShieldCheck, Users, Activity, FileText, Search, UserMinus, UserPlus, Bell } from 'lucide-react';
+import { ShieldCheck, Users, Activity, FileText, Search, UserMinus, UserPlus, Bell, ClipboardList, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const SuperAdminDashboard = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('analytics');
 
   // States Analytics
@@ -19,15 +21,38 @@ const SuperAdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [clubs, setClubs] = useState([]);
   const [selectedClubId, setSelectedClubId] = useState({});
+  const [roleSearchQuery, setRoleSearchQuery] = useState('');
 
   // States Certificates
   const [certificates, setCertificates] = useState([]);
   const [certFilter, setCertFilter] = useState({ club: '', status: '', search: '' });
 
+  // States Activities
+  const [activities, setActivities] = useState([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(false);
+
+  // States Monitoring
+  const [formsMonitor, setFormsMonitor] = useState([]);
+  const [badgeAudit, setBadgeAudit] = useState([]);
+
+  useEffect(() => {
+    // Sync activeTab with URL parameters
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+    } else {
+      setActiveTab('analytics');
+    }
+  }, [location.search]);
+
   useEffect(() => {
     if (activeTab === 'analytics') loadAnalytics();
     if (activeTab === 'roles') loadRoleData();
     if (activeTab === 'certificates') loadCertificates();
+    if (activeTab === 'activities') loadActivities();
+    if (activeTab === 'forms-monitor') loadFormsMonitoring();
+    if (activeTab === 'badges-audit') loadBadgesAudit();
     if (activeTab === 'search' || activeTab === 'broadcaster') {
       if (!clubs.length) api.get('/clubs').then(r => setClubs(r.data.data));
     }
@@ -62,6 +87,32 @@ const SuperAdminDashboard = () => {
         setClubs(cRes.data.data);
       }
     } catch (e) { }
+  };
+
+  const loadActivities = async () => {
+    try {
+      setActivitiesLoading(true);
+      const { data } = await api.get('/superadmin/activities');
+      setActivities(data.data);
+    } catch (e) { 
+      toast.error('Failed to load activity logs');
+    } finally {
+      setActivitiesLoading(false);
+    }
+  };
+
+  const loadFormsMonitoring = async () => {
+    try {
+      const { data } = await api.get('/superadmin/forms-monitoring');
+      setFormsMonitor(data.data);
+    } catch (e) { toast.error('Failed to load events monitor'); }
+  };
+
+  const loadBadgesAudit = async () => {
+    try {
+      const { data } = await api.get('/superadmin/badges-audit');
+      setBadgeAudit(data.data);
+    } catch (e) { toast.error('Failed to load badge audit'); }
   };
 
   const searchUserAction = async (e) => {
@@ -100,23 +151,7 @@ const SuperAdminDashboard = () => {
 
   return (
     <div className="py-6 animate-fade-in space-y-6">
-      <div className="flex flex-wrap gap-2 md:gap-4 border-b border-white/10 pb-4">
-        {[
-          { id: 'analytics', icon: <Activity size={18} />, name: 'Analytics' },
-          { id: 'search', icon: <Search size={18} />, name: 'User Search' },
-          { id: 'roles', icon: <ShieldCheck size={18} />, name: 'Role Hub' },
-          { id: 'certificates', icon: <FileText size={18} />, name: 'Certificates Grid' },
-          { id: 'broadcaster', icon: <Bell size={18} />, name: 'Notifications' },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl font-bold transition-all ${activeTab === tab.id ? 'bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.4)] text-white scale-105' : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'}`}
-          >
-            {tab.icon} <span>{tab.name}</span>
-          </button>
-        ))}
-      </div>
+      {/* Top Navigation Shifted to Sidebar */}
 
       {activeTab === 'analytics' && analytics && (
         <div className="space-y-6">
@@ -200,47 +235,119 @@ const SuperAdminDashboard = () => {
       )}
 
       {activeTab === 'roles' && (
-        <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left min-w-[800px]">
-              <thead className="border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-black">
-                <tr><th className="p-4">Name / Email</th><th className="p-4">Role</th><th className="p-4">Club</th><th className="p-4">Actions</th></tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {users.map(u => (
-                  <tr key={u.id} className="hover:bg-white/5 transition-colors">
-                    <td className="p-4">
-                      <div className="font-bold text-white uppercase tracking-tight">{u.name}</div>
-                      <div className="text-xs font-mono text-gray-500">{u.email}</div>
-                    </td>
-                    <td className="p-4">
-                      <span className={`px-2 py-1 text-[10px] font-black rounded uppercase ${u.role === 'admin' ? 'bg-indigo-500/20 text-indigo-400' : u.role === 'superadmin' ? 'bg-purple-500/20 text-purple-400' : 'bg-white/5 text-gray-400'}`}>{u.role}</span>
-                    </td>
-                    <td className="p-4 text-sm font-bold text-gray-400">
-                      {clubs.find(c => c.id === u.club_id)?.name || <span className="text-gray-700">-</span>}
-                    </td>
-                    <td className="p-4 text-xs">
-                      {u.role !== 'superadmin' && (
-                        <div className="flex flex-col sm:flex-row items-center gap-2">
-                          <select className="bg-[#0B0F19] text-gray-300 border border-white/10 rounded-lg px-2 py-1.5 w-full sm:w-auto text-xs focus:outline-none focus:border-indigo-500" value={selectedClubId[u.id] || ''} onChange={e => setSelectedClubId({ ...selectedClubId, [u.id]: e.target.value })}>
-                            <option value="">Select Club...</option>
+        <div className="space-y-8">
+          {/* Local Search Header */}
+          <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-tight uppercase italic flex items-center gap-3">
+                  <Users className="text-indigo-500" size={28} />
+                  Role Management Hub
+                </h2>
+                <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">Found {users.length} total identities in system</p>
+              </div>
+              <div className="relative w-full md:w-96 group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
+                <input 
+                  type="text" 
+                  placeholder="Filter by name, ERP, or email..."
+                  value={roleSearchQuery}
+                  onChange={(e) => setRoleSearchQuery(e.target.value)}
+                  className="w-full bg-[#0B0F19] border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-sm shadow-inner"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Admin Section */}
+          <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl">
+            <h3 className="text-xl font-black text-white uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+              <ShieldCheck className="text-indigo-500" size={24} />
+              Platform Administrators
+            </h3>
+            <div className="overflow-x-auto overflow-y-auto max-h-[400px] custom-scrollbar pr-2">
+              <table className="w-full text-left min-w-[800px]">
+                <thead className="sticky top-0 bg-[#111827] z-10 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-black">
+                  <tr><th className="p-4">Name / Email</th><th className="p-4">Role</th><th className="p-4">Club Hub</th><th className="p-4">Actions</th></tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {users
+                    .filter(u => (u.role === 'admin' || u.role === 'superadmin') && 
+                      (u.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) || 
+                       u.erp.toLowerCase().includes(roleSearchQuery.toLowerCase()) || 
+                       u.email.toLowerCase().includes(roleSearchQuery.toLowerCase())))
+                    .map(u => (
+                    <tr key={u.id} className="hover:bg-white/5 transition-colors">
+                      <td className="p-4">
+                        <div className="font-bold text-white uppercase tracking-tight">{u.name}</div>
+                        <div className="text-xs font-mono text-gray-500">{u.email}</div>
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 text-[10px] font-black rounded uppercase ${u.role === 'admin' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20' : 'bg-purple-500/20 text-purple-400 border border-purple-500/20'}`}>{u.role}</span>
+                      </td>
+                      <td className="p-4 text-sm font-bold text-gray-400">
+                        {clubs.find(c => c.id === u.club_id)?.name || <span className="text-gray-700">-</span>}
+                      </td>
+                      <td className="p-4 text-xs">
+                        {u.role !== 'superadmin' && (
+                          <div className="flex items-center gap-2">
+                            <select className="bg-[#0B0F19] text-gray-300 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" value={selectedClubId[u.id] || ''} onChange={e => setSelectedClubId({ ...selectedClubId, [u.id]: e.target.value })}>
+                              <option value="">Shift Hub...</option>
+                              {clubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                            <button onClick={() => handleChangeClub(u.id)} className="bg-white/10 hover:bg-white/20 text-white font-black px-3 py-1.5 rounded-lg transition uppercase tracking-tighter">Shift</button>
+                            <button onClick={() => handleRemoveAdmin(u.id)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-black px-3 py-1.5 rounded-lg transition uppercase tracking-tighter">Demote</button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Student Section */}
+          <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl">
+            <h3 className="text-xl font-black text-white uppercase italic tracking-tighter mb-6 flex items-center gap-3">
+              <Users className="text-amber-500" size={24} />
+              Platform Scholars (Students)
+            </h3>
+            <div className="overflow-x-auto overflow-y-auto max-h-[500px] custom-scrollbar pr-2">
+              <table className="w-full text-left min-w-[800px]">
+                <thead className="sticky top-0 bg-[#111827] z-10 border-b border-white/10 text-[10px] uppercase tracking-widest text-gray-500 font-black">
+                  <tr><th className="p-4">Student Profile</th><th className="p-4">Points</th><th className="p-4">Elite Promotion</th></tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {users
+                    .filter(u => u.role === 'student' && 
+                      (u.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) || 
+                       u.erp.toLowerCase().includes(roleSearchQuery.toLowerCase()) || 
+                       u.email.toLowerCase().includes(roleSearchQuery.toLowerCase())))
+                    .map(u => (
+                    <tr key={u.id} className="hover:bg-white/5 transition-colors">
+                      <td className="p-4">
+                        <div className="font-bold text-white uppercase tracking-tight">{u.name}</div>
+                        <div className="text-xs font-mono text-gray-500">{u.email}</div>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-amber-500 font-black tabular-nums">{u.total_points}</span>
+                        <span className="text-[10px] font-bold text-gray-600 uppercase ml-1">XP</span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <select className="bg-[#0B0F19] text-gray-300 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500 w-full sm:w-48" value={selectedClubId[u.id] || ''} onChange={e => setSelectedClubId({ ...selectedClubId, [u.id]: e.target.value })}>
+                            <option value="">Select Club Assignment...</option>
                             {clubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                           </select>
-                          {u.role === 'student' ? (
-                            <button onClick={() => handleMakeAdmin(u.id)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-3 py-1.5 rounded-lg transition-all w-full sm:w-auto uppercase tracking-tighter shadow-lg shadow-indigo-600/10">Promote</button>
-                          ) : (
-                            <div className="flex gap-2 w-full sm:w-auto">
-                              <button onClick={() => handleChangeClub(u.id)} className="flex-1 sm:flex-none bg-white/10 hover:bg-white/20 text-white font-black px-3 py-1.5 rounded-lg transition uppercase tracking-tighter">Shift</button>
-                              <button onClick={() => handleRemoveAdmin(u.id)} className="flex-1 sm:flex-none bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-black px-3 py-1.5 rounded-lg transition uppercase tracking-tighter">Demote</button>
-                            </div>
-                          )}
+                          <button onClick={() => handleMakeAdmin(u.id)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-4 py-2 rounded-xl transition-all uppercase tracking-tighter shadow-lg shadow-indigo-600/20 whitespace-nowrap">Promote to Admin</button>
                         </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -283,6 +390,152 @@ const SuperAdminDashboard = () => {
               </tbody>
             </table>
             {certificates.length === 0 && <p className="text-center py-10 text-gray-500 font-bold">No certificates found matching criteria.</p>}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'activities' && (
+        <div className="space-y-6">
+          <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-tight uppercase italic">Global Activity Audit</h2>
+                <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">Real-time surveillance of all club admin actions</p>
+              </div>
+              <button 
+                onClick={loadActivities}
+                disabled={activitiesLoading}
+                className="bg-white/5 hover:bg-white/10 p-2 rounded-xl transition-all"
+              >
+                <Activity size={20} className={activitiesLoading ? 'animate-spin' : ''} />
+              </button>
+            </div>
+
+            <div className="overflow-x-auto overflow-y-auto max-h-[600px] sm:max-h-[650px] custom-scrollbar">
+              <table className="w-full text-left min-w-[900px]">
+                <thead className="text-gray-500 text-[10px] uppercase font-black tracking-widest border-b border-white/5 sticky top-0 bg-[#111827] z-10">
+                  <tr>
+                    <th className="px-4 py-4">Timestamp</th>
+                    <th className="px-4 py-4">Administrator</th>
+                    <th className="px-4 py-4">Club Hub</th>
+                    <th className="px-4 py-4">Action Signature</th>
+                    <th className="px-4 py-4">Entity Context</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {activities.map((log, i) => (
+                    <tr key={i} className="hover:bg-white/5 transition-colors group">
+                      <td className="px-4 py-4">
+                        <div className="text-xs font-mono text-gray-400">{new Date(log.created_at).toLocaleString()}</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="font-bold text-white uppercase tracking-tight">{log.admin_name}</div>
+                        <div className={`text-[8px] font-black uppercase tracking-widest mt-0.5 ${log.admin_role === 'superadmin' ? 'text-purple-400' : 'text-indigo-400'}`}>{log.admin_role}</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="text-sm font-bold text-gray-500 group-hover:text-gray-300 transition-colors uppercase">{log.club_name || 'System Level'}</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black text-white uppercase border border-white/5 group-hover:border-indigo-500/30 transition-all">
+                          {log.action_type.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="max-w-[250px] truncate text-[10px] font-bold text-gray-600 bg-black/20 p-2 rounded-lg border border-white/5 group-hover:bg-black/40 transition-all">
+                          {log.metadata ? JSON.stringify(log.metadata) : 'No metadata context'}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {activities.length === 0 && !activitiesLoading && (
+                <div className="p-20 text-center text-gray-500 font-bold italic border-2 border-dashed border-white/5 rounded-3xl mt-4">
+                  The logs are currently empty. Awaiting admin activity...
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'forms-monitor' && (
+        <div className="space-y-6">
+          <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl">
+            <h2 className="text-2xl font-black text-white tracking-tight uppercase italic mb-8">Event Registration Monitor</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {formsMonitor.map((form, i) => (
+                <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] relative overflow-hidden group hover:border-indigo-500/50 transition-all">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                      <ClipboardList size={24} />
+                    </div>
+                    <div className="text-right">
+                      <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest ${form.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/20' : 'bg-red-500/20 text-red-400 border border-red-500/20'}`}>
+                        {form.status}
+                      </span>
+                      <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-1">Registrations</p>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-black text-white uppercase tracking-tighter truncate mb-2">{form.title}</h3>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">{form.club_name}</p>
+                  
+                  <div className="space-y-3 pt-4 border-t border-white/5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-bold text-gray-500 uppercase">Submissions</span>
+                      <span className="text-xl font-black text-white tracking-tighter">{form.submission_count}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-gray-500 text-[10px] font-bold">
+                      <span>Event Date</span>
+                      <span>{new Date(form.event_date).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {formsMonitor.length === 0 && <p className="p-20 text-center text-gray-500 font-bold italic">No club events found.</p>}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'badges-audit' && (
+        <div className="space-y-6">
+          <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl">
+            <h2 className="text-2xl font-black text-white tracking-tight uppercase italic mb-8">Badge Milestone Audit</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[800px]">
+                <thead className="bg-[#0B0F19] text-gray-400 text-[10px] uppercase tracking-widest border-b border-white/5 font-black">
+                  <tr>
+                    <th className="p-4">Student</th>
+                    <th className="p-4 text-center">Current Tier</th>
+                    <th className="p-4 text-center">Total Momentum</th>
+                    <th className="p-4 text-right">Badge Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {badgeAudit.map((student, i) => (
+                    <tr key={i} className="hover:bg-white/5 transition-colors">
+                      <td className="p-4">
+                        <div className="font-bold text-white uppercase tracking-tight">{student.name}</div>
+                        <div className="text-[10px] text-gray-500 font-mono mt-0.5">{student.erp}</div>
+                      </td>
+                      <td className="p-4 text-center text-indigo-400 font-black italic">{student.badge_tier}</td>
+                      <td className="p-4 text-center">
+                        <span className="text-xl font-black text-white tabular-nums">{student.total_points}</span>
+                        <span className="text-[8px] font-black text-gray-600 uppercase ml-1">XP</span>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          {student.total_points >= 100 && <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400" title="Starter Badge"><Star size={12} fill="currentColor" /></div>}
+                          {student.total_points >= 500 && <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400" title="Achiever Badge"><Star size={12} fill="currentColor" /></div>}
+                          {student.total_points >= 1000 && <div className="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400" title="Elite Badge"><Star size={12} fill="currentColor" /></div>}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

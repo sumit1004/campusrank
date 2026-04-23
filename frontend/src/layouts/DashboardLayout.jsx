@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Home, Trophy, Upload, LogOut, Settings, Bell, Search, Menu, X, Star, ClipboardList, User } from 'lucide-react';
+import { Home, Trophy, Upload, LogOut, Settings, Bell, Search, Menu, X, Star, ClipboardList, User, Activity, ShieldCheck, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationDropdown from '../components/NotificationDropdown';
 
@@ -19,6 +19,13 @@ const DashboardLayout = () => {
   const navItems = [];
   if (user?.role === 'superadmin') {
     navItems.push({ name: 'Dashboard', path: '/superadmin-dashboard', icon: <Home size={22} /> });
+    navItems.push({ name: 'User Search', path: '/superadmin-dashboard?tab=search', icon: <Search size={22} /> });
+    navItems.push({ name: 'Role Hub', path: '/superadmin-dashboard?tab=roles', icon: <ShieldCheck size={22} /> });
+    navItems.push({ name: 'Certificates', path: '/superadmin-dashboard?tab=certificates', icon: <FileText size={22} /> });
+    navItems.push({ name: 'Admin Audit', path: '/superadmin-dashboard?tab=activities', icon: <Activity size={22} /> });
+    navItems.push({ name: 'Event Monitor', path: '/superadmin-dashboard?tab=forms-monitor', icon: <ClipboardList size={22} /> });
+    navItems.push({ name: 'Badge Hub', path: '/superadmin-dashboard?tab=badges-audit', icon: <Star size={22} /> });
+    navItems.push({ name: 'Broadcaster', path: '/superadmin-dashboard?tab=broadcaster', icon: <Bell size={22} /> });
     navItems.push({ name: 'Leaderboard', path: '/leaderboard', icon: <Trophy size={22} /> });
     navItems.push({ name: 'Settings', path: '/settings', icon: <Settings size={22} /> });
   } else if (user?.role === 'admin') {
@@ -123,9 +130,16 @@ const DashboardLayout = () => {
 
 
             <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
-            <div className="flex items-center space-x-3 cursor-pointer p-1.5 md:p-2 md:pr-5 rounded-full border border-white/5 hover:border-white/10 hover:bg-white/5 transition-all bg-surface shadow-sm shrink-0">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-accent to-primary flex items-center justify-center text-white font-black text-xs md:text-sm shadow-[0_0_15px_rgba(99,102,241,0.5)] border border-white/20">
-                {user?.name?.charAt(0).toUpperCase()}
+            <div 
+              onClick={() => navigate('/profile?openSettings=true')}
+              className="flex items-center space-x-3 cursor-pointer p-1.5 md:p-2 md:pr-5 rounded-full border border-white/5 hover:border-white/10 hover:bg-white/5 transition-all bg-surface shadow-sm shrink-0"
+            >
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-accent to-primary flex items-center justify-center text-white font-black text-xs md:text-sm shadow-[0_0_15px_rgba(99,102,241,0.5)] border border-white/20 overflow-hidden">
+                {user?.avatar_url ? (
+                  <img src={`http://localhost:5000${user.avatar_url}`} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  user?.name?.charAt(0).toUpperCase()
+                )}
               </div>
               <div className="text-left hidden sm:block">
                 <p className="text-xs md:text-sm font-bold text-white leading-tight truncate max-w-[100px]">{user?.name}</p>

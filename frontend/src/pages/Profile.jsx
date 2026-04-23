@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 import toast from 'react-hot-toast';
@@ -6,12 +7,13 @@ import {
   User, Mail, Hash, BookOpen, GraduationCap,
   Award, Trophy, ClipboardList, Activity as ActivityIcon,
   ChevronRight, Edit3, Download, ExternalLink, ShieldCheck,
-  Clock, CheckCircle2, XCircle, UploadCloud, FileText, Share2
+  Clock, CheckCircle2, XCircle, UploadCloud, FileText, Share2, Camera
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile = () => {
   const { user, updateUser } = useContext(AuthContext);
+  const location = useLocation();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -24,7 +26,13 @@ const Profile = () => {
 
   useEffect(() => {
     fetchProfile();
-  }, []);
+    
+    // Check if we should open settings automatically
+    const params = new URLSearchParams(location.search);
+    if (params.get('openSettings') === 'true') {
+      setIsEditing(true);
+    }
+  }, [location]);
 
   const fetchProfile = async () => {
     try {
@@ -36,12 +44,36 @@ const Profile = () => {
         course: profileUser.course || 'Not Set',
         branch: profileUser.branch || 'Unspecified',
         semester: profileUser.semester || 'Not Set',
-        college: profileUser.college || 'Rungta International Skills University'
+        college: profileUser.college || 'Rungta International Skills University',
+        avatar_url: profileUser.avatar_url || null
       });
     } catch (error) {
       toast.error("Failed to load profile data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const res = await api.post('/users/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data.success) {
+        setEditForm(prev => ({ ...prev, avatar_url: res.data.avatar_url }));
+        const updatedUser = { ...user, avatar_url: res.data.avatar_url };
+        updateUser(updatedUser);
+        toast.success("Avatar updated");
+      }
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+      toast.error("Failed to upload avatar");
     }
   };
 
@@ -83,7 +115,6 @@ const Profile = () => {
     visible: { y: 0, opacity: 1 }
   };
 
-  // Calculate max points for graph scaling
   const maxPoints = Math.max(...(monthlyStats?.map(s => s.points) || [0]), 100);
 
   return (
@@ -100,12 +131,38 @@ const Profile = () => {
 
         <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-10 relative z-10 w-full">
           {/* Avatar Area */}
-          <div className="relative shrink-0 group/avatar">
-            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl sm:rounded-[2.5rem] bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-4xl sm:text-5xl font-black text-white shadow-2xl group-hover/avatar:rotate-6 transition-transform duration-500 group-hover/avatar:scale-105">
-              {user.name?.[0]}
+          <div className="relative group">
+            <div className={`w-36 h-36 sm:w-48 sm:h-48 rounded-[2.5rem] sm:rounded-[3.5rem] bg-gradient-to-tr from-indigo-600 via-indigo-400 to-indigo-800 p-1 shadow-[0_20px_50px_rgba(79,70,229,0.3)] transition-all duration-500 group-hover:rotate-6 overflow-hidden`}>
+              <div className="w-full h-full rounded-[2.3rem] sm:rounded-[3.3rem] bg-[#0d1117] flex items-center justify-center border-4 border-white/5 relative overflow-hidden">
+                {editForm.avatar_url ? (
+                  <img 
+                    src={`http://localhost:5000${editForm.avatar_url}`} 
+                    alt={user.name} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-6xl sm:text-8xl font-black text-white italic drop-shadow-2xl">
+                    {user.name.charAt(0)}
+                  </span>
+                )}
+                
+                {/* Upload Overlay */}
+                <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
+                  <Camera size={32} className="text-white mb-2" />
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest">Update Photo</span>
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                  />
+                </label>
+              </div>
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-2xl border-4 border-[#111319] shadow-xl flex items-center justify-center">
-              <CheckCircle2 size={12} className="text-white" />
+            {/* Identity Rings */}
+            <div className="absolute -inset-4 bg-indigo-500/10 rounded-full blur-2xl -z-10 animate-pulse"></div>
+            <div className="absolute top-2 right-2 p-3 bg-emerald-500 rounded-2xl border-4 border-[#090b10] shadow-xl">
+              <ShieldCheck size={20} className="text-white" />
             </div>
           </div>
 
@@ -293,7 +350,7 @@ const Profile = () => {
             <Trophy className="text-yellow-400 sm:w-7 sm:h-7" size={24} />
             System Registry
           </h2>
-          <div className="overflow-x-auto overflow-y-auto max-h-[350px] sm:max-h-none relative z-10 pb-4 custom-scrollbar">
+          <div className="overflow-x-auto overflow-y-auto max-h-[350px] sm:max-h-[450px] lg:max-h-[480px] relative z-10 pb-4 custom-scrollbar">
             <table className="w-full text-left sm:min-w-[800px] border-separate border-spacing-y-2 table-auto sm:table-fixed">
               <thead className="sticky top-0 z-20 bg-[#111319]">
                 <tr className="text-gray-500 text-[8px] sm:text-[9px] uppercase font-black tracking-widest">

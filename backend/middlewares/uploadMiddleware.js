@@ -31,7 +31,34 @@ function checkFileType(file, cb) {
   }
 }
 
-// Initialize upload
+// --- Avatar Specific Storage ---
+const avatarDir = path.join(__dirname, '../uploads/avatars');
+if (!fs.existsSync(avatarDir)) {
+  fs.mkdirSync(avatarDir, { recursive: true });
+}
+
+const avatarStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, 'uploads/avatars/');
+  },
+  filename: function(req, file, cb) {
+    cb(null, 'avatar-' + req.user.id + '-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 2000000 }, // 2MB limit for avatars
+  fileFilter: function(req, file, cb) {
+    const filetypes = /jpeg|jpg|png|webp/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+    if (mimetype && extname) return cb(null, true);
+    cb(new Error('Images only (jpeg/jpg/png/webp)!'));
+  }
+});
+
+// Initialize standard upload
 const upload = multer({
   storage: storage,
   limits: { fileSize: 5000000 }, // 5MB limit
@@ -40,4 +67,7 @@ const upload = multer({
   }
 });
 
-module.exports = upload;
+module.exports = {
+  upload,
+  avatarUpload
+};

@@ -45,7 +45,10 @@ const Leaderboard = () => {
   }, [activeTab, filter, selectedClubId, clubs]);
 
   const top3 = leaders.slice(0, 3);
-  const others = leaders.slice(3);
+  const others = leaders.slice(3, 10); // Show top 4 to 10 below podium
+  
+  // Find current user stats from full leaders list
+  const currentUserStats = leaders.find(l => l.id === currentUser?.id);
 
   // Reorder for podium: [2nd, 1st, 3rd]
   const podiumOrder = [];
@@ -125,7 +128,8 @@ const Leaderboard = () => {
       ) : (
         <div className="space-y-16">
           {/* Podium Section */}
-          <div className="flex flex-col items-end justify-center md:flex-row gap-4 md:gap-0 pt-16">
+          {/* Podium Section - Horizontal even on mobile */}
+          <div className="flex justify-center items-end gap-1.5 sm:gap-6 pt-12 sm:pt-16">
             {podiumOrder.map((student, i) => {
               const isFirst = student.rank === 1;
               const isSecond = student.rank === 2;
@@ -134,35 +138,36 @@ const Leaderboard = () => {
               return (
                 <motion.div
                   key={student.id}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1, type: 'spring', stiffness: 100 }}
-                  className={`relative flex flex-col items-center order-${i === 1 ? '1' : i === 0 ? '0' : '2'}`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`relative flex flex-col items-center flex-1 max-w-[120px] sm:max-w-[200px] order-${i === 1 ? '1' : i === 0 ? '0' : '2'}`}
                 >
                   {/* Photo/Avatar Circle */}
-                  <div className={`relative mb-4 group ${isFirst ? 'scale-125 z-10 mx-8' : 'scale-100 z-0'}`}>
-                    <div className={`w-28 h-28 rounded-full p-1.5 bg-gradient-to-tr transition-all duration-500 group-hover:rotate-12 ${isFirst ? 'from-yellow-400 via-amber-200 to-yellow-600 shadow-[0_0_40px_rgba(234,179,8,0.2)]' : isSecond ? 'from-slate-300 to-slate-500' : 'from-orange-400 to-orange-800'}`}>
-                      <div className="w-full h-full rounded-full bg-slate-900 border-2 border-white/10 flex items-center justify-center relative overflow-hidden">
-                        <span className="text-4xl font-black text-white">{student.name.charAt(0)}</span>
-                        {isFirst && <div className="absolute top-0 right-0 p-1.5"><Crown className="text-yellow-400" size={16} fill="currentColor" /></div>}
+                  <div className={`relative mb-2 sm:mb-4 group ${isFirst ? 'z-10' : 'z-0'}`}>
+                    <div className={`w-16 h-16 sm:w-32 sm:h-32 rounded-3xl sm:rounded-full p-1 sm:p-1.5 bg-gradient-to-tr transition-all duration-500 rounded-[1.5rem] ${isFirst ? 'from-yellow-400 via-amber-200 to-yellow-600 shadow-[0_0_20px_rgba(234,179,8,0.3)] sm:scale-110' : isSecond ? 'from-slate-300 to-slate-500' : 'from-orange-400 to-orange-800'}`}>
+                      <div className="w-full h-full rounded-[1.3rem] sm:rounded-full bg-[#0d0f14] border border-white/10 flex items-center justify-center relative overflow-hidden">
+                        {student.avatar_url ? (
+                          <img src={`http://localhost:5000${student.avatar_url}`} alt={student.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className={`font-black text-white ${isFirst ? 'text-2xl sm:text-5xl' : 'text-xl sm:text-4xl'}`}>{student.name.charAt(0)}</span>
+                        )}
+                        {isFirst && <div className="absolute top-1 right-1"><Crown className="text-yellow-400" size={10} fill="currentColor" /></div>}
                       </div>
                     </div>
                   </div>
 
                   {/* Info */}
-                  <div className={`text-center transition-all ${isFirst ? 'mt-4' : 'mt-0'}`}>
-                    <h3 className={`font-black uppercase tracking-tight ${isFirst ? 'text-2xl text-white' : 'text-lg text-gray-400'}`}>{student.name}</h3>
-                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-0.5">{student.erp}</p>
-                    <div className={`mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-black text-sm border ${isFirst ? 'bg-indigo-600/20 border-indigo-500/30 text-indigo-400' : 'bg-white/5 border-white/5 text-gray-500'}`}>
-                      {student.total_points} <span className="text-[8px] opacity-60">PTS</span>
+                  <div className="text-center w-full px-1">
+                    <h3 className={`font-black uppercase tracking-tighter truncate ${isFirst ? 'text-[10px] sm:text-xl text-white' : 'text-[9px] sm:text-lg text-gray-400'}`}>{student.name}</h3>
+                    <div className={`mt-1 sm:mt-2 inline-flex items-center gap-1 px-2 sm:px-4 py-0.5 sm:py-1.5 rounded-full font-black text-[8px] sm:text-sm border ${isFirst ? 'bg-yellow-400/20 border-yellow-500/30 text-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.1)]' : 'bg-white/5 border-white/5 text-gray-500'}`}>
+                      {student.total_points} <span className="text-[6px] sm:text-[8px] opacity-60">PTS</span>
                     </div>
                   </div>
 
                   {/* Podium Block */}
-                  <div className={`mt-10 w-32 md:w-48 bg-gradient-to-b from-white/10 to-transparent border-t border-white/20 rounded-t-3xl transition-all ${isFirst ? 'h-48 shadow-[0_-20px_50px_rgba(var(--primary-rgb),0.1)]' : isSecond ? 'h-32' : 'h-24'}`}>
-                    <div className="flex flex-col items-center justify-center h-full">
-                      <span className={`text-4xl font-black italic border-b-4 ${isFirst ? 'text-yellow-400 border-yellow-400' : isSecond ? 'text-slate-400 border-slate-400' : 'text-orange-500 border-orange-500'}`}>{student.rank}</span>
-                    </div>
+                  <div className={`mt-4 sm:mt-8 w-full bg-gradient-to-b from-white/10 to-transparent border-t border-white/20 rounded-t-2xl sm:rounded-t-[2.5rem] transition-all flex flex-col items-center justify-center ${isFirst ? 'h-24 sm:h-48' : isSecond ? 'h-16 sm:h-32' : 'h-12 sm:h-24'}`}>
+                    <span className={`text-xl sm:text-5xl font-black italic border-b-2 sm:border-b-4 ${isFirst ? 'text-yellow-400 border-yellow-400' : isSecond ? 'text-slate-400 border-slate-400' : 'text-orange-500 border-orange-500'}`}>{student.rank}</span>
                   </div>
                 </motion.div>
               );
@@ -192,8 +197,12 @@ const Leaderboard = () => {
 
                     {/* Info */}
                     <div className="flex-1 flex items-center px-6 gap-4">
-                      <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-gray-500 group-hover:bg-indigo-500 group-hover:text-white transition-all`}>
-                        {student.name.charAt(0)}
+                      <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-gray-500 group-hover:bg-indigo-500 group-hover:text-white transition-all overflow-hidden`}>
+                        {student.avatar_url ? (
+                          <img src={`http://localhost:5000${student.avatar_url}`} alt={student.name} className="w-full h-full object-cover" />
+                        ) : (
+                          student.name.charAt(0)
+                        )}
                       </div>
                       <div>
                         <h4 className="font-black text-white uppercase tracking-tight">{student.name} {isMe && <span className="ml-2 px-2 py-0.5 bg-indigo-500 text-[8px] rounded-md">Self</span>}</h4>
@@ -220,8 +229,40 @@ const Leaderboard = () => {
         </div>
       )}
 
-      {/* Note */}
-      <div className="pt-12 text-center">
+      {/* Sticky User Stats Bar */}
+      {currentUserStats && (
+        <motion.div 
+          initial={{ y: 100 }}
+          animate={{ y: 0 }}
+          className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6 bg-[#0d0f14]/80 backdrop-blur-2xl border-t border-white/10 shadow-[0_-20px_40px_rgba(0,0,0,0.5)]"
+        >
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3 sm:gap-6">
+              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                <span className="text-xl sm:text-2xl font-black text-white italic">#{currentUserStats.rank}</span>
+              </div>
+              <div>
+                <h4 className="text-[10px] sm:text-xs font-black text-gray-500 uppercase tracking-widest">Your Current Standing</h4>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm sm:text-xl font-black text-white uppercase italic tracking-tighter">{currentUserStats.name}</p>
+                  <span className="px-1.5 py-0.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[8px] font-black rounded uppercase">Self</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-right">
+              <p className="text-[10px] sm:text-xs font-black text-gray-500 uppercase tracking-widest">Total Momentum</p>
+              <div className="flex items-baseline gap-1 justify-end">
+                <span className="text-xl sm:text-3xl font-black text-indigo-400 italic tracking-tighter">{currentUserStats.total_points}</span>
+                <span className="text-[9px] sm:text-xs font-black text-gray-600 uppercase tracking-widest">XP</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Note padding for sticky bar */}
+      <div className="pt-24 pb-32 text-center">
         <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 rounded-full border border-white/10 group cursor-help">
           <Activity size={14} className="text-indigo-400 animate-pulse" />
           <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em]">Rankings refresh in real-time on every score update</p>
