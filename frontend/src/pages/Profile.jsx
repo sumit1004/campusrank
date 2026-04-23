@@ -110,23 +110,46 @@ const Profile = () => {
           </div>
 
           <div className="flex-1 text-center md:text-left space-y-4 sm:space-y-5">
-            <div>
-              <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 mb-3">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase italic tracking-tighter">{user.name}</h1>
-                <span className="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 text-[9px] sm:text-[10px] font-black rounded-lg uppercase tracking-widest shadow-[0_0_15px_rgba(99,102,241,0.2)]">{user.role}</span>
+            <div className="md:max-w-3xl">
+              <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase italic tracking-tighter peer">{user.name}</h1>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 text-[9px] sm:text-[10px] font-black rounded-lg uppercase tracking-widest shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                    {user.role}
+                  </span>
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse sm:hidden"></div>
+                </div>
               </div>
-              <div className="flex flex-wrap justify-center md:justify-start gap-2 sm:gap-3">
-                <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><Mail size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> {user.email}</span>
-                <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><Hash size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> {user.erp}</span>
+
+              {/* Mobile Profile Information Grid (Visible only on Desktop) */}
+              <div className="hidden sm:grid grid-cols-2 lg:flex lg:flex-wrap justify-center md:justify-start gap-2.5 sm:gap-3">
+                <div className="flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-2.5 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
+                  <Mail size={12} className="text-indigo-500 shrink-0" />
+                  <span className="truncate">{user.email}</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-2.5 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
+                  <Hash size={12} className="text-indigo-500 shrink-0" />
+                  <span>{user.erp}</span>
+                </div>
                 {user.role !== 'superadmin' && (
                   <>
-                    <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><FileText size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> {editForm.course}</span>
-                    <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><BookOpen size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> {editForm.branch}</span>
-                    <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><GraduationCap size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> Sem {editForm.semester}</span>
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-2.5 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
+                      <FileText size={12} className="text-indigo-500 shrink-0" />
+                      <span>{editForm.course}</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-2.5 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
+                      <BookOpen size={12} className="text-indigo-500 shrink-0" />
+                      <span>{editForm.branch}</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-white/5 border border-white/5 px-3 py-2.5 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
+                      <GraduationCap size={12} className="text-indigo-500 shrink-0" />
+                      <span>Sem {editForm.semester}</span>
+                    </div>
                     {editForm.college && (
-                      <span className="flex items-center gap-1.5 sm:gap-2 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl text-amber-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
-                        <GraduationCap size={12} className="text-amber-400 sm:w-[14px] sm:h-[14px]" /> {editForm.college}
-                      </span>
+                      <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3 py-2.5 rounded-xl text-amber-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
+                        <GraduationCap size={12} className="text-amber-400 shrink-0" />
+                        <span className="truncate">{editForm.college}</span>
+                      </div>
                     )}
                   </>
                 )}
@@ -146,21 +169,21 @@ const Profile = () => {
       {/* STATS & GROWTH GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Left Column: Stats Cards */}
-        <div className="lg:col-span-1 space-y-4 sm:space-y-6">
+        <div className="lg:col-span-1 grid grid-cols-3 lg:grid-cols-1 gap-2 sm:gap-6">
           {[
-            { label: 'Total XP', value: currentTotalXP, icon: <Award className="text-indigo-400" />, border: 'border-indigo-500/20', bg: 'bg-indigo-500/5' },
-            { label: 'Global Rank', value: rank > 0 ? `#${rank}` : 'N/A', icon: <Trophy className="text-yellow-400" />, border: 'border-yellow-500/20', bg: 'bg-yellow-500/5' },
-            { label: 'Verified Assets', value: eCertsCount, icon: <ShieldCheck className="text-emerald-400" />, border: 'border-emerald-500/20', bg: 'bg-emerald-500/5' }
+            { label: 'Total XP', value: currentTotalXP, suffix: 'XP', border: 'border-indigo-500/20', bg: 'bg-indigo-500/5', text: 'text-indigo-400' },
+            { label: 'Global Rank', value: rank > 0 ? `#${rank}` : 'N/A', suffix: 'RANK', border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', text: 'text-yellow-400' },
+            { label: 'Verified Assets', value: eCertsCount, suffix: 'UNITS', border: 'border-emerald-500/20', bg: 'bg-emerald-500/5', text: 'text-emerald-400' }
           ].map((stat, i) => (
-            <motion.div key={i} variants={itemVariants} className={`bg-[#111319] border ${stat.border} ${stat.bg} p-6 sm:p-8 rounded-3xl sm:rounded-[2.5rem] relative overflow-hidden group shadow-lg transition-transform hover:-translate-y-1`}>
-              <div className="relative z-10 flex items-center justify-between">
-                <div>
-                  <p className="text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 sm:mb-2">{stat.label}</p>
-                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white italic tracking-tighter">{stat.value}</h3>
+            <motion.div key={i} variants={itemVariants} className={`bg-[#111319] border ${stat.border} ${stat.bg} p-3 sm:p-7 rounded-2xl sm:rounded-[2rem] relative overflow-hidden group shadow-lg transition-transform hover:-translate-y-1`}>
+              <div className="relative z-10 flex flex-col lg:flex-row items-center lg:justify-between gap-1 lg:gap-4">
+                <p className="text-[7px] lg:text-[10px] font-black text-gray-500 uppercase tracking-[0.1em] lg:tracking-[0.2em]">{stat.label}</p>
+                <div className="flex items-baseline gap-1 lg:gap-2">
+                  <h3 className="text-sm lg:text-3xl font-black text-white italic tracking-tighter">{stat.value}</h3>
+                  <span className={`text-[6px] lg:text-[10px] font-black uppercase tracking-widest ${stat.text}`}>{stat.suffix}</span>
                 </div>
-                <div className="p-3 sm:p-4 bg-white/5 rounded-2xl sm:rounded-[1.2rem] group-hover:scale-110 group-hover:bg-white/10 transition-all border border-white/5 shadow-inner">{stat.icon}</div>
               </div>
-              <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-[40px] pointer-events-none group-hover:bg-white/10 transition-colors"></div>
+              <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-white/[0.02] to-transparent pointer-events-none"></div>
             </motion.div>
           ))}
         </div>
@@ -234,32 +257,29 @@ const Profile = () => {
             <ShieldCheck className="text-emerald-500 sm:w-7 sm:h-7" size={24} />
             Verified Digital Assets
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative z-10 max-h-[400px] lg:max-h-[550px] overflow-y-auto custom-scrollbar pr-2 pb-4">
             {certificates.filter(c => c.source === 'e_certificate').map((c, i) => {
               const verifyUrl = encodeURIComponent(`https://campusrank.com/verify/${c.id}`);
               const shareText = encodeURIComponent(`I just earned a certificate for "${c.event_name}" from Rungta International Skills University ✨🚀`);
               const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${verifyUrl}&summary=${shareText}`;
               
               return (
-              <div key={i} className="bg-[#161a23] border border-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] group hover:border-emerald-500/30 hover:bg-[#1a1f2b] transition-all relative overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(16,185,129,0.1)] hover:-translate-y-1 flex flex-col">
-                <div className="flex justify-between items-start mb-5 relative z-10">
-                  <div className="p-2.5 bg-emerald-500/10 rounded-xl group-hover:scale-110 transition-transform border border-emerald-500/20">
-                    <Award size={16} className="text-emerald-400" />
+              <div key={i} className="bg-[#161a23] border border-white/5 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] group hover:border-emerald-500/30 hover:bg-[#1a1f2b] transition-all relative overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(16,185,129,0.1)] hover:-translate-y-1 flex flex-col">
+                <div className="flex justify-between items-center mb-1 relative z-10 gap-3">
+                  <h4 className="text-sm font-black text-white uppercase italic tracking-tighter truncate flex-1">{c.event_name}</h4>
+                  <div className="flex gap-1.5 sm:gap-2">
+                    <a href={`http://localhost:5000${c.url}`} target="_blank" rel="noreferrer" title="Download" className="p-1.5 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg transition-colors border border-emerald-500/20">
+                      <Download size={14} />
+                    </a>
+                    <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" title="LinkedIn Share" className="p-1.5 bg-blue-500/10 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition-colors border border-blue-500/20">
+                      <Share2 size={14} />
+                    </a>
                   </div>
-                  <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-1">
-                    <CheckCircle2 size={10} /> Secure Asset
-                  </span>
                 </div>
-                <h4 className="text-base font-black text-white uppercase italic tracking-tighter mb-1 truncate">{c.event_name}</h4>
-                <p className="text-[9px] text-gray-500 font-bold uppercase mb-6 tracking-widest flex-1">{c.position} • {new Date(c.created_at).toLocaleDateString()}</p>
-                <div className="flex flex-col sm:flex-row gap-2 mt-auto">
-                  <a href={`http://localhost:5000${c.url}`} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-emerald-600 text-white text-[9px] sm:text-[10px] font-black rounded-xl transition-colors border border-white/10 hover:border-emerald-500 uppercase tracking-widest">
-                    <Download size={14} /> Download
-                  </a>
-                  <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-[#0077b5] to-[#005582] hover:opacity-90 text-white text-[9px] sm:text-[10px] font-black rounded-xl transition-all shadow-[0_0_15px_rgba(0,119,181,0.3)] hover:shadow-[0_0_25px_rgba(0,119,181,0.6)] hover:-translate-y-0.5 uppercase tracking-widest border border-white/10">
-                    <Share2 size={14} /> Share
-                  </a>
-                </div>
+                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest relative z-10 flex items-center justify-between">
+                  <span>{c.position}</span>
+                  <span className="text-gray-600 tracking-tighter">{new Date(c.created_at).toLocaleDateString()}</span>
+                </p>
               </div>
             )})}
           </div>
@@ -273,14 +293,14 @@ const Profile = () => {
             <Trophy className="text-yellow-400 sm:w-7 sm:h-7" size={24} />
             System Registry
           </h2>
-          <div className="overflow-x-auto overflow-y-auto max-h-[400px] sm:max-h-[500px] custom-scrollbar relative z-10 pb-2">
-            <table className="w-full text-left min-w-[700px] sm:min-w-[800px] border-separate border-spacing-y-2">
+          <div className="overflow-x-auto overflow-y-auto max-h-[350px] sm:max-h-none relative z-10 pb-4 custom-scrollbar">
+            <table className="w-full text-left sm:min-w-[800px] border-separate border-spacing-y-2 table-auto sm:table-fixed">
               <thead className="sticky top-0 z-20 bg-[#111319]">
                 <tr className="text-gray-500 text-[8px] sm:text-[9px] uppercase font-black tracking-widest">
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 bg-white/[0.02] rounded-l-2xl">Success Unit</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 bg-white/[0.02]">Source Type</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 bg-white/[0.02]">Position Awarded</th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 bg-white/[0.02] rounded-r-2xl text-right">XP Earned</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 bg-white/[0.02] rounded-l-2xl w-[45%] sm:w-auto">Success Unit</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 bg-white/[0.02] text-center w-[30%] sm:w-auto">Source</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 bg-white/[0.02] hidden md:table-cell">Position</th>
+                  <th className="px-3 sm:px-6 py-3 sm:py-4 bg-white/[0.02] rounded-r-2xl text-right w-[25%] sm:w-auto">XP</th>
                 </tr>
               </thead>
               <tbody>
@@ -294,33 +314,28 @@ const Profile = () => {
                     const isCounted = p.isCounted;
                     return (
                       <tr key={idx} className={`group transition-all ${!isCounted ? 'opacity-60' : ''}`}>
-                        <td className={`px-4 sm:px-6 py-3 sm:py-5 bg-white/[0.02] rounded-l-2xl group-hover:bg-white/[0.04] ${isCounted ? 'border-l-4 border-emerald-500' : ''}`}>
-                          <div className={`font-black text-xs sm:text-sm uppercase italic tracking-tighter truncate max-w-[200px] sm:max-w-[250px] transition-colors ${isCounted ? 'text-white group-hover:text-emerald-400' : 'text-gray-400'}`}>{p.event_name}</div>
-                          <div className="text-[8px] sm:text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5 sm:mt-1">{new Date(p.created_at).toLocaleDateString()}</div>
-                          {!isCounted && p.winningSource && (
-                            <div className="mt-1.5 sm:mt-2 text-[7px] sm:text-[8px] text-yellow-500 font-bold uppercase tracking-widest bg-yellow-500/10 px-2 py-1 rounded inline-block">
-                              Points already added from {p.winningSource === 'e_certificate' ? 'E-Certificate' : 'Manual Upload'} for this event
-                            </div>
-                          )}
+                        <td className={`px-3 sm:px-6 py-2 sm:py-3 bg-white/[0.02] rounded-l-2xl group-hover:bg-white/[0.04] ${isCounted ? 'border-l-4 border-emerald-500' : ''}`}>
+                          <div className={`font-black text-[10px] sm:text-sm uppercase italic tracking-tighter truncate max-w-[120px] sm:max-w-[250px] transition-colors leading-none ${isCounted ? 'text-white' : 'text-gray-400'}`}>{p.event_name}</div>
+                          <div className="text-[7px] sm:text-[9px] text-gray-500 font-bold uppercase tracking-tight mt-0.5">{new Date(p.created_at).toLocaleDateString()}</div>
                         </td>
-                        <td className="px-4 sm:px-6 py-3 sm:py-5 bg-white/[0.02] group-hover:bg-white/[0.04]">
-                          <div className="flex flex-col items-start gap-1.5 sm:gap-2">
-                            <span className={`px-2 py-1 text-[7px] sm:text-[8px] font-black rounded-md uppercase tracking-widest border ${p.source === 'e_certificate' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'}`}>
-                              {p.source === 'e_certificate' ? 'E-Certificate' : 'Manual Upload'}
+                        <td className="px-3 sm:px-6 py-2 sm:py-3 bg-white/[0.02] group-hover:bg-white/[0.04]">
+                          <div className="flex flex-col items-center gap-1">
+                            <span className={`px-1.5 py-0.5 text-[7px] sm:text-[8px] font-black rounded uppercase tracking-widest border ${p.source === 'e_certificate' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'}`}>
+                              {p.source === 'e_certificate' ? 'ECERT' : 'MANUAL'}
                             </span>
-                            <span className={`px-2 py-0.5 text-[7px] sm:text-[8px] font-black rounded uppercase tracking-widest flex items-center justify-center gap-1 w-max ${isCounted ? 'text-emerald-400 bg-emerald-500/10' : 'text-gray-400 bg-gray-500/10'}`}>
-                              {isCounted ? <><CheckCircle2 size={10} /> Counted</> : <><XCircle size={10} /> Not Counted</>}
+                            <span className={`text-[6px] sm:text-[8px] font-black rounded uppercase tracking-[0.05em] flex items-center justify-center gap-1 ${isCounted ? 'text-emerald-400' : 'text-gray-500'}`}>
+                              {isCounted ? 'Counted' : 'Skipped'}
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 sm:px-6 py-3 sm:py-5 bg-white/[0.02] group-hover:bg-white/[0.04] font-black text-gray-400 text-[9px] sm:text-[10px] uppercase tracking-widest">
+                        <td className="px-3 sm:px-6 py-2 sm:py-3 bg-white/[0.02] group-hover:bg-white/[0.04] font-black text-gray-400 text-[9px] sm:text-[10px] uppercase tracking-widest hidden md:table-cell">
                           {p.position}
                         </td>
-                        <td className="px-4 sm:px-6 py-3 sm:py-5 bg-white/[0.02] rounded-r-2xl group-hover:bg-white/[0.04] text-right font-black text-lg sm:text-xl italic tracking-tighter">
+                        <td className="px-3 sm:px-6 py-2 sm:py-3 bg-white/[0.02] rounded-r-2xl group-hover:bg-white/[0.04] text-right font-black text-base sm:text-xl italic tracking-tighter">
                           {isCounted ? (
                             <><span className="text-emerald-400">+</span><span className="text-white">{p.points || 0}</span></>
                           ) : (
-                            <span className="text-gray-500 font-bold text-base sm:text-lg">0</span>
+                            <span className="text-gray-500 font-bold text-sm sm:text-lg">0</span>
                           )}
                         </td>
                       </tr>
@@ -340,7 +355,7 @@ const Profile = () => {
             <UploadCloud className="text-indigo-500 sm:w-6 sm:h-6" size={20} />
             Manual Tracking
           </h2>
-          <div className="space-y-3 sm:space-y-4 overflow-y-auto custom-scrollbar pr-2 flex-1 relative z-10 max-h-[300px] sm:max-h-[400px]">
+          <div className="space-y-3 sm:space-y-4 overflow-y-auto custom-scrollbar pr-2 flex-1 relative z-10 max-h-[300px] lg:max-h-[420px]">
             {manualHistory.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full pt-10 text-gray-500">
                 <UploadCloud size={30} className="mb-3 opacity-30" />

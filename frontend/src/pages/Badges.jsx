@@ -40,8 +40,8 @@ const Badges = () => {
 
     try {
       const canvas = await html2canvas(element, {
-        backgroundColor: '#0f172a',
-        scale: 2,
+        backgroundColor: null,
+        scale: 3,
         logging: false,
         useCORS: true
       });
@@ -116,7 +116,7 @@ const Badges = () => {
       </div>
 
       {/* Badges Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 max-w-7xl mx-auto px-2">
         {BADGE_LEVELS.map((badge, idx) => {
           const isUnlocked = currentPoints >= badge.points;
           return (
@@ -125,8 +125,7 @@ const Badges = () => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.1 }}
-              id={`badge-card-${badge.name}`}
-              className={`p-6 rounded-3xl border transition-all duration-500 relative group overflow-hidden ${
+              className={`p-10 rounded-[3rem] border transition-all duration-500 relative group overflow-hidden ${
                 isUnlocked 
                 ? 'bg-surface/60 border-indigo-500/30 shadow-xl shadow-indigo-500/5' 
                 : 'bg-surface/20 border-white/5 opacity-60'
@@ -138,10 +137,15 @@ const Badges = () => {
               )}
 
               <div className="flex flex-col items-center text-center space-y-4 relative z-10">
-                <div className={`relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 overflow-hidden ${
+                <div 
+                  id={`badge-card-${badge.name}`}
+                  className={`relative w-40 h-40 sm:w-48 sm:h-48 rounded-3xl flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden ${
                   !isUnlocked && 'grayscale opacity-50'
                 }`}>
-                  <img src={badge.image} alt={badge.name} className="w-full h-full object-cover scale-[1.2]" />
+                  <img src={badge.image} alt={badge.name} className="w-full h-full object-cover scale-[1.1]" />
+                  {isUnlocked && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent pointer-events-none"></div>
+                  )}
                   {!isUnlocked && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
                       <Lock size={32} className="text-white drop-shadow-md" />

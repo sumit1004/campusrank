@@ -87,7 +87,7 @@ const AdminDashboard = () => {
               <Clock size={16} className="text-indigo-500" />
               Audit Trail
             </h4>
-            <div className="space-y-6 overflow-y-auto custom-scrollbar flex-1 pr-2 max-h-[400px] lg:max-h-none">
+            <div className="space-y-6 overflow-y-auto custom-scrollbar flex-1 pr-2 max-h-[180px] sm:max-h-[300px] lg:max-h-[380px]">
               {activityLogs.length === 0 ? (
                 <p className="text-gray-600 text-[10px] font-black uppercase text-center py-10 opacity-30">No logs captured</p>
               ) : (
