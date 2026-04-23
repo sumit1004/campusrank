@@ -87,15 +87,15 @@ const NotificationDropdown = () => {
             initial={{ opacity: 0, y: 15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 15, scale: 0.95 }}
-            className="absolute right-0 mt-4 w-[calc(100vw-2rem)] sm:w-[320px] md:w-[380px] max-w-[380px] bg-surface border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden z-[9999] origin-top-right shadow-[#000000]/50"
+            className="absolute -right-10 sm:right-0 mt-4 w-[280px] sm:w-[320px] md:w-[380px] bg-surface border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden z-[9999] origin-top-right shadow-[#000000]/50"
           >
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+            <div className="p-4 sm:p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
               <div>
-                <h3 className="text-lg font-black text-white">Notifications</h3>
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-0.5">Stay updated</p>
+                <h3 className="text-base sm:text-lg font-black text-white">Notifications</h3>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest mt-0.5">Stay updated</p>
               </div>
               {unreadCount > 0 && (
-                <span className="px-3 py-1 bg-primary/20 text-primary text-[10px] font-black rounded-full border border-primary/20 uppercase tracking-wider">
+                <span className="px-3 py-1 bg-primary/20 text-primary text-[9px] sm:text-[10px] font-black rounded-full border border-primary/20 uppercase tracking-wider">
                   {unreadCount} New
                 </span>
               )}
@@ -116,23 +116,23 @@ const NotificationDropdown = () => {
                     <div
                       key={notif.id}
                       onClick={() => !notif.is_read && markAsRead(notif.id)}
-                      className={`p-5 flex gap-4 transition-all hover:bg-white/[0.03] cursor-pointer group relative ${!notif.is_read ? 'bg-primary/[0.03]' : ''}`}
+                      className={`p-4 sm:p-5 flex gap-3 sm:gap-4 transition-all hover:bg-white/[0.03] cursor-pointer group relative ${!notif.is_read ? 'bg-primary/[0.03]' : ''}`}
                     >
                       {!notif.is_read && (
                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
                       )}
                       
-                      <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${!notif.is_read ? 'bg-primary/20 shadow-lg shadow-primary/10' : 'bg-white/5'}`}>
+                      <div className={`shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all ${!notif.is_read ? 'bg-primary/20 shadow-lg shadow-primary/10' : 'bg-white/5'}`}>
                         {getIcon(notif.type)}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm leading-relaxed ${!notif.is_read ? 'text-white font-bold' : 'text-gray-400 font-medium'}`}>
+                        <p className={`text-xs sm:text-sm leading-relaxed ${!notif.is_read ? 'text-white font-bold' : 'text-gray-400 font-medium'}`}>
                           {notif.message}
                         </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Clock size={12} className="text-gray-600" />
-                          <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
+                          <Clock size={10} className="text-gray-600 sm:w-3 sm:h-3" />
+                          <span className="text-[9px] sm:text-[10px] font-black text-gray-600 uppercase tracking-widest">
                             {formatTime(notif.created_at)}
                           </span>
                         </div>

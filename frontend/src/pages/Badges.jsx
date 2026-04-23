@@ -7,10 +7,10 @@ import html2canvas from 'html2canvas';
 import toast from 'react-hot-toast';
 
 const BADGE_LEVELS = [
-  { id: 'level1', name: 'Level 1', points: 500, icon: '🥉', color: 'from-amber-400 to-amber-700' },
-  { id: 'level2', name: 'Level 2', points: 800, icon: '🥈', color: 'from-slate-300 to-slate-500' },
-  { id: 'level3', name: 'Level 3', points: 1000, icon: '🥇', color: 'from-yellow-300 to-yellow-600' },
-  { id: 'elite', name: 'Elite', points: 1500, icon: '👑', color: 'from-indigo-400 to-purple-600' },
+  { id: 'level1', name: 'Level 1', points: 500, image: '/badges/starter_badge.png', color: 'from-amber-400 to-amber-700' },
+  { id: 'level2', name: 'Level 2', points: 800, image: '/badges/rising_badge.png', color: 'from-slate-300 to-slate-500' },
+  { id: 'level3', name: 'Level 3', points: 1000, image: '/badges/pro_badge.png', color: 'from-yellow-300 to-yellow-600' },
+  { id: 'elite', name: 'Legend', points: 1500, image: '/badges/legend_badge.png', color: 'from-indigo-400 to-purple-600' },
 ];
 
 const Badges = () => {
@@ -138,10 +138,15 @@ const Badges = () => {
               )}
 
               <div className="flex flex-col items-center text-center space-y-4 relative z-10">
-                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-white/10 transition-transform duration-500 group-hover:scale-110 ${
-                  isUnlocked ? `bg-gradient-to-br ${badge.color} text-white` : 'bg-white/5 text-gray-700 grayscale'
+                <div className={`relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 overflow-hidden ${
+                  !isUnlocked && 'grayscale opacity-50'
                 }`}>
-                  {isUnlocked ? badge.icon : <Lock size={32} />}
+                  <img src={badge.image} alt={badge.name} className="w-full h-full object-cover scale-[1.2]" />
+                  {!isUnlocked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                      <Lock size={32} className="text-white drop-shadow-md" />
+                    </div>
+                  )}
                 </div>
                 
                 <div>
