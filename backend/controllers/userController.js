@@ -11,7 +11,7 @@ const getUserProfile = async (req, res, next) => {
 
     // 1. Basic User Info
     const [userRows] = await db.query(
-      'SELECT id, name, erp, email, branch, semester, role FROM users WHERE id = ?',
+      'SELECT id, name, erp, email, course, branch, semester, college, role FROM users WHERE id = ?',
       [userId]
     );
 
@@ -144,12 +144,12 @@ const getUserProfile = async (req, res, next) => {
  */
 const updateProfile = async (req, res, next) => {
   try {
-    const { branch, semester } = req.body;
+    const { course, branch, semester, college } = req.body;
     const userId = req.user.id;
 
     await db.query(
-      'UPDATE users SET branch = ?, semester = ? WHERE id = ?',
-      [branch, semester, userId]
+      'UPDATE users SET course = ?, branch = ?, semester = ?, college = ? WHERE id = ?',
+      [course, branch, semester, college, userId]
     );
 
     res.status(200).json({

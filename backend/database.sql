@@ -10,6 +10,11 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(255) NOT NULL,
   role ENUM('student', 'admin', 'superadmin') DEFAULT 'student',
   total_points INT DEFAULT 0,
+  club_id INT DEFAULT NULL,
+  course VARCHAR(100) DEFAULT NULL,
+  branch VARCHAR(255) DEFAULT 'Unspecified',
+  semester VARCHAR(100) DEFAULT 'Not Set',
+  college VARCHAR(255) DEFAULT 'Not Specified',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

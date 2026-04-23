@@ -6,7 +6,7 @@ import {
   User, Mail, Hash, BookOpen, GraduationCap,
   Award, Trophy, ClipboardList, Activity as ActivityIcon,
   ChevronRight, Edit3, Download, ExternalLink, ShieldCheck,
-  Clock, CheckCircle2, XCircle, UploadCloud, FileText
+  Clock, CheckCircle2, XCircle, UploadCloud, FileText, Share2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -16,8 +16,10 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
+    course: '',
     branch: '',
-    semester: ''
+    semester: '',
+    college: ''
   });
 
   useEffect(() => {
@@ -31,8 +33,10 @@ const Profile = () => {
       setProfileData(res.data.data);
       const { user: profileUser } = res.data.data;
       setEditForm({
+        course: profileUser.course || 'Not Set',
         branch: profileUser.branch || 'Unspecified',
-        semester: profileUser.semester || 'Not Set'
+        semester: profileUser.semester || 'Not Set',
+        college: profileUser.college || 'Rungta International Skills University'
       });
     } catch (error) {
       toast.error("Failed to load profile data");
@@ -116,8 +120,14 @@ const Profile = () => {
                 <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><Hash size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> {user.erp}</span>
                 {user.role !== 'superadmin' && (
                   <>
+                    <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><FileText size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> {editForm.course}</span>
                     <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><BookOpen size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> {editForm.branch}</span>
                     <span className="flex items-center gap-1.5 sm:gap-2 bg-white/5 border border-white/5 px-3 py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]"><GraduationCap size={12} className="text-indigo-500 sm:w-[14px] sm:h-[14px]" /> Sem {editForm.semester}</span>
+                    {editForm.college && (
+                      <span className="flex items-center gap-1.5 sm:gap-2 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl text-amber-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
+                        <GraduationCap size={12} className="text-amber-400 sm:w-[14px] sm:h-[14px]" /> {editForm.college}
+                      </span>
+                    )}
                   </>
                 )}
               </div>
@@ -225,8 +235,13 @@ const Profile = () => {
             Verified Digital Assets
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative z-10">
-            {certificates.filter(c => c.source === 'e_certificate').map((c, i) => (
-              <div key={i} className="bg-[#161a23] border border-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] group hover:border-emerald-500/30 hover:bg-[#1a1f2b] transition-all relative overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(16,185,129,0.1)] hover:-translate-y-1">
+            {certificates.filter(c => c.source === 'e_certificate').map((c, i) => {
+              const verifyUrl = encodeURIComponent(`https://campusrank.com/verify/${c.id}`);
+              const shareText = encodeURIComponent(`I just earned a certificate for "${c.event_name}" from Rungta International Skills University ✨🚀`);
+              const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${verifyUrl}&summary=${shareText}`;
+              
+              return (
+              <div key={i} className="bg-[#161a23] border border-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] group hover:border-emerald-500/30 hover:bg-[#1a1f2b] transition-all relative overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(16,185,129,0.1)] hover:-translate-y-1 flex flex-col">
                 <div className="flex justify-between items-start mb-5 relative z-10">
                   <div className="p-2.5 bg-emerald-500/10 rounded-xl group-hover:scale-110 transition-transform border border-emerald-500/20">
                     <Award size={16} className="text-emerald-400" />
@@ -236,12 +251,17 @@ const Profile = () => {
                   </span>
                 </div>
                 <h4 className="text-base font-black text-white uppercase italic tracking-tighter mb-1 truncate">{c.event_name}</h4>
-                <p className="text-[9px] text-gray-500 font-bold uppercase mb-6 tracking-widest">{c.position} • {new Date(c.created_at).toLocaleDateString()}</p>
-                <a href={`http://localhost:5000${c.url}`} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 w-full py-3 bg-white/5 hover:bg-emerald-600 text-white text-[10px] font-black rounded-xl transition-colors border border-white/10 hover:border-emerald-500 uppercase tracking-widest">
-                  <Download size={14} /> Download E-Cert
-                </a>
+                <p className="text-[9px] text-gray-500 font-bold uppercase mb-6 tracking-widest flex-1">{c.position} • {new Date(c.created_at).toLocaleDateString()}</p>
+                <div className="flex flex-col sm:flex-row gap-2 mt-auto">
+                  <a href={`http://localhost:5000${c.url}`} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-emerald-600 text-white text-[9px] sm:text-[10px] font-black rounded-xl transition-colors border border-white/10 hover:border-emerald-500 uppercase tracking-widest">
+                    <Download size={14} /> Download
+                  </a>
+                  <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-[#0077b5] to-[#005582] hover:opacity-90 text-white text-[9px] sm:text-[10px] font-black rounded-xl transition-all shadow-[0_0_15px_rgba(0,119,181,0.3)] hover:shadow-[0_0_25px_rgba(0,119,181,0.6)] hover:-translate-y-0.5 uppercase tracking-widest border border-white/10">
+                    <Share2 size={14} /> Share
+                  </a>
+                </div>
               </div>
-            ))}
+            )})}
           </div>
         </motion.div>
       )}
@@ -368,16 +388,50 @@ const Profile = () => {
                 <button onClick={() => setIsEditing(false)} className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-xl flex items-center justify-center text-gray-500 hover:text-white transition-colors">&times;</button>
               </div>
 
-              <form onSubmit={handleUpdateProfile} className="space-y-4 sm:space-y-6 relative z-10">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Branch</label>
-                  <input type="text" value={editForm.branch} onChange={(e) => setEditForm({ ...editForm, branch: e.target.value })} className="w-full bg-[#161a23] border border-white/10 rounded-2xl p-4 text-white text-xs focus:border-indigo-500 focus:bg-white/5 outline-none transition-all font-bold uppercase tracking-widest shadow-inner" />
+              <form onSubmit={handleUpdateProfile} className="space-y-5 relative z-10">
+                <div className="grid grid-cols-1 gap-5">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <GraduationCap size={14} className="text-amber-500" />
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Affiliated College</label>
+                    </div>
+                    <input
+                      type="text"
+                      value={editForm.college}
+                      onChange={(e) => setEditForm({ ...editForm, college: e.target.value })}
+                      className="w-full bg-[#161a23] border border-amber-500/20 rounded-2xl p-4 text-white text-xs focus:border-amber-500 focus:bg-amber-500/5 outline-none transition-all font-bold tracking-wide shadow-inner placeholder:text-gray-700"
+                      placeholder="Enter your exact college name..."
+                    />
+                    <p className="text-[9px] text-amber-500/60 font-medium ml-1">This will be printed on all your future E-Certificates.</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <FileText size={14} className="text-indigo-500" />
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Course</label>
+                      </div>
+                      <input type="text" value={editForm.course} onChange={(e) => setEditForm({ ...editForm, course: e.target.value })} className="w-full bg-[#161a23] border border-white/10 rounded-2xl p-4 text-white text-xs focus:border-indigo-500 focus:bg-white/5 outline-none transition-all font-bold uppercase tracking-widest shadow-inner placeholder:text-gray-700" placeholder="e.g. B.Tech" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <BookOpen size={14} className="text-indigo-500" />
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Branch</label>
+                      </div>
+                      <input type="text" value={editForm.branch} onChange={(e) => setEditForm({ ...editForm, branch: e.target.value })} className="w-full bg-[#161a23] border border-white/10 rounded-2xl p-4 text-white text-xs focus:border-indigo-500 focus:bg-white/5 outline-none transition-all font-bold uppercase tracking-widest shadow-inner" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock size={14} className="text-indigo-500" />
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Current Semester / Year</label>
+                    </div>
+                    <input type="text" value={editForm.semester} onChange={(e) => setEditForm({ ...editForm, semester: e.target.value })} className="w-full bg-[#161a23] border border-white/10 rounded-2xl p-4 text-white text-xs focus:border-indigo-500 focus:bg-white/5 outline-none transition-all font-bold uppercase tracking-widest shadow-inner" placeholder="e.g. 6th Sem" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Semester</label>
-                  <input type="text" value={editForm.semester} onChange={(e) => setEditForm({ ...editForm, semester: e.target.value })} className="w-full bg-[#161a23] border border-white/10 rounded-2xl p-4 text-white text-xs focus:border-indigo-500 focus:bg-white/5 outline-none transition-all font-bold uppercase tracking-widest shadow-inner" />
-                </div>
-                <button type="submit" className="w-full py-4 mt-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black rounded-2xl shadow-[0_10px_20px_rgba(79,70,229,0.2)] uppercase tracking-[0.2em] transition-transform hover:-translate-y-1">Deploy Changes</button>
+
+                <button type="submit" className="w-full py-4.5 mt-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white text-[10px] sm:text-xs font-black rounded-2xl shadow-[0_15px_30px_rgba(79,70,229,0.3)] uppercase tracking-[0.25em] transition-all hover:-translate-y-1 active:translate-y-0 active:scale-95">Update Identity Profile</button>
               </form>
             </motion.div>
           </motion.div>

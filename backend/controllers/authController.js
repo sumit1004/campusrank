@@ -9,7 +9,7 @@ const db = require('../config/db');
  */
 const signup = async (req, res, next) => {
   try {
-    const { name, erp, email, password } = req.body;
+    const { name, erp, email, password, course, branch, semester, college } = req.body;
 
     // 1. Validate input
     if (!name || !erp || !email || !password) {
@@ -35,10 +35,10 @@ const signup = async (req, res, next) => {
     // 4. Insert user into MySQL 'users' table
     // Role is naturally defaulted to 'student' in the DB Schema
     const insertQuery = `
-      INSERT INTO users (name, erp, email, password, role)
-      VALUES (?, ?, ?, ?, 'student')
+      INSERT INTO users (name, erp, email, password, role, course, branch, semester, college)
+      VALUES (?, ?, ?, ?, 'student', ?, ?, ?, ?)
     `;
-    const [result] = await db.query(insertQuery, [name, erp, email, hashedPassword]);
+    const [result] = await db.query(insertQuery, [name, erp, email, hashedPassword, course || null, branch || null, semester || null, college || 'Not Specified']);
 
     // 5. Return success message
     res.status(201).json({
@@ -111,6 +111,10 @@ const login = async (req, res, next) => {
         erp: user.erp,
         email: user.email,
         role: user.role,
+        course: user.course,
+        branch: user.branch,
+        semester: user.semester,
+        college: user.college,
         total_points: user.total_points || 0
       }
     });
@@ -122,17 +126,17 @@ const login = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { name, email, password } = req.body;
+    const { name, email, password, course, branch, semester, college } = req.body;
 
     if (!name || !email) { res.status(400); throw new Error('Name and email are required'); }
     
-    let query = 'UPDATE users SET name = ?, email = ? WHERE id = ?';
-    let params = [name, email, userId];
+    let query = 'UPDATE users SET name = ?, email = ?, course = ?, branch = ?, semester = ?, college = ? WHERE id = ?';
+    let params = [name, email, course, branch, semester, college, userId];
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
-      query = 'UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?';
-      params = [name, email, hashedPassword, userId];
+      query = 'UPDATE users SET name = ?, email = ?, course = ?, branch = ?, semester = ?, college = ?, password = ? WHERE id = ?';
+      params = [name, email, course, branch, semester, college, hashedPassword, userId];
     }
 
     await db.query(query, params);
@@ -150,7 +154,7 @@ const { getBadge, getNextBadge } = require('../utils/badgeHelper');
 const getProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const [users] = await db.query('SELECT name, erp, email, role, COALESCE(total_points, 0) as total_points FROM users WHERE id = ?', [userId]);
+    const [users] = await db.query('SELECT name, erp, email, role, course, branch, semester, college, COALESCE(total_points, 0) as total_points FROM users WHERE id = ?', [userId]);
 
     if (users.length === 0) {
       res.status(404);

@@ -98,9 +98,13 @@ const bulkGenerateCertificates = async (req, res, next) => {
     const { event_name, event_date, position, pastedData } = req.body;
     let studentData = [];
 
-    // Always fetch fresh club_id from DB (avoids stale JWT token issues)
-    const [adminRows] = await db.query('SELECT club_id FROM users WHERE id = ?', [req.user.id]);
-    const club_id = adminRows[0]?.club_id;
+    // Always fetch fresh club_id and name from DB (avoids stale JWT token issues)
+    const [clubRows] = await db.query(
+      'SELECT c.id, c.name FROM clubs c JOIN users u ON u.club_id = c.id WHERE u.id = ?', 
+      [req.user.id]
+    );
+    const club_id = clubRows[0]?.id;
+    const clubName = clubRows[0]?.name;
 
     // Validations
     if (!club_id) {
@@ -175,32 +179,44 @@ const bulkGenerateCertificates = async (req, res, next) => {
       try {
         const erp = student.ERP || student.erp;
         const name = student.Name || student.name;
-        const college = student.College || student.college || 'CampusRank University';
 
         if (!erp) {
           results.failed.push({ student, error: 'Missing ERP' });
           continue;
         }
 
-        // Find user in DB
-        const [users] = await db.query('SELECT id, name FROM users WHERE erp = ?', [erp]);
+        // Find user in DB — always use DB college (never a hardcoded fallback)
+        const [users] = await db.query(
+          'SELECT id, name, course, branch, semester, college FROM users WHERE erp = ?',
+          [erp]
+        );
         
         if (users.length === 0) {
           results.failed.push({ student, error: 'User not found in system via ERP' });
           continue;
         }
 
-        const userId = users[0].id;
+        const userId     = users[0].id;
         const studentName = users[0].name || name;
+        // College is ALWAYS sourced from the student's own profile in the DB
+        const college    = users[0].college || '________________';
+        
+        // Generate a unique Certificate ID
+        const certId = `CR-${erp}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-        // Generate PDF
+        // Generate PDF — all data sourced from DB; certId passed for tracking
         const pdfUrl = await generateCertificatePDF({
-          name: studentName,
+          name:       studentName,
+          course:     users[0].course    || student.Course  || student.course   || '____________',
+          semester:   users[0].semester  || student.Semester|| student.semester || '____________',
+          branch:     users[0].branch    || student.Branch  || student.branch   || '____________',
+          college,   // Always from DB — student's own college
           event_name,
           position,
           event_date,
           erp,
-          college
+          issuer: clubName,
+          certId
         });
 
         // Store in e_certificates (display only as per requirement)

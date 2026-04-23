@@ -3,245 +3,173 @@ const path = require('path');
 const fs = require('fs-extra');
 
 /**
- * Generate a PDF certificate from HTML template
- * @param {Object} data - { name, event_name, position, event_date, erp, college }
- * @returns {Promise<string>} - Path to the generated PDF
+ * Generate a pixel-perfect PDF certificate using the ABSOLUTE FINAL certificate PNG
+ * as the static background and overlaying clean, absolute positioned text.
  */
 const generateCertificatePDF = async (data) => {
-  const { name, event_name, position, event_date, erp, college } = data;
+  const { name, event_name, position, event_date, erp, college, course, branch, semester, issuer, certId: providedCertId } = data;
+
+  // 1. Determine certificate type
+  const isParticipant = position.toLowerCase() === 'participant';
+  const showPosition  = !isParticipant;
+
+  const displayPosition =
+    position === 'runnerup1' ? '1st Runner Up' :
+    position === 'runnerup2' ? '2nd Runner Up' :
+    position.charAt(0).toUpperCase() + position.slice(1);
+
+  // 2. Load background image as base64
+  const bgFile = isParticipant ? 'participant_bg.png' : 'winner_bg.png';
+  const bgPath = path.join(__dirname, '..', 'assets', bgFile);
+  const bgBuffer = await fs.readFile(bgPath);
+  const bgBase64 = bgBuffer.toString('base64');
+  const bgDataUrl = `data:image/png;base64,${bgBase64}`;
+
+  // 3. Setup IDs and QR
+  // Use provided ID or generate a fallback
+  const certId    = providedCertId || `CR-${erp}-${Date.now().toString(36).toUpperCase()}`;
   
-  // Format position for display
-  const displayPosition = position === 'runnerup1' ? '1st Runner Up' : 
-                          position === 'runnerup2' ? '2nd Runner Up' : 
-                          position.charAt(0).toUpperCase() + position.slice(1);
+  // VERIFICATION URL (Replace with your actual production domain)
+  const verifyUrl = `http://localhost:5173/verify-certificate/${certId}`;
+  
+  // Create QR Code (using a stable API)
+  const qrUrl     = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verifyUrl)}&bgcolor=ffffff&margin=0`;
 
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Certificate</title>
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
-            
-            body {
-                margin: 0;
-                padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                background-color: #f0f0f0;
-                font-family: 'Outfit', sans-serif;
-            }
-            .certificate-container {
-                width: 1000px;
-                height: 700px;
-                padding: 40px;
-                background: white;
-                position: relative;
-                box-sizing: border-box;
-                border: 20px solid transparent;
-                background-image: linear-gradient(white, white), 
-                                  linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
-                background-origin: border-box;
-                background-clip: content-box, border-box;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            }
-            .inner-border {
-                border: 2px solid #e2e8f0;
-                height: 100%;
-                width: 100%;
-                box-sizing: border-box;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 40px;
-                position: relative;
-            }
-            .watermark {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 150px;
-                color: rgba(124, 58, 237, 0.03);
-                z-index: 0;
-                font-weight: 900;
-                white-space: nowrap;
-            }
-            .header {
-                z-index: 1;
-                text-align: center;
-            }
-            .college-name {
-                font-size: 18px;
-                font-weight: 600;
-                color: #6366f1;
-                text-transform: uppercase;
-                letter-spacing: 4px;
-                margin-bottom: 20px;
-            }
-            .title {
-                font-family: 'Playfair Display', serif;
-                font-size: 56px;
-                color: #1e293b;
-                margin: 0;
-                font-style: italic;
-            }
-            .subtitle {
-                font-size: 16px;
-                color: #64748b;
-                margin-top: 10px;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-            }
-            .award-to {
-                margin-top: 40px;
-                font-size: 20px;
-                color: #475569;
-            }
-            .student-name {
-                font-family: 'Playfair Display', serif;
-                font-size: 48px;
-                font-weight: 700;
-                color: #7c3aed;
-                margin: 15px 0;
-                border-bottom: 2px solid #ddd;
-                padding-bottom: 5px;
-                min-width: 400px;
-                text-align: center;
-            }
-            .details {
-                margin-top: 20px;
-                font-size: 18px;
-                color: #334155;
-                text-align: center;
-                line-height: 1.6;
-                z-index: 1;
-            }
-            .highlight {
-                font-weight: 700;
-                color: #1e293b;
-            }
-            .footer {
-                margin-top: auto;
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-end;
-                z-index: 1;
-            }
-            .signature-box {
-                text-align: center;
-                width: 200px;
-            }
-            .signature-line {
-                border-top: 1px solid #94a3b8;
-                margin-bottom: 10px;
-            }
-            .signature-name {
-                font-weight: 600;
-                font-size: 14px;
-                color: #1e293b;
-            }
-            .signature-title {
-                font-size: 12px;
-                color: #64748b;
-            }
-            .event-date-box {
-                text-align: center;
-            }
-            .date-label {
-                font-size: 12px;
-                color: #64748b;
-                text-transform: uppercase;
-                margin-bottom: 5px;
-            }
-            .date-value {
-                font-weight: 600;
-                color: #1e293b;
-            }
-            .certificate-id {
-                position: absolute;
-                bottom: 15px;
-                right: 20px;
-                font-size: 10px;
-                color: #94a3b8;
-                font-family: monospace;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="certificate-container">
-            <div class="inner-border">
-                <div class="watermark">CAMPUSRANK</div>
-                <div class="header">
-                    <div class="college-name">${college}</div>
-                    <h1 class="title">Certificate of Achievement</h1>
-                    <div class="subtitle">This is to certify that</div>
-                </div>
-                
-                <div class="award-to">the award is proudly presented to</div>
-                <div class="student-name">${name}</div>
-                
-                <div class="details">
-                    for securing <span class="highlight">${displayPosition}</span> in the event <br>
-                    <span class="highlight" style="font-size: 24px;">"${event_name}"</span> <br>
-                    organized with excellence and dedication.
-                </div>
-                
-                <div class="footer">
-                    <div class="signature-box">
-                        <div class="signature-line"></div>
-                        <div class="signature-name">Event Coordinator</div>
-                        <div class="signature-title">Official Signature</div>
-                    </div>
-                    
-                    <div class="event-date-box">
-                        <div class="date-label">Event Date</div>
-                        <div class="date-value">${new Date(event_date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-                    </div>
-                    
-                    <div class="signature-box">
-                        <div class="signature-line"></div>
-                        <div class="signature-name">Head of Club</div>
-                        <div class="signature-title">Official Signature</div>
-                    </div>
-                </div>
-                
-                <div class="certificate-id">ID: ${erp}-${Date.now()}</div>
-            </div>
-        </div>
-    </body>
-    </html>
-  `;
+  // 4. Format Date
+  const formattedDate = event_date
+    ? new Date(event_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '';
 
+  // 5. Build CLEAN HTML Template
+  const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 1123px;
+      height: 794px;
+      overflow: hidden;
+    }
+
+    .certificate {
+      position: relative;
+      width: 1123px;
+      height: 794px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .txt {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      line-height: 1;
+      white-space: nowrap;
+      color: #111111;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* 
+       === USER CALIBRATED POSITIONS (1123x794) ===
+    */
+    .name      { top: 378px; left: 516px; font-size: 24px; }
+    .course    { top: 420px; left: 456px; }
+    .semester  { top: 421px; left: 678px; }
+    .branch    { top: 418px; left: 838px; }
+    .college   { top: 450px; left: 418px; }
+    .position  { top: 450px; left: 701px; font-size: 14px; font-weight: 800; color: #1a3fc4; }
+    .event     { top: 477px; left: 341px; }
+    .date      { top: 480px; left: 679px; }
+    .under     { top: 482px; left: 837px; }
+    
+    /* Meta Identifiers */
+    .cert-id {
+      position: absolute;
+      bottom: 25px;
+      left: 20px;
+      font-size: 10px;
+      color: #666;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .qr {
+      position: absolute;
+      bottom: 45px;
+      right: 35px;
+      width: 60px;
+      height: 60px;
+      padding: 3px;
+      background: white;
+      border: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="certificate">
+    <img class="bg" src="${bgDataUrl}" />
+
+    <div class="txt name">${name}</div>
+    <div class="txt course">${course}</div>
+    <div class="txt semester">${semester}</div>
+    <div class="txt branch">${branch}</div>
+    <div class="txt college">${college}</div>
+    
+    ${showPosition ? `<div class="txt position">${displayPosition}</div>` : ''}
+    
+    <div class="txt event">${event_name}</div>
+    <div class="txt date">${formattedDate}</div>
+    <div class="txt under">${issuer || 'Campus Rank'}</div>
+
+    <div class="cert-id">ID: ${certId}</div>
+    <img class="qr" src="${qrUrl}" />
+  </div>
+</body>
+</html>`;
+
+  // 6. Generate PDF with Puppeteer
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: "new",
+      headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
+
     const page = await browser.newPage();
-    await page.setViewport({ width: 1000, height: 700 });
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    
-    const fileName = `cert_${erp}_${Date.now()}.pdf`;
-    const dirPath = path.join(__dirname, '..', 'uploads', 'e-certificates');
+    await page.setViewport({ width: 1123, height: 794, deviceScaleFactor: 1 });
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 30000 });
+    await page.evaluate(() => document.fonts.ready);
+
+    const fileName = `cert_${certId}.pdf`;
+    const dirPath  = path.join(__dirname, '..', 'uploads', 'e-certificates');
     await fs.ensureDir(dirPath);
     const filePath = path.join(dirPath, fileName);
-    
+
     await page.pdf({
       path: filePath,
-      width: '1000px',
-      height: '700px',
-      printBackground: true
+      format: 'A4',
+      landscape: true,
+      printBackground: true,
+      scale: 1,
+      margin: { top: '0px', bottom: '0px', left: '0px', right: '0px' }
     });
 
     await browser.close();
     return `/uploads/e-certificates/${fileName}`;
+
   } catch (error) {
     if (browser) await browser.close();
     throw error;

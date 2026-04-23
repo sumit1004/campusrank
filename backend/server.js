@@ -34,6 +34,9 @@ app.use(express.urlencoded({ extended: true }));
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve certificate background assets statically
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 // --- Routes ---
 // Basic test route returning text as requested
 app.get('/api/test', (req, res) => {
