@@ -8,58 +8,37 @@ const path = require('path');
 
 const db = require('./config/db');
 const { errorHandler } = require('./middlewares/errorMiddleware');
-const { protect, authorize } = require('./middlewares/authMiddleware');
+const { protect } = require('./middlewares/authMiddleware');
 
 const app = express();
+app.set('trust proxy', 1);
 
-// --- Security Headers ---
+// --- Security ---
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' } // Allow serving uploads cross-origin
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
 // --- CORS ---
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',');
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error('Not allowed by CORS'));
-  },
+  origin: [
+    "http://localhost:5173",
+    "https://campus-rank.netlify.app"
+  ],
   credentials: true
 }));
 
-// --- Body Parsers ---
+// --- Body ---
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// --- Static File Serving ---
+// --- Static ---
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-// --- Global Rate Limiting (all API routes) ---
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Increased for rich dashboard/multi-tab use
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, message: 'Too many requests, please try again later.' }
-});
-app.use('/api', globalLimiter);
-
-// --- Strict Rate Limiting for Auth Routes ---
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Increased for smoother dev/testing
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, message: 'Too many login attempts, please try again after 15 minutes.' }
-});
-
-// --- Strict Rate Limiting for File Upload Routes ---
-const uploadLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 30,
-  message: { success: false, message: 'Upload limit exceeded, please try again later.' }
-});
+// --- Rate Limit ---
+app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, max: 1000 }));
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+const uploadLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 30 });
 
 // --- Routes ---
 app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
@@ -73,22 +52,45 @@ app.use('/api/forms', require('./routes/formRoutes'));
 app.use('/api/templates', require('./routes/templateRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 
-// Backward-compatible profile routes (also handled in userRoutes)
+// --- Profile ---
 const { getUserProfile, updateProfile } = require('./controllers/userController');
 app.get('/api/profile', protect, getUserProfile);
 app.put('/api/profile', protect, updateProfile);
 
-// --- Error Handling Middleware (must be last) ---
+// --- Root ---
+app.get('/', (req, res) => {
+  res.send('CampusRank API is running 🚀');
+});
+
+// --- Error ---
 app.use(errorHandler);
 
-// --- Server Startup ---
+// --- DB TEST (IMPORTANT)
+(async () => {
+  try {
+    const [rows] = await db.execute("SELECT 1");
+    console.log("✅ DB Connected Successfully");
+  } catch (err) {
+    console.error("❌ DB Connection Failed:", err.message);
+  }
+})();
+
+// --- Server ---
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, () => {
-  console.log(`[CampusRank] Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-  
-  // Background Job: Auto-close expired forms every 1 hour
+  console.log(`🚀 Server running on port ${PORT}`);
+
   const { autoCloseExpired } = require('./controllers/formController');
-  setInterval(autoCloseExpired, 60 * 60 * 1000);
-  // Run once on startup
-  autoCloseExpired();
+
+  const runJob = async () => {
+    try {
+      await autoCloseExpired();
+    } catch (err) {
+      console.error('AutoClose Job Error:', err.message);
+    }
+  };
+
+  setInterval(runJob, 60 * 60 * 1000);
+  runJob();
 });

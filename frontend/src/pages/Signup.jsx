@@ -47,11 +47,11 @@ const Signup = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Full Name</label>
-            <input type="text" name="name" onChange={handleChange} className="w-full bg-surfaceLight border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner" placeholder="John Doe" />
+            <input type="text" name="name" onChange={handleChange} className="w-full bg-surfaceLight border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner" placeholder="Sumit Kumar" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">ERP / Student ID</label>
-            <input type="text" name="erp" onChange={handleChange} className="w-full bg-surfaceLight border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner" placeholder="2023ABCD123" />
+            <input type="text" name="erp" onChange={handleChange} className="w-full bg-surfaceLight border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner" placeholder="6601234" />
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Email</label>
@@ -77,7 +77,7 @@ const Signup = () => {
           </div>
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">College Name</label>
-            <input type="text" name="college" onChange={handleChange} className="w-full bg-surfaceLight border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner" placeholder="RISU" />
+            <input type="text" name="college" onChange={handleChange} className="w-full bg-surfaceLight border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all shadow-inner" placeholder="RISU/RCET" />
           </div>
 
           <button type="submit" disabled={loading} className="w-full btn-gradient py-4 mt-4 text-lg">

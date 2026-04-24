@@ -1,16 +1,16 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-// Create a connection pool to manage MySQL connections efficiently
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+
   waitForConnections: true,
-  connectionLimit: 10,   // Adjust maximum number of active connections if needed
-  queueLimit: 0          // No limit on pending requests in the queue
+  connectionLimit: 5,
+  connectTimeout: 10000
 });
 
-// Export the promise wrapper so we can use async/await syntax when querying DB
-module.exports = pool.promise();
+module.exports = pool;
