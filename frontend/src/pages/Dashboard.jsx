@@ -85,7 +85,7 @@ const Dashboard = () => {
                            <ShieldAlert size={14} className="mr-2 text-indigo-500" /> ERP | {user?.erp}
                         </div>
                         <div className="flex items-center bg-white/5 border border-white/5 px-3 py-2 sm:px-4 sm:py-2 rounded-xl text-gray-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px]">
-                           <Trophy size={14} className="mr-2 text-amber-400" /> Global Rank | #{rank}
+                           <Trophy size={14} className="mr-2 text-amber-400" /> Campus Rank | #{rank}
                         </div>
                      </div>
                   </div>

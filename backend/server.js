@@ -38,7 +38,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 // --- Global Rate Limiting (all API routes) ---
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300,
+  max: 1000, // Increased for rich dashboard/multi-tab use
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later.' }
@@ -48,7 +48,7 @@ app.use('/api', globalLimiter);
 // --- Strict Rate Limiting for Auth Routes ---
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20,
+  max: 100, // Increased for smoother dev/testing
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many login attempts, please try again after 15 minutes.' }

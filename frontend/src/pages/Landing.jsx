@@ -537,7 +537,7 @@ const Landing = () => {
                 </motion.h1>
 
                 <motion.p variants={fadeUp} className={`mt-4 text-[13px] font-medium ${palette.muted} leading-relaxed`}>
-                  Turn your participation certificates into global campus rankings, exclusive badges, and undeniable proof of your skills.
+                  Turn your participation certificates into campus rankings, exclusive badges, and undeniable proof of your skills.
                 </motion.p>
               </div>
 
@@ -861,7 +861,7 @@ const Landing = () => {
             {
               number: '03',
               title: 'Earn Points',
-              desc: 'Visual progress, minimal effort. Your verified achievements translate directly into global rank and exclusive rewards.',
+              desc: 'Visual progress, minimal effort. Your verified achievements translate directly into campus rank and exclusive rewards.',
               icon: Gem,
               color: {
                 gradient: 'linear-gradient(135deg, #8B5CF6, #D946EF)',
@@ -1160,7 +1160,7 @@ const Landing = () => {
       <Section id="leaderboard" className="py-24 sm:py-32">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
-            <div className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] mb-4">Global Standings</div>
+            <div className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] mb-4">Campus Standings</div>
             <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white italic">
               Top 3 Preview
             </h2>

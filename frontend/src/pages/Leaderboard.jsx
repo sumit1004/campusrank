@@ -46,7 +46,7 @@ const Leaderboard = () => {
 
   const top3 = leaders.slice(0, 3);
   const others = leaders.slice(3, 10); // Show top 4 to 10 below podium
-  
+
   // Find current user stats from full leaders list
   const currentUserStats = leaders.find(l => l.id === currentUser?.id);
 
@@ -231,7 +231,7 @@ const Leaderboard = () => {
 
       {/* Sticky User Stats Bar */}
       {currentUserStats && (
-        <motion.div 
+        <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
           className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:p-6 bg-[#0d0f14]/80 backdrop-blur-2xl border-t border-white/10 shadow-[0_-20px_40px_rgba(0,0,0,0.5)]"
@@ -249,7 +249,7 @@ const Leaderboard = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="text-right">
               <p className="text-[10px] sm:text-xs font-black text-gray-500 uppercase tracking-widest">Total Momentum</p>
               <div className="flex items-baseline gap-1 justify-end">

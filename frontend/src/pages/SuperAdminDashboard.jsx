@@ -86,7 +86,7 @@ const SuperAdminDashboard = () => {
     try {
       setLoading(true);
       const [uRes, cRes] = await Promise.all([
-        api.get(`/superadmin/users?page=${page}&limit=50`), 
+        api.get(`/superadmin/users?page=${page}&limit=50`),
         api.get('/clubs')
       ]);
       const sortedUsers = uRes.data.data.sort((a, b) => {
@@ -126,7 +126,7 @@ const SuperAdminDashboard = () => {
       setActivitiesLoading(true);
       const { data } = await api.get('/superadmin/activities');
       setActivities(data.data);
-    } catch (e) { 
+    } catch (e) {
       toast.error('Failed to load activity logs');
     } finally {
       setActivitiesLoading(false);
@@ -284,8 +284,8 @@ const SuperAdminDashboard = () => {
               </div>
               <div className="relative w-full md:w-96 group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-400 transition-colors" size={18} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Filter by name, ERP, or email..."
                   value={roleSearchQuery}
                   onChange={(e) => setRoleSearchQuery(e.target.value)}
@@ -308,36 +308,36 @@ const SuperAdminDashboard = () => {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {users
-                    .filter(u => (u.role === 'admin' || u.role === 'superadmin') && 
-                      (u.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) || 
-                       u.erp.toLowerCase().includes(roleSearchQuery.toLowerCase()) || 
-                       u.email.toLowerCase().includes(roleSearchQuery.toLowerCase())))
+                    .filter(u => (u.role === 'admin' || u.role === 'superadmin') &&
+                      (u.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+                        u.erp.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+                        u.email.toLowerCase().includes(roleSearchQuery.toLowerCase())))
                     .map(u => (
-                    <tr key={u.id} className="hover:bg-white/5 transition-colors">
-                      <td className="p-4">
-                        <div className="font-bold text-white uppercase tracking-tight">{u.name}</div>
-                        <div className="text-xs font-mono text-gray-500">{u.email}</div>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 text-[10px] font-black rounded uppercase ${u.role === 'admin' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20' : 'bg-purple-500/20 text-purple-400 border border-purple-500/20'}`}>{u.role}</span>
-                      </td>
-                      <td className="p-4 text-sm font-bold text-gray-400">
-                        {clubs.find(c => c.id === u.club_id)?.name || <span className="text-gray-700">-</span>}
-                      </td>
-                      <td className="p-4 text-xs">
-                        {u.role !== 'superadmin' && (
-                          <div className="flex items-center gap-2">
-                            <select className="bg-[#0B0F19] text-gray-300 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" value={selectedClubId[u.id] || ''} onChange={e => setSelectedClubId({ ...selectedClubId, [u.id]: e.target.value })}>
-                              <option value="">Shift Hub...</option>
-                              {clubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
-                            <button onClick={() => handleChangeClub(u.id)} className="bg-white/10 hover:bg-white/20 text-white font-black px-3 py-1.5 rounded-lg transition uppercase tracking-tighter">Shift</button>
-                            <button onClick={() => handleRemoveAdmin(u.id)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-black px-3 py-1.5 rounded-lg transition uppercase tracking-tighter">Demote</button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                      <tr key={u.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-4">
+                          <div className="font-bold text-white uppercase tracking-tight">{u.name}</div>
+                          <div className="text-xs font-mono text-gray-500">{u.email}</div>
+                        </td>
+                        <td className="p-4">
+                          <span className={`px-2 py-1 text-[10px] font-black rounded uppercase ${u.role === 'admin' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/20' : 'bg-purple-500/20 text-purple-400 border border-purple-500/20'}`}>{u.role}</span>
+                        </td>
+                        <td className="p-4 text-sm font-bold text-gray-400">
+                          {clubs.find(c => c.id === u.club_id)?.name || <span className="text-gray-700">-</span>}
+                        </td>
+                        <td className="p-4 text-xs">
+                          {u.role !== 'superadmin' && (
+                            <div className="flex items-center gap-2">
+                              <select className="bg-[#0B0F19] text-gray-300 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500" value={selectedClubId[u.id] || ''} onChange={e => setSelectedClubId({ ...selectedClubId, [u.id]: e.target.value })}>
+                                <option value="">Shift Hub...</option>
+                                {clubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                              </select>
+                              <button onClick={() => handleChangeClub(u.id)} className="bg-white/10 hover:bg-white/20 text-white font-black px-3 py-1.5 rounded-lg transition uppercase tracking-tighter">Shift</button>
+                              <button onClick={() => handleRemoveAdmin(u.id)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-black px-3 py-1.5 rounded-lg transition uppercase tracking-tighter">Demote</button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -356,31 +356,31 @@ const SuperAdminDashboard = () => {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {users
-                    .filter(u => u.role === 'student' && 
-                      (u.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) || 
-                       u.erp.toLowerCase().includes(roleSearchQuery.toLowerCase()) || 
-                       u.email.toLowerCase().includes(roleSearchQuery.toLowerCase())))
+                    .filter(u => u.role === 'student' &&
+                      (u.name.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+                        u.erp.toLowerCase().includes(roleSearchQuery.toLowerCase()) ||
+                        u.email.toLowerCase().includes(roleSearchQuery.toLowerCase())))
                     .map(u => (
-                    <tr key={u.id} className="hover:bg-white/5 transition-colors">
-                      <td className="p-4">
-                        <div className="font-bold text-white uppercase tracking-tight">{u.name}</div>
-                        <div className="text-xs font-mono text-gray-500">{u.email}</div>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-amber-500 font-black tabular-nums">{u.total_points}</span>
-                        <span className="text-[10px] font-bold text-gray-600 uppercase ml-1">XP</span>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <select className="bg-[#0B0F19] text-gray-300 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500 w-full sm:w-48" value={selectedClubId[u.id] || ''} onChange={e => setSelectedClubId({ ...selectedClubId, [u.id]: e.target.value })}>
-                            <option value="">Select Club Assignment...</option>
-                            {clubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                          </select>
-                          <button onClick={() => handleMakeAdmin(u.id)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-4 py-2 rounded-xl transition-all uppercase tracking-tighter shadow-lg shadow-indigo-600/20 whitespace-nowrap">Promote to Admin</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                      <tr key={u.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-4">
+                          <div className="font-bold text-white uppercase tracking-tight">{u.name}</div>
+                          <div className="text-xs font-mono text-gray-500">{u.email}</div>
+                        </td>
+                        <td className="p-4">
+                          <span className="text-amber-500 font-black tabular-nums">{u.total_points}</span>
+                          <span className="text-[10px] font-bold text-gray-600 uppercase ml-1">XP</span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <select className="bg-[#0B0F19] text-gray-300 border border-white/10 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-indigo-500 w-full sm:w-48" value={selectedClubId[u.id] || ''} onChange={e => setSelectedClubId({ ...selectedClubId, [u.id]: e.target.value })}>
+                              <option value="">Select Club Assignment...</option>
+                              {clubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                            </select>
+                            <button onClick={() => handleMakeAdmin(u.id)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-4 py-2 rounded-xl transition-all uppercase tracking-tighter shadow-lg shadow-indigo-600/20 whitespace-nowrap">Promote to Admin</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -481,10 +481,10 @@ const SuperAdminDashboard = () => {
           <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-black text-white tracking-tight uppercase italic">Global Activity Audit</h2>
+                <h2 className="text-2xl font-black text-white tracking-tight uppercase italic">Campus Activity Audit</h2>
                 <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">Real-time surveillance of all club admin actions</p>
               </div>
-              <button 
+              <button
                 onClick={loadActivities}
                 disabled={activitiesLoading}
                 className="bg-white/5 hover:bg-white/10 p-2 rounded-xl transition-all"
@@ -585,11 +585,10 @@ const SuperAdminDashboard = () => {
                           <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">{form.club_name || 'Unlinked Club'}</div>
                         </td>
                         <td className="px-4 py-4 text-center">
-                          <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border ${
-                            calculatedStatus === 'open' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
-                            calculatedStatus === 'coming-soon' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 
-                            'bg-red-500/10 text-red-400 border-red-500/20'
-                          }`}>
+                          <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border ${calculatedStatus === 'open' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
+                            calculatedStatus === 'coming-soon' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
+                              'bg-red-500/10 text-red-400 border-red-500/20'
+                            }`}>
                             {calculatedStatus}
                           </span>
                         </td>
@@ -599,7 +598,7 @@ const SuperAdminDashboard = () => {
                         </td>
                         <td className="px-4 py-4">
                           <div className="text-[10px] font-bold text-gray-400">
-                            {form.start_date ? new Date(form.start_date).toLocaleDateString() : 'N/A'} — 
+                            {form.start_date ? new Date(form.start_date).toLocaleDateString() : 'N/A'} —
                             {form.end_date ? new Date(form.end_date).toLocaleDateString() : 'N/A'}
                           </div>
                           <div className="text-[8px] text-gray-600 font-black uppercase tracking-widest mt-1">Registration Window</div>
@@ -609,7 +608,7 @@ const SuperAdminDashboard = () => {
                           <div className="text-[8px] text-gray-600 font-bold uppercase tracking-widest mt-1">Event Scheduled</div>
                         </td>
                         <td className="px-4 py-4 text-right">
-                          <button 
+                          <button
                             onClick={() => viewRegistrations(form.id)}
                             className="text-indigo-400 hover:text-white bg-indigo-500/10 hover:bg-indigo-500 border border-indigo-500/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
                           >
@@ -643,7 +642,7 @@ const SuperAdminDashboard = () => {
                     <X size={24} />
                   </button>
                 </div>
-                
+
                 <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
                   {selectedFormRegistrations.length === 0 ? (
                     <div className="text-center py-20 text-gray-600 font-black uppercase tracking-widest italic opacity-50">No submissions captured yet</div>
@@ -806,7 +805,7 @@ const NotificationBroadcaster = () => {
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Global Content</label>
+          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Campus Content</label>
           <textarea
             rows="4"
             placeholder="Type your message here..."

@@ -17,7 +17,7 @@ const getLeaderboardData = async (type, club_id, filter, page = 1, limit = 50) =
     JOIN users u ON u.id = ep.user_id
   `;
 
-  let whereClauses = [];
+  let whereClauses = [`u.role = 'student'`];
   
   if (type === 'club' && club_id && club_id !== '0') {
     whereClauses.push(`ep.club_id = ?`);
@@ -37,7 +37,7 @@ const getLeaderboardData = async (type, club_id, filter, page = 1, limit = 50) =
     ${baseQuery}
     ${whereStr}
     GROUP BY u.id
-    ORDER BY total_points DESC
+    ORDER BY total_points DESC, u.id ASC
     LIMIT ? OFFSET ?
   `;
   

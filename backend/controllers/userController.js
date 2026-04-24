@@ -28,10 +28,17 @@ const getUserProfile = async (req, res, next) => {
     );
     const total_points = parseInt(pointsRows[0].total) || 0;
 
-    // 3. Calculate Rank (University-wide)
+    // 3. Calculate Rank (University-wide, based on live SUM of participation)
+    // Deterministic ranking matches the leaderboard's order-by-index logic
     const [rankRows] = await db.query(
-      'SELECT COUNT(*) + 1 AS `rank` FROM users WHERE total_points > ? AND role = "student"',
-      [total_points]
+      `SELECT COUNT(*) + 1 AS \`rank\` FROM (
+        SELECT u.id, COALESCE(SUM(ep.points), 0) as live_total
+        FROM users u
+        LEFT JOIN event_participation ep ON u.id = ep.user_id
+        WHERE u.role = "student"
+        GROUP BY u.id
+      ) AS rankings WHERE live_total > ? OR (live_total = ? AND id < ?)`,
+      [total_points, total_points, userId]
     );
     const rank = rankRows[0].rank;
 

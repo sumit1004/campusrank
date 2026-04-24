@@ -26,7 +26,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchProfile();
-    
+
     // Check if we should open settings automatically
     const params = new URLSearchParams(location.search);
     if (params.get('openSettings') === 'true') {
@@ -135,9 +135,9 @@ const Profile = () => {
             <div className={`w-36 h-36 sm:w-48 sm:h-48 rounded-[2.5rem] sm:rounded-[3.5rem] bg-gradient-to-tr from-indigo-600 via-indigo-400 to-indigo-800 p-1 shadow-[0_20px_50px_rgba(79,70,229,0.3)] transition-all duration-500 group-hover:rotate-6 overflow-hidden`}>
               <div className="w-full h-full rounded-[2.3rem] sm:rounded-[3.3rem] bg-[#0d1117] flex items-center justify-center border-4 border-white/5 relative overflow-hidden">
                 {editForm.avatar_url ? (
-                  <img 
-                    src={`http://localhost:5000${editForm.avatar_url}`} 
-                    alt={user.name} 
+                  <img
+                    src={`http://localhost:5000${editForm.avatar_url}`}
+                    alt={user.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -145,14 +145,14 @@ const Profile = () => {
                     {user.name.charAt(0)}
                   </span>
                 )}
-                
+
                 {/* Upload Overlay */}
                 <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer">
                   <Camera size={32} className="text-white mb-2" />
                   <span className="text-[10px] font-black text-white uppercase tracking-widest">Update Photo</span>
-                  <input 
-                    type="file" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    className="hidden"
                     accept="image/*"
                     onChange={handleAvatarUpload}
                   />
@@ -229,7 +229,7 @@ const Profile = () => {
         <div className="lg:col-span-1 grid grid-cols-3 lg:grid-cols-1 gap-2 sm:gap-6">
           {[
             { label: 'Total XP', value: currentTotalXP, suffix: 'XP', border: 'border-indigo-500/20', bg: 'bg-indigo-500/5', text: 'text-indigo-400' },
-            { label: 'Global Rank', value: rank > 0 ? `#${rank}` : 'N/A', suffix: 'RANK', border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', text: 'text-yellow-400' },
+            { label: 'Campus Rank', value: rank > 0 ? `#${rank}` : 'N/A', suffix: 'RANK', border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', text: 'text-yellow-400' },
             { label: 'Verified Assets', value: eCertsCount, suffix: 'UNITS', border: 'border-emerald-500/20', bg: 'bg-emerald-500/5', text: 'text-emerald-400' }
           ].map((stat, i) => (
             <motion.div key={i} variants={itemVariants} className={`bg-[#111319] border ${stat.border} ${stat.bg} p-3 sm:p-7 rounded-2xl sm:rounded-[2rem] relative overflow-hidden group shadow-lg transition-transform hover:-translate-y-1`}>
@@ -319,26 +319,27 @@ const Profile = () => {
               const verifyUrl = encodeURIComponent(`https://campusrank.com/verify/${c.id}`);
               const shareText = encodeURIComponent(`I just earned a certificate for "${c.event_name}" from Rungta International Skills University ✨🚀`);
               const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${verifyUrl}&summary=${shareText}`;
-              
+
               return (
-              <div key={i} className="bg-[#161a23] border border-white/5 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] group hover:border-emerald-500/30 hover:bg-[#1a1f2b] transition-all relative overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(16,185,129,0.1)] hover:-translate-y-1 flex flex-col">
-                <div className="flex justify-between items-center mb-1 relative z-10 gap-3">
-                  <h4 className="text-sm font-black text-white uppercase italic tracking-tighter truncate flex-1">{c.event_name}</h4>
-                  <div className="flex gap-1.5 sm:gap-2">
-                    <a href={`http://localhost:5000${c.url}`} target="_blank" rel="noreferrer" title="Download" className="p-1.5 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg transition-colors border border-emerald-500/20">
-                      <Download size={14} />
-                    </a>
-                    <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" title="LinkedIn Share" className="p-1.5 bg-blue-500/10 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition-colors border border-blue-500/20">
-                      <Share2 size={14} />
-                    </a>
+                <div key={i} className="bg-[#161a23] border border-white/5 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] group hover:border-emerald-500/30 hover:bg-[#1a1f2b] transition-all relative overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(16,185,129,0.1)] hover:-translate-y-1 flex flex-col">
+                  <div className="flex justify-between items-center mb-1 relative z-10 gap-3">
+                    <h4 className="text-sm font-black text-white uppercase italic tracking-tighter truncate flex-1">{c.event_name}</h4>
+                    <div className="flex gap-1.5 sm:gap-2">
+                      <a href={`http://localhost:5000${c.url}`} target="_blank" rel="noreferrer" title="Download" className="p-1.5 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg transition-colors border border-emerald-500/20">
+                        <Download size={14} />
+                      </a>
+                      <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" title="LinkedIn Share" className="p-1.5 bg-blue-500/10 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition-colors border border-blue-500/20">
+                        <Share2 size={14} />
+                      </a>
+                    </div>
                   </div>
+                  <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest relative z-10 flex items-center justify-between">
+                    <span>{c.position}</span>
+                    <span className="text-gray-600 tracking-tighter">{new Date(c.created_at).toLocaleDateString()}</span>
+                  </p>
                 </div>
-                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest relative z-10 flex items-center justify-between">
-                  <span>{c.position}</span>
-                  <span className="text-gray-600 tracking-tighter">{new Date(c.created_at).toLocaleDateString()}</span>
-                </p>
-              </div>
-            )})}
+              )
+            })}
           </div>
         </motion.div>
       )}
