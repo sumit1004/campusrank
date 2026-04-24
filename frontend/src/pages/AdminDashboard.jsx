@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { Pickaxe, CheckCircle, XCircle, Award, PlusCircle, Clock, ShieldAlert, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { getAssetUrl } from '../utils/urlHelper';
 
 const AdminDashboard = () => {
   const user = getUser();
@@ -190,7 +191,7 @@ const ReviewRow = ({ cert, onApprove, onReject }) => {
         <div className="text-[7px] sm:text-[8px] text-gray-600 font-bold mt-0.5 uppercase tracking-tighter">Std: {cert.default_points} XP</div>
       </td>
       <td className="px-4 py-5 sm:py-6 text-center">
-        <a href={`http://localhost:5000${cert.file_url}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-indigo-500/5 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all">
+        <a href={getAssetUrl(cert.file_url)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-indigo-500/5 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 rounded-xl text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all">
           <ShieldAlert size={12} /> Inspect
         </a>
       </td>

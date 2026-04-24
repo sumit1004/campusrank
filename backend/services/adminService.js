@@ -1,6 +1,8 @@
 const db = require('../config/db');
 const { logActivity } = require('../utils/activityLogger');
 const { createNotification } = require('../utils/notificationHelper');
+const { refreshRankCache } = require('../utils/rankCache');
+const { refreshLeaderboardCache } = require('./leaderboardService');
 
 // Centralized points map — single source of truth for this service
 const POINTS_MAP = {
@@ -70,6 +72,10 @@ const approveCertificate = async (certId, adminId) => {
     );
 
     await connection.commit();
+
+    // Refresh both caches after points change (non-blocking)
+    refreshRankCache();
+    refreshLeaderboardCache();
 
     createNotification(cert.user_id, `Your certificate for ${cert.event_name} has been approved! +${points} points.`, 'success');
     logActivity(adminId, 'APPROVE_CERTIFICATE', certId, { user_id: cert.user_id, points });

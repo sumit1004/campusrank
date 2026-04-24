@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { getRankFromCache } = require('../utils/rankCache');
 
 /**
  * @desc    Get user profile data for dashboard
@@ -21,26 +22,10 @@ const getUserProfile = async (req, res, next) => {
 
     const user = userRows[0];
 
-    // 2. REAL-TIME Total Points (Calculated from participation registry)
-    const [pointsRows] = await db.query(
-      'SELECT SUM(points) as total FROM event_participation WHERE user_id = ?',
-      [userId]
-    );
-    const total_points = parseInt(pointsRows[0].total) || 0;
-
-    // 3. Calculate Rank (University-wide, based on live SUM of participation)
-    // Deterministic ranking matches the leaderboard's order-by-index logic
-    const [rankRows] = await db.query(
-      `SELECT COUNT(*) + 1 AS \`rank\` FROM (
-        SELECT u.id, COALESCE(SUM(ep.points), 0) as live_total
-        FROM users u
-        LEFT JOIN event_participation ep ON u.id = ep.user_id
-        WHERE u.role = "student"
-        GROUP BY u.id
-      ) AS rankings WHERE live_total > ? OR (live_total = ? AND id < ?)`,
-      [total_points, total_points, userId]
-    );
-    const rank = rankRows[0].rank;
+    // 2 & 3. Rank + Total Points — read from rank_cache (O(1) indexed lookup).
+    //         Cache is refreshed automatically after any points write.
+    //         Falls back to a live query on first request (cache cold start).
+    const { rank, total_points } = await getRankFromCache(userId);
 
     // 4. Certificates List (Unified & Cross-referenced with event_participation)
     const [manualApproved] = await db.query(

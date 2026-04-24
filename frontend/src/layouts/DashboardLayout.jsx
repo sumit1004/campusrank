@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Home, Trophy, Upload, LogOut, Settings, Bell, Search, Menu, X, Star, ClipboardList, User, Activity, ShieldCheck, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationDropdown from '../components/NotificationDropdown';
+import { getAssetUrl } from '../utils/urlHelper';
 
 const DashboardLayout = () => {
   const { user, logout } = useContext(AuthContext);
@@ -136,7 +137,7 @@ const DashboardLayout = () => {
             >
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-accent to-primary flex items-center justify-center text-white font-black text-xs md:text-sm shadow-[0_0_15px_rgba(99,102,241,0.5)] border border-white/20 overflow-hidden">
                 {user?.avatar_url ? (
-                  <img src={`http://localhost:5000${user.avatar_url}`} alt={user.name} className="w-full h-full object-cover" />
+                  <img src={getAssetUrl(user.avatar_url)} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
                   user?.name?.[0]?.toUpperCase() || '?'
                 )}

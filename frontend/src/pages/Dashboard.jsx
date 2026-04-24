@@ -8,6 +8,7 @@ import {
    Zap, Plus, CheckCircle2, XCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getAssetUrl } from '../utils/urlHelper';
 
 const Dashboard = () => {
    const { user: authUser } = useContext(AuthContext);
@@ -235,7 +236,7 @@ const Dashboard = () => {
                                     <div className="text-[8px] text-gray-500 font-bold uppercase tracking-[0.05em] mt-1 italic">{m.club_name} • {m.position}</div>
                                  </td>
                                  <td className="px-6 py-5 bg-white/[0.02] group-hover:bg-white/[0.04] text-center">
-                                    <a href={`http://localhost:5000${m.file_url}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-indigo-500/20 hover:border-indigo-500/40">
+                                    <a href={getAssetUrl(m.file_url)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all border border-indigo-500/20 hover:border-indigo-500/40">
                                        <FileText size={12} /> View
                                     </a>
                                  </td>
@@ -284,7 +285,7 @@ const Dashboard = () => {
                         <div className="flex justify-between items-center mb-1 relative z-10 gap-4">
                            <h4 className="text-sm font-black text-white uppercase italic tracking-tighter truncate flex-1">{c.event_name}</h4>
                            <div className="flex gap-2">
-                              <a href={`http://localhost:5000${c.url}`} target="_blank" rel="noreferrer" title="Download E-Cert" className="p-1.5 bg-indigo-500/10 hover:bg-indigo-600 text-indigo-400 hover:text-white rounded-lg transition-colors border border-indigo-500/20">
+                              <a href={getAssetUrl(c.url)} target="_blank" rel="noreferrer" title="Download E-Cert" className="p-1.5 bg-indigo-500/10 hover:bg-indigo-600 text-indigo-400 hover:text-white rounded-lg transition-colors border border-indigo-500/20">
                                  <Download size={14} />
                               </a>
                               <div className="p-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">

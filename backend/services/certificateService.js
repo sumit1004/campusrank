@@ -2,6 +2,8 @@ const db = require('../config/db');
 const { logActivity } = require('../utils/activityLogger');
 const { createNotification } = require('../utils/notificationHelper');
 const crypto = require('crypto');
+const { refreshRankCache } = require('../utils/rankCache');
+const { refreshLeaderboardCache } = require('./leaderboardService');
 
 /**
  * Generate a unique certificate ID
@@ -47,6 +49,11 @@ const bulkGenerate = async (club_id, event_name, event_date, students, adminId) 
     }
 
     await connection.commit();
+
+    // Refresh both caches after bulk points change (non-blocking)
+    refreshRankCache();
+    refreshLeaderboardCache();
+
     logActivity(adminId, 'BULK_GENERATE_CERTIFICATES', null, { event_name, count: results.length });
     return results;
   } catch (error) {

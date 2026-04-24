@@ -3,6 +3,7 @@ import api from '../services/api';
 import { getUser } from '../utils/auth';
 import toast from 'react-hot-toast';
 import { Upload, FileSpreadsheet, Clipboard, Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { getAssetUrl } from '../utils/urlHelper';
 
 const AdminECertificates = () => {
     const user = getUser();
@@ -221,7 +222,7 @@ const AdminECertificates = () => {
                                             <div className="text-sm font-bold text-white">{s.name}</div>
                                             <div className="text-[10px] text-gray-400 font-mono">{s.erp}</div>
                                         </div>
-                                        <a href={`http://localhost:5000${s.url}`} target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300">
+                                        <a href={getAssetUrl(s.url)} target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300">
                                             <FileSpreadsheet size={16} />
                                         </a>
                                     </div>

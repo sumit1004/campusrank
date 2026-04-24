@@ -140,19 +140,45 @@ const bulkGenerateCertificates = async (req, res, next) => {
     } else if (pastedData) {
       // JSON or CSV-like pasted data
       if (typeof pastedData === 'string') {
-        // Try parsing CSV-like text (Name, ERP, Branch, Course, Semester, College)
+        // ── CSV Parsing with Validation ───────────────────────────────────
+        // Expected columns (positional): Name, ERP, Branch, Course, Semester, College
+        const EXPECTED_FIELDS = 6;
+        const MIN_REQUIRED    = 2; // At minimum Name + ERP must be present
+
         const lines = pastedData.trim().split('\n');
-        studentData = lines.map(line => {
-          const parts = line.split(',').map(s => s.trim());
-          return {
-            Name: parts[0],
-            ERP: parts[1],
-            Branch: parts[2],
-            Course: parts[3],
-            Semester: parts[4],
-            College: parts[5]
-          };
-        });
+        const skipped = [];
+
+        studentData = lines.reduce((acc, rawLine, lineIndex) => {
+          const trimmedLine = rawLine.trim();
+
+          // Skip blank lines
+          if (!trimmedLine) return acc;
+
+          const parts = trimmedLine.split(',').map(s => s.trim());
+
+          // Skip rows that don't have the minimum required fields
+          if (parts.length < MIN_REQUIRED || !parts[1]) {
+            skipped.push({ line: lineIndex + 1, raw: trimmedLine, error: `Expected at least ${MIN_REQUIRED} fields, got ${parts.length}` });
+            return acc;
+          }
+
+          // Safely map fields — missing positions default to '' (never undefined)
+          acc.push({
+            Name:     parts[0] || '',
+            ERP:      parts[1] || '',
+            Branch:   parts[2] || '',
+            Course:   parts[3] || '',
+            Semester: parts[4] || '',
+            College:  parts[5] || ''
+          });
+
+          return acc;
+        }, []);
+
+        // Attach skipped-row info to results so caller can inspect them
+        if (skipped.length > 0) {
+          console.warn(`[CSV] Skipped ${skipped.length} malformed row(s):`, skipped);
+        }
       } else {
         studentData = pastedData;
       }

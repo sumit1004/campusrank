@@ -3,6 +3,7 @@ import api from '../services/api';
 import { getUser } from '../utils/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Medal, Crown, Star, User, ChevronDown, Globe, Users, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { getAssetUrl } from '../utils/urlHelper';
 
 const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
@@ -148,7 +149,7 @@ const Leaderboard = () => {
                     <div className={`w-16 h-16 sm:w-32 sm:h-32 rounded-3xl sm:rounded-full p-1 sm:p-1.5 bg-gradient-to-tr transition-all duration-500 rounded-[1.5rem] ${isFirst ? 'from-yellow-400 via-amber-200 to-yellow-600 shadow-[0_0_20px_rgba(234,179,8,0.3)] sm:scale-110' : isSecond ? 'from-slate-300 to-slate-500' : 'from-orange-400 to-orange-800'}`}>
                       <div className="w-full h-full rounded-[1.3rem] sm:rounded-full bg-[#0d0f14] border border-white/10 flex items-center justify-center relative overflow-hidden">
                         {student.avatar_url ? (
-                          <img src={`http://localhost:5000${student.avatar_url}`} alt={student.name} className="w-full h-full object-cover" />
+                          <img src={getAssetUrl(student.avatar_url)} alt={student.name} className="w-full h-full object-cover" />
                         ) : (
                           <span className={`font-black text-white ${isFirst ? 'text-2xl sm:text-5xl' : 'text-xl sm:text-4xl'}`}>{student.name.charAt(0)}</span>
                         )}
@@ -199,7 +200,7 @@ const Leaderboard = () => {
                     <div className="flex-1 flex items-center px-6 gap-4">
                       <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center font-black text-gray-500 group-hover:bg-indigo-500 group-hover:text-white transition-all overflow-hidden`}>
                         {student.avatar_url ? (
-                          <img src={`http://localhost:5000${student.avatar_url}`} alt={student.name} className="w-full h-full object-cover" />
+                          <img src={getAssetUrl(student.avatar_url)} alt={student.name} className="w-full h-full object-cover" />
                         ) : (
                           student.name.charAt(0)
                         )}

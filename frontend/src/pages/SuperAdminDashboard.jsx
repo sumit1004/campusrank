@@ -5,6 +5,7 @@ import api from '../services/api';
 import toast from 'react-hot-toast';
 import { ShieldCheck, Users, Activity, FileText, Search, UserMinus, UserPlus, Bell, ClipboardList, Star, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getAssetUrl } from '../utils/urlHelper';
 
 const SuperAdminDashboard = () => {
   const location = useLocation();
@@ -443,7 +444,7 @@ const SuperAdminDashboard = () => {
                     <td className="p-4 font-bold text-gray-400 max-w-[150px] truncate text-xs">{c.club_name}</td>
                     <td className="p-4 text-[10px] font-black text-gray-500 uppercase tracking-tighter">{c.position}</td>
                     <td className="p-4"><span className={`px-2 py-0.5 text-[9px] font-black rounded-md uppercase tracking-wider ${c.status === 'approved' ? 'bg-green-500/20 text-green-400 border border-green-500/20' : c.status === 'rejected' ? 'bg-red-500/20 text-red-400 border border-red-500/20' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/20'}`}>{c.status}</span></td>
-                    <td className="p-4"><a href={`http://localhost:5000${c.file_url}`} target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300 underline font-bold text-xs uppercase tracking-tighter">View</a></td>
+                    <td className="p-4"><a href={getAssetUrl(c.file_url)} target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300 underline font-bold text-xs uppercase tracking-tighter">View</a></td>
                   </tr>
                 ))}
               </tbody>

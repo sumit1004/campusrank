@@ -72,6 +72,16 @@ const initTables = async () => {
   } catch (err) {
     // Column likely already exists
   }
+
+  // Migration: Enforce unique registration at DB level (idempotent)
+  try {
+    await db.query(`
+      ALTER TABLE submissions
+      ADD UNIQUE KEY unique_registration (form_id, user_id)
+    `);
+  } catch (err) {
+    // Key already exists — safe to ignore
+  }
 };
 
 // Run init immediately
@@ -342,6 +352,52 @@ const submitForm = async (req, res) => {
       return res.status(400).json({ success: false, message: 'You have already registered for this event.' });
     }
 
+    // ── SUBMISSION VALIDATION ─────────────────────────────────────────────
+    // 1. Fetch all fields that belong to this form
+    const [formFields] = await db.query(
+      `SELECT id, field_name, required, apply_to FROM form_fields WHERE form_id = ?`,
+      [formId]
+    );
+
+    // Build lookup maps for fast access
+    const validFieldIds = new Set(formFields.map(f => f.id));
+    const requiredFields = formFields.filter(f => f.required);
+
+    // 2. Validate that every submitted field_id actually belongs to this form
+    if (members && members.length > 0) {
+      for (const entry of members) {
+        if (!validFieldIds.has(Number(entry.field_id))) {
+          return res.status(400).json({
+            success: false,
+            message: `Invalid field_id ${entry.field_id}: does not belong to this form.`
+          });
+        }
+      }
+    }
+
+    // 3. Determine how many members are in this submission
+    const memberIndices = members && members.length > 0
+      ? [...new Set(members.map(e => e.member_index || 1))]
+      : [1];
+
+    // 4. Check that every required field has a value for each member
+    //    (fields with apply_to='leader' are only required for member_index 1)
+    for (const field of requiredFields) {
+      const indices = field.apply_to === 'leader' ? [1] : memberIndices;
+      for (const idx of indices) {
+        const supplied = members && members.find(
+          e => Number(e.field_id) === field.id && (e.member_index || 1) === idx
+        );
+        if (!supplied || supplied.value === null || supplied.value === undefined || String(supplied.value).trim() === '') {
+          return res.status(400).json({
+            success: false,
+            message: `Required field "${field.field_name}" is missing or empty for member ${idx}.`
+          });
+        }
+      }
+    }
+    // ── END VALIDATION ────────────────────────────────────────────────────
+
     // Create submission
     const [subResult] = await db.query(
       `INSERT INTO submissions (form_id, user_id) VALUES (?, ?)`,
@@ -367,6 +423,11 @@ const submitForm = async (req, res) => {
 
     res.status(201).json({ success: true, message: 'Registered successfully!' });
   } catch (err) {
+    // DB-level duplicate catch (ER_DUP_ENTRY = 1062) — belt-and-suspenders
+    // guard if the app-level check above was somehow bypassed (race condition).
+    if (err.errno === 1062 || err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ success: false, message: 'Already registered for this form.' });
+    }
     console.error(err);
     res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }

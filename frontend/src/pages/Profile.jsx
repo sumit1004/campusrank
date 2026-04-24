@@ -10,6 +10,7 @@ import {
   Clock, CheckCircle2, XCircle, UploadCloud, FileText, Share2, Camera
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getAssetUrl } from '../utils/urlHelper';
 
 const Profile = () => {
   const { user, updateUser } = useContext(AuthContext);
@@ -136,7 +137,7 @@ const Profile = () => {
               <div className="w-full h-full rounded-[2.3rem] sm:rounded-[3.3rem] bg-[#0d1117] flex items-center justify-center border-4 border-white/5 relative overflow-hidden">
                 {editForm.avatar_url ? (
                   <img
-                    src={`http://localhost:5000${editForm.avatar_url}`}
+                    src={getAssetUrl(editForm.avatar_url)}
                     alt={user.name}
                     className="w-full h-full object-cover"
                   />
@@ -325,7 +326,7 @@ const Profile = () => {
                   <div className="flex justify-between items-center mb-1 relative z-10 gap-3">
                     <h4 className="text-sm font-black text-white uppercase italic tracking-tighter truncate flex-1">{c.event_name}</h4>
                     <div className="flex gap-1.5 sm:gap-2">
-                      <a href={`http://localhost:5000${c.url}`} target="_blank" rel="noreferrer" title="Download" className="p-1.5 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg transition-colors border border-emerald-500/20">
+                      <a href={getAssetUrl(c.url)} target="_blank" rel="noreferrer" title="Download" className="p-1.5 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-400 hover:text-white rounded-lg transition-colors border border-emerald-500/20">
                         <Download size={14} />
                       </a>
                       <a href={linkedInUrl} target="_blank" rel="noopener noreferrer" title="LinkedIn Share" className="p-1.5 bg-blue-500/10 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg transition-colors border border-blue-500/20">
@@ -434,7 +435,7 @@ const Profile = () => {
                       </div>
                       <p className="text-[8px] text-gray-600 font-black uppercase tracking-widest">{new Date(m.created_at).toLocaleDateString()}</p>
                     </div>
-                    <a href={`http://localhost:5000${m.file_url}`} target="_blank" rel="noreferrer" className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-indigo-500 text-white rounded-xl transition-colors border border-white/10 shrink-0"><ExternalLink size={12} /></a>
+                    <a href={getAssetUrl(m.file_url)} target="_blank" rel="noreferrer" className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-indigo-500 text-white rounded-xl transition-colors border border-white/10 shrink-0"><ExternalLink size={12} /></a>
                   </div>
                 </div>
               ))
