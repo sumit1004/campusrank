@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 
 const AdminDashboard = () => {
   const user = getUser();
-  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0 });
+  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, eCertificates: 0 });
   const [pendingCerts, setPendingCerts] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -108,16 +108,17 @@ const AdminDashboard = () => {
         {/* 📊 STATS & QUEUE SECTION */}
         <div className="lg:col-span-3 space-y-6 sm:space-y-8">
           {/* Visual Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {[
-              { label: 'Total Volume', value: stats.total, color: 'bg-[#111827]/80' },
+              { label: 'Manual Uploads', value: stats.total, color: 'bg-[#111827]/80' },
               { label: 'Pending Review', value: stats.pending, color: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-100', highlight: 'text-indigo-400' },
-              { label: 'System Processed', value: stats.approved, color: 'bg-green-500/10 border-green-500/20 text-green-100', highlight: 'text-green-400' }
+              { label: 'Approved Manual', value: stats.approved, color: 'bg-green-500/10 border-green-500/20 text-green-100', highlight: 'text-green-400' },
+              { label: 'E-Certificates', value: stats.eCertificates, color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-100', highlight: 'text-emerald-400' }
             ].map((s, i) => (
-              <div key={i} className={`${s.color} border border-white/5 p-6 sm:p-8 rounded-3xl sm:rounded-[2.5rem] shadow-lg relative overflow-hidden group`}>
-                <div className="absolute -right-5 -bottom-5 opacity-10 group-hover:scale-110 transition-transform"><Activity size={80} /></div>
-                <p className={`${s.highlight || 'text-gray-500'} text-[8px] sm:text-[9px] font-black uppercase tracking-widest mb-1`}>{s.label}</p>
-                <h2 className="text-3xl sm:text-4xl font-black italic">{s.value}</h2>
+              <div key={i} className={`${s.color} border border-white/5 p-6 rounded-2xl shadow-lg relative overflow-hidden group`}>
+                <div className="absolute -right-5 -bottom-5 opacity-10 group-hover:scale-110 transition-transform"><Activity size={60} /></div>
+                <p className={`${s.highlight || 'text-gray-500'} text-[8px] font-black uppercase tracking-widest mb-1`}>{s.label}</p>
+                <h2 className="text-2xl font-black italic">{s.value}</h2>
               </div>
             ))}
           </div>

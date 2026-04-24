@@ -35,6 +35,13 @@ const SuperAdminDashboard = () => {
   const [formsMonitor, setFormsMonitor] = useState([]);
   const [badgeAudit, setBadgeAudit] = useState([]);
 
+  // Pagination States
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersTotal, setUsersTotal] = useState(0);
+  const [certsPage, setCertsPage] = useState(1);
+  const [certsTotal, setCertsTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     // Sync activeTab with URL parameters
     const params = new URLSearchParams(location.search);
@@ -65,28 +72,43 @@ const SuperAdminDashboard = () => {
     } catch (e) { }
   };
 
-  const loadRoleData = async () => {
+  const loadRoleData = async (page = 1) => {
     try {
-      const [uRes, cRes] = await Promise.all([api.get('/superadmin/users'), api.get('/clubs')]);
+      setLoading(true);
+      const [uRes, cRes] = await Promise.all([
+        api.get(`/superadmin/users?page=${page}&limit=50`), 
+        api.get('/clubs')
+      ]);
       const sortedUsers = uRes.data.data.sort((a, b) => {
         if (a.role === 'admin' && b.role !== 'admin') return -1;
         if (a.role !== 'admin' && b.role === 'admin') return 1;
         return 0;
       });
       setUsers(sortedUsers);
+      setUsersTotal(uRes.data.total);
       setClubs(cRes.data.data);
-    } catch (e) { }
+    } catch (e) {
+      toast.error('Failed to load user roles');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const loadCertificates = async () => {
+  const loadCertificates = async (page = 1) => {
     try {
-      const { data } = await api.get(`/superadmin/certificates?club=${certFilter.club}&status=${certFilter.status}&search=${certFilter.search}`);
+      setLoading(true);
+      const { data } = await api.get(`/superadmin/certificates?club=${certFilter.club}&status=${certFilter.status}&search=${certFilter.search}&page=${page}&limit=50`);
       setCertificates(data.data);
+      setCertsTotal(data.total);
       if (!clubs.length) {
         const cRes = await api.get('/clubs');
         setClubs(cRes.data.data);
       }
-    } catch (e) { }
+    } catch (e) {
+      toast.error('Failed to load certificates');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const loadActivities = async () => {
@@ -161,16 +183,20 @@ const SuperAdminDashboard = () => {
               <h2 className="text-4xl text-white font-black">{analytics.totalUsers}</h2>
             </div>
             <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
-              <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Total Uploads</p>
+              <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Manual Uploads</p>
               <h2 className="text-4xl text-white font-black">{analytics.totalCerts}</h2>
             </div>
             <div className="bg-indigo-500/10 border border-indigo-500/20 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
-              <p className="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-2">Approved</p>
+              <p className="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-2">Approved Manual</p>
               <h2 className="text-4xl text-indigo-100 font-black">{analytics.approvedCerts}</h2>
             </div>
             <div className="bg-purple-500/10 border border-purple-500/20 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
-              <p className="text-purple-400 text-[10px] font-black uppercase tracking-widest mb-2">Pending</p>
+              <p className="text-purple-400 text-[10px] font-black uppercase tracking-widest mb-2">Pending Manual</p>
               <h2 className="text-4xl text-purple-100 font-black">{analytics.pendingCerts}</h2>
+            </div>
+            <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
+              <p className="text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-2">E-Certificates</p>
+              <h2 className="text-4xl text-emerald-100 font-black">{analytics.totalECerts}</h2>
             </div>
           </div>
 
@@ -184,7 +210,7 @@ const SuperAdminDashboard = () => {
                     <span className="font-bold text-gray-200">{c.name}</span>
                   </div>
                   <div className="text-sm font-mono text-gray-400">
-                    <span className="text-white font-bold">{c.total}</span> uploads / <span className="text-purple-400">{c.pending}</span> pending
+                    <span className="text-white font-bold">{c.total_manual}</span> manual / <span className="text-purple-400">{c.pending_manual}</span> pending / <span className="text-emerald-400">{c.total_e_certs}</span> e-certs
                   </div>
                 </div>
               ))}
@@ -348,6 +374,29 @@ const SuperAdminDashboard = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination for Students */}
+            {usersTotal > 50 && (
+              <div className="mt-6 flex justify-center gap-4">
+                <button
+                  disabled={usersPage === 1 || loading}
+                  onClick={() => { setUsersPage(p => p - 1); loadRoleData(usersPage - 1); }}
+                  className="bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-xs font-black uppercase disabled:opacity-30 transition-all"
+                >
+                  Previous
+                </button>
+                <span className="text-gray-500 font-bold text-xs flex items-center">
+                  Page {usersPage} of {Math.ceil(usersTotal / 50)}
+                </span>
+                <button
+                  disabled={usersPage * 50 >= usersTotal || loading}
+                  onClick={() => { setUsersPage(p => p + 1); loadRoleData(usersPage + 1); }}
+                  className="bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-xs font-black uppercase disabled:opacity-30 transition-all"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -391,6 +440,29 @@ const SuperAdminDashboard = () => {
             </table>
             {certificates.length === 0 && <p className="text-center py-10 text-gray-500 font-bold">No certificates found matching criteria.</p>}
           </div>
+
+          {/* Pagination for Certificates */}
+          {certsTotal > 50 && (
+            <div className="mt-6 flex justify-center gap-4">
+              <button
+                disabled={certsPage === 1 || loading}
+                onClick={() => { setCertsPage(p => p - 1); loadCertificates(certsPage - 1); }}
+                className="bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-xs font-black uppercase disabled:opacity-30 transition-all"
+              >
+                Previous
+              </button>
+              <span className="text-gray-500 font-bold text-xs flex items-center">
+                Page {certsPage} of {Math.ceil(certsTotal / 50)}
+              </span>
+              <button
+                disabled={certsPage * 50 >= certsTotal || loading}
+                onClick={() => { setCertsPage(p => p + 1); loadCertificates(certsPage + 1); }}
+                className="bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-xs font-black uppercase disabled:opacity-30 transition-all"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -462,38 +534,80 @@ const SuperAdminDashboard = () => {
       {activeTab === 'forms-monitor' && (
         <div className="space-y-6">
           <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl">
-            <h2 className="text-2xl font-black text-white tracking-tight uppercase italic mb-8">Event Registration Monitor</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {formsMonitor.map((form, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] relative overflow-hidden group hover:border-indigo-500/50 transition-all">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-                      <ClipboardList size={24} />
-                    </div>
-                    <div className="text-right">
-                      <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest ${form.status === 'active' ? 'bg-green-500/20 text-green-400 border border-green-500/20' : 'bg-red-500/20 text-red-400 border border-red-500/20'}`}>
-                        {form.status}
-                      </span>
-                      <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-1">Registrations</p>
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-black text-white uppercase tracking-tighter truncate mb-2">{form.title}</h3>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">{form.club_name}</p>
-                  
-                  <div className="space-y-3 pt-4 border-t border-white/5">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase">Submissions</span>
-                      <span className="text-xl font-black text-white tracking-tighter">{form.submission_count}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-gray-500 text-[10px] font-bold">
-                      <span>Event Date</span>
-                      <span>{new Date(form.event_date).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-black text-white tracking-tight uppercase italic">Event Registration Monitor</h2>
+                <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">Surveillance of all club-created registration forms</p>
+              </div>
+              <div className="bg-indigo-500/10 border border-indigo-500/20 px-4 py-2 rounded-xl">
+                <span className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">Live Feed</span>
+              </div>
             </div>
-            {formsMonitor.length === 0 && <p className="p-20 text-center text-gray-500 font-bold italic">No club events found.</p>}
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[1000px]">
+                <thead className="text-gray-500 text-[10px] uppercase font-black tracking-widest border-b border-white/5">
+                  <tr>
+                    <th className="px-4 py-4">Event / Club</th>
+                    <th className="px-4 py-4 text-center">Status</th>
+                    <th className="px-4 py-4 text-center">Registrations</th>
+                    <th className="px-4 py-4">Window (Start - End)</th>
+                    <th className="px-4 py-4">Event Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {formsMonitor.map((form, i) => {
+                    const now = new Date();
+                    const start = form.start_date ? new Date(form.start_date) : null;
+                    const end = form.end_date ? new Date(form.end_date) : null;
+                    let calculatedStatus = form.status;
+                    if (form.status === 'active') {
+                      if (start && now < start) calculatedStatus = 'coming-soon';
+                      else if (end && now > end) calculatedStatus = 'expired';
+                      else calculatedStatus = 'open';
+                    }
+
+                    return (
+                      <tr key={i} className="hover:bg-white/5 transition-colors group">
+                        <td className="px-4 py-4">
+                          <div className="font-bold text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{form.title}</div>
+                          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">{form.club_name}</div>
+                        </td>
+                        <td className="px-4 py-4 text-center">
+                          <span className={`px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest border ${
+                            calculatedStatus === 'open' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
+                            calculatedStatus === 'coming-soon' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 
+                            'bg-red-500/10 text-red-400 border-red-500/20'
+                          }`}>
+                            {calculatedStatus}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-center">
+                          <div className="text-xl font-black text-white tracking-tighter">{form.submission_count}</div>
+                          <div className="text-[8px] text-gray-600 font-bold uppercase tracking-widest mt-0.5">Entries</div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="text-[10px] font-bold text-gray-400">
+                            {form.start_date ? new Date(form.start_date).toLocaleDateString() : 'N/A'} — 
+                            {form.end_date ? new Date(form.end_date).toLocaleDateString() : 'N/A'}
+                          </div>
+                          <div className="text-[8px] text-gray-600 font-black uppercase tracking-widest mt-1">Registration Window</div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <div className="text-[10px] font-black text-gray-300">{new Date(form.event_date).toLocaleDateString()}</div>
+                          <div className="text-[8px] text-gray-600 font-bold uppercase tracking-widest mt-1">Event Scheduled</div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {formsMonitor.length === 0 && (
+              <div className="p-20 text-center text-gray-500 font-bold italic border-2 border-dashed border-white/5 rounded-3xl mt-4">
+                No club events found in system.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -526,9 +640,10 @@ const SuperAdminDashboard = () => {
                       </td>
                       <td className="p-4 text-right">
                         <div className="flex justify-end gap-2">
-                          {student.total_points >= 100 && <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400" title="Starter Badge"><Star size={12} fill="currentColor" /></div>}
-                          {student.total_points >= 500 && <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400" title="Achiever Badge"><Star size={12} fill="currentColor" /></div>}
-                          {student.total_points >= 1000 && <div className="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400" title="Elite Badge"><Star size={12} fill="currentColor" /></div>}
+                          {student.total_points >= 500 && <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400" title="Level 1"><Star size={12} fill="currentColor" /></div>}
+                          {student.total_points >= 800 && <div className="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400" title="Level 2"><Star size={12} fill="currentColor" /></div>}
+                          {student.total_points >= 1000 && <div className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400" title="Level 3"><Star size={12} fill="currentColor" /></div>}
+                          {student.total_points >= 1500 && <div className="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400" title="Elite Badge"><Star size={12} fill="currentColor" /></div>}
                         </div>
                       </td>
                     </tr>

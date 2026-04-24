@@ -351,39 +351,13 @@ const submitForm = async (req, res) => {
   }
 };
 
+const { getSubmissions: fetchSubmissions } = require('../services/formService');
+
 // ─── GET SUBMISSIONS (ADMIN) ───────────────────────────────────────────────
 const getSubmissions = async (req, res) => {
   const { search } = req.query;
   try {
-    let query = `
-      SELECT s.id, s.created_at, u.name AS student_name, u.erp AS student_erp, u.email AS student_email
-      FROM submissions s
-      JOIN users u ON u.id = s.user_id
-      WHERE s.form_id = ?
-    `;
-    const params = [req.params.id];
-
-    if (search) {
-      query += ` AND (u.name LIKE ? OR u.erp LIKE ?)`;
-      params.push(`%${search}%`, `%${search}%`);
-    }
-    query += ` ORDER BY s.created_at DESC`;
-
-    const [submissions] = await db.query(query, params);
-
-    // Fetch submission data for each
-    for (const sub of submissions) {
-      const [data] = await db.query(
-        `SELECT sd.value, sd.member_index, ff.field_name, ff.field_type
-         FROM submission_data sd
-         JOIN form_fields ff ON ff.id = sd.field_id
-         WHERE sd.submission_id = ?
-         ORDER BY sd.member_index, ff.field_order`,
-        [sub.id]
-      );
-      sub.data = data;
-    }
-
+    const submissions = await fetchSubmissions(req.params.id, search);
     res.json({ success: true, data: submissions });
   } catch (err) {
     console.error(err);
@@ -520,4 +494,5 @@ module.exports = {
   createForm, getForms, getActiveForms, getFormById,
   updateForm, deleteForm, toggleFormStatus,
   submitForm, getSubmissions, exportSubmissions, getMySubmission,
+  autoCloseExpired
 };

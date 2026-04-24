@@ -102,17 +102,19 @@ const getAnalytics = async (req, res, next) => {
     const [[{ totalCerts }]] = await db.query('SELECT COUNT(*) as totalCerts FROM certificates');
     const [[{ approvedCerts }]] = await db.query('SELECT COUNT(*) as approvedCerts FROM certificates WHERE status = "approved"');
     const [[{ pendingCerts }]] = await db.query('SELECT COUNT(*) as pendingCerts FROM certificates WHERE status = "pending"');
+    const [[{ totalECerts }]] = await db.query('SELECT COUNT(*) as totalECerts FROM e_certificates');
 
     const [clubStats] = await db.query(`
       SELECT cl.name, 
-        COUNT(c.id) as total,
-        SUM(CASE WHEN c.status = 'pending' THEN 1 ELSE 0 END) as pending
+        COUNT(DISTINCT c.id) as total_manual,
+        SUM(CASE WHEN c.status = 'pending' THEN 1 ELSE 0 END) as pending_manual,
+        (SELECT COUNT(*) FROM e_certificates ec WHERE ec.club_id = cl.id) as total_e_certs
       FROM clubs cl
       LEFT JOIN certificates c ON cl.id = c.club_id
       GROUP BY cl.id
     `);
 
-    res.json({ success: true, data: { totalUsers, totalCerts, approvedCerts, pendingCerts, clubStats } });
+    res.json({ success: true, data: { totalUsers, totalCerts, approvedCerts, pendingCerts, totalECerts, clubStats } });
   } catch(err) { next(err); }
 };
 
@@ -178,7 +180,7 @@ const getAdminActivities = async (req, res, next) => {
 const getFormsMonitoring = async (req, res, next) => {
   try {
     const [forms] = await db.query(`
-      SELECT f.*, cl.name as club_name, 
+      SELECT f.id, f.title, f.event_date, f.start_date, f.end_date, f.status, cl.name as club_name, 
         (SELECT COUNT(*) FROM submissions s WHERE s.form_id = f.id) as submission_count
       FROM forms f
       JOIN clubs cl ON f.club_id = cl.id

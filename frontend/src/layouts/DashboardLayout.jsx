@@ -138,7 +138,7 @@ const DashboardLayout = () => {
                 {user?.avatar_url ? (
                   <img src={`http://localhost:5000${user.avatar_url}`} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
-                  user?.name?.charAt(0).toUpperCase()
+                  user?.name?.[0]?.toUpperCase() || '?'
                 )}
               </div>
               <div className="text-left hidden sm:block">

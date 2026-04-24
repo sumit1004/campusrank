@@ -1,23 +1,21 @@
 /**
- * Basic Error Handling Middleware
- * Catch errors thrown from routes or database queries and return a uniform JSON response
+ * Global Error Handling Middleware
+ * Returns uniform JSON error responses across all routes
  */
 const errorHandler = (err, req, res, next) => {
-  // Log the complete error trace in the console
-  console.error(err.stack);
+  const statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
 
-  // If the status code is inadvertently still 200, assume 500 (Internal Server Error)
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  // Structured logging for better debugging
+  console.error(`[${new Date().toISOString()}] ${req.method} ${req.url} - Error: ${err.message}`);
+  if (statusCode === 500) {
+    console.error(err.stack);
+  }
 
-  // Send the error response
   res.status(statusCode).json({
     success: false,
     message: err.message || 'Internal Server Error',
-    // We only expose stack trace during development to avoid leaking sensitve code details
     stack: process.env.NODE_ENV === 'production' ? null : err.stack
   });
 };
 
-module.exports = {
-  errorHandler
-};
+module.exports = { errorHandler };

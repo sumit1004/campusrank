@@ -272,18 +272,20 @@ const getAdminStats = async (req, res, next) => {
       const [[{ total }]] = await db.query('SELECT COUNT(*) as total FROM certificates');
       const [[{ pending }]] = await db.query('SELECT COUNT(*) as pending FROM certificates WHERE status = "pending"');
       const [[{ approved }]] = await db.query('SELECT COUNT(*) as approved FROM certificates WHERE status = "approved"');
-      return res.json({ success: true, data: { total, pending, approved } });
+      const [[{ eCertificates }]] = await db.query('SELECT COUNT(*) as eCertificates FROM e_certificates');
+      return res.json({ success: true, data: { total, pending, approved, eCertificates } });
     }
 
     const [admins] = await db.query('SELECT club_id FROM users WHERE id = ?', [adminId]);
     const adminClubId = admins[0]?.club_id;
-    if (!adminClubId) return res.json({ success: true, data: { total: 0, pending: 0, approved: 0 }});
+    if (!adminClubId) return res.json({ success: true, data: { total: 0, pending: 0, approved: 0, eCertificates: 0 }});
 
     const [[{ total }]] = await db.query('SELECT COUNT(*) as total FROM certificates WHERE club_id = ?', [adminClubId]);
     const [[{ pending }]] = await db.query('SELECT COUNT(*) as pending FROM certificates WHERE club_id = ? AND status = "pending"', [adminClubId]);
     const [[{ approved }]] = await db.query('SELECT COUNT(*) as approved FROM certificates WHERE club_id = ? AND status = "approved"', [adminClubId]);
+    const [[{ eCertificates }]] = await db.query('SELECT COUNT(*) as eCertificates FROM e_certificates WHERE club_id = ?', [adminClubId]);
 
-    res.json({ success: true, data: { total, pending, approved } });
+    res.json({ success: true, data: { total, pending, approved, eCertificates } });
   } catch(err) { next(err); }
 };
 

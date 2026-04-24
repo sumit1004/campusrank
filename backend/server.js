@@ -1,120 +1,94 @@
-// Load environment variables early
 require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
 
-// Import database connection pool
 const db = require('./config/db');
-
-// Import basic error handling middleware
 const { errorHandler } = require('./middlewares/errorMiddleware');
-
-// Import auth routes and middlewares
-const authRoutes = require('./routes/authRoutes');
-const certificateRoutes = require('./routes/certificateRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const leaderboardRoutes = require('./routes/leaderboardRoutes');
 const { protect, authorize } = require('./middlewares/authMiddleware');
 
-// Initialize the Express app
 const app = express();
 
-// --- Middlewares ---
-// Enable CORS for all routes (to allow requests from the frontend)
-app.use(cors());
+// --- Security Headers ---
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' } // Allow serving uploads cross-origin
+}));
 
-// Parse incoming JSON request bodies
-app.use(express.json());
+// --- CORS ---
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173').split(',');
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 
-// Parse incoming URL-encoded form data
-app.use(express.urlencoded({ extended: true }));
+// --- Body Parsers ---
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Serve uploads statically
-const path = require('path');
+// --- Static File Serving ---
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Serve certificate background assets statically
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
+// --- Global Rate Limiting (all API routes) ---
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests, please try again later.' }
+});
+app.use('/api', globalLimiter);
+
+// --- Strict Rate Limiting for Auth Routes ---
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many login attempts, please try again after 15 minutes.' }
+});
+
+// --- Strict Rate Limiting for File Upload Routes ---
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 30,
+  message: { success: false, message: 'Upload limit exceeded, please try again later.' }
+});
+
 // --- Routes ---
-// Basic test route returning text as requested
-app.get('/api/test', (req, res) => {
-  res.send('Backend running');
-});
-
-// Database health check (Optional, good for verifying the MySQL connection)
-app.get('/api/db-check', async (req, res, next) => {
-  try {
-    const [rows] = await db.query('SELECT 1 + 1 AS solution');
-    res.json({ message: 'Database connected successfully!', solution: rows[0].solution });
-  } catch (error) {
-    // Forward the error to the error middleware
-    next(error);
-  }
-});
-
-// --- Auth Routes ---
-app.use('/api/auth', authRoutes);
-
-// --- Certificate Routes ---
-app.use('/api/certificates', certificateRoutes);
-
-// --- Admin Routes ---
-app.use('/api/admin', adminRoutes);
-
-// --- Clubs Routes ---
-const clubsRoutes = require('./routes/clubsRoutes');
-app.use('/api/clubs', clubsRoutes);
-
-// --- Super Admin Routes ---
-const superAdminRoutes = require('./routes/superAdminRoutes');
-app.use('/api/superadmin', superAdminRoutes);
-
-// --- Leaderboard Routes ---
-app.use('/api/leaderboard', leaderboardRoutes);
-
-// --- Notification Routes ---
+app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
+app.use('/api/certificates', uploadLimiter, require('./routes/certificateRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/clubs', require('./routes/clubsRoutes'));
+app.use('/api/superadmin', require('./routes/superAdminRoutes'));
+app.use('/api/leaderboard', require('./routes/leaderboardRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
-
-// --- Event Registration Form Routes ---
 app.use('/api/forms', require('./routes/formRoutes'));
-
-// --- Form Template Routes ---
 app.use('/api/templates', require('./routes/templateRoutes'));
-
-// --- User Routes ---
-const { getUserProfile, updateProfile } = require('./controllers/userController');
 app.use('/api/users', require('./routes/userRoutes'));
+
+// Backward-compatible profile routes (also handled in userRoutes)
+const { getUserProfile, updateProfile } = require('./controllers/userController');
 app.get('/api/profile', protect, getUserProfile);
 app.put('/api/profile', protect, updateProfile);
 
-// --- Protected Routes ---
-// This test route requires a valid token attached to the "Authorization" header
-app.get('/api/protected', protect, (req, res) => {
-  res.json({
-    success: true,
-    message: 'Welcome to the protected route!',
-    user: req.user // The decoded JWT payload attached directly by authMiddleware
-  });
-});
-
-// Example of an Admin-only route demonstrating the `authorize` role middleware
-app.get('/api/admin-only', protect, authorize('admin', 'superadmin'), (req, res) => {
-  res.json({
-    success: true,
-    message: 'You have accessed an admin-level route!',
-    user: req.user
-  });
-});
-
-// --- Error Handling Middleware ---
-// This must be registered after all route definitions
+// --- Error Handling Middleware (must be last) ---
 app.use(errorHandler);
 
 // --- Server Startup ---
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`[CampusRank] Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  
+  // Background Job: Auto-close expired forms every 1 hour
+  const { autoCloseExpired } = require('./controllers/formController');
+  setInterval(autoCloseExpired, 60 * 60 * 1000);
+  // Run once on startup
+  autoCloseExpired();
 });

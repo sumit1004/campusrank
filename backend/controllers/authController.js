@@ -115,6 +115,7 @@ const login = async (req, res, next) => {
         branch: user.branch,
         semester: user.semester,
         college: user.college,
+        avatar_url: user.avatar_url,
         total_points: user.total_points || 0
       }
     });
@@ -154,7 +155,7 @@ const { getBadge, getNextBadge } = require('../utils/badgeHelper');
 const getProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const [users] = await db.query('SELECT name, erp, email, role, course, branch, semester, college, COALESCE(total_points, 0) as total_points FROM users WHERE id = ?', [userId]);
+    const [users] = await db.query('SELECT name, erp, email, role, course, branch, semester, college, avatar_url, COALESCE(total_points, 0) as total_points FROM users WHERE id = ?', [userId]);
 
     if (users.length === 0) {
       res.status(404);
