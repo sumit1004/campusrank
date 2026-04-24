@@ -183,7 +183,7 @@ const getFormsMonitoring = async (req, res, next) => {
       SELECT f.id, f.title, f.event_date, f.start_date, f.end_date, f.status, cl.name as club_name, 
         (SELECT COUNT(*) FROM submissions s WHERE s.form_id = f.id) as submission_count
       FROM forms f
-      JOIN clubs cl ON f.club_id = cl.id
+      LEFT JOIN clubs cl ON f.club_id = cl.id
       ORDER BY f.created_at DESC
     `);
     res.json({ success: true, data: forms });
