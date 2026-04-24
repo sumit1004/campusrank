@@ -99,7 +99,7 @@ const getStatusLabel = (form) => {
 // ─── CREATE FORM ──────────────────────────────────────────────────────────
 const createForm = async (req, res) => {
   const { title, description, event_date, venue, type, team_size, start_date, end_date, fields } = req.body;
-  const club_id = req.user.id;
+  const club_id = req.user.club_id;
 
   try {
     const [result] = await db.query(
@@ -170,15 +170,18 @@ const createForm = async (req, res) => {
 // ─── GET ALL FORMS (ADMIN) ─────────────────────────────────────────────────
 const getForms = async (req, res) => {
   try {
-    const [forms] = await db.query(
-      `SELECT f.*, u.name AS admin_name,
+    let query = `SELECT f.*, 
         (SELECT COUNT(*) FROM submissions s WHERE s.form_id = f.id) AS submission_count
-       FROM forms f
-       LEFT JOIN users u ON u.id = f.club_id
-       WHERE f.club_id = ?
-       ORDER BY f.created_at DESC`,
-      [req.user.id]
-    );
+       FROM forms f`;
+    let params = [];
+
+    if (req.user.role !== 'superadmin') {
+      query += ` WHERE f.club_id = ?`;
+      params.push(req.user.club_id);
+    }
+
+    query += ` ORDER BY f.created_at DESC`;
+    const [forms] = await db.query(query, params);
     const enriched = forms.map(f => ({ ...f, status_label: getStatusLabel(f) }));
     res.json({ success: true, data: enriched });
   } catch (err) {
@@ -237,10 +240,15 @@ const updateForm = async (req, res) => {
     let newStatus = 'active';
     if (end && now > end) newStatus = 'closed';
 
-    await db.query(
-      `UPDATE forms SET title=?, description=?, event_date=?, venue=?, type=?, team_size=?, start_date=?, end_date=?, status=? WHERE id=? AND club_id=?`,
-      [title, description, event_date || null, venue, type, team_size || 1, start_date || null, end_date || null, newStatus, id, req.user.id]
-    );
+    let query = `UPDATE forms SET title=?, description=?, event_date=?, venue=?, type=?, team_size=?, start_date=?, end_date=?, status=? WHERE id=?`;
+    let params = [title, description, event_date || null, venue, type, team_size || 1, start_date || null, end_date || null, newStatus, id];
+
+    if (req.user.role !== 'superadmin') {
+      query += ` AND club_id=?`;
+      params.push(req.user.club_id);
+    }
+
+    await db.query(query, params);
 
     if (fields) {
       // Update ALL fields by deleting and re-inserting based on what admin provided
@@ -266,7 +274,15 @@ const updateForm = async (req, res) => {
 // ─── DELETE FORM ──────────────────────────────────────────────────────────
 const deleteForm = async (req, res) => {
   try {
-    await db.query(`DELETE FROM forms WHERE id=? AND club_id=?`, [req.params.id, req.user.id]);
+    let query = `DELETE FROM forms WHERE id=?`;
+    let params = [req.params.id];
+
+    if (req.user.role !== 'superadmin') {
+      query += ` AND club_id=?`;
+      params.push(req.user.club_id);
+    }
+
+    await db.query(query, params);
     res.json({ success: true, message: 'Form deleted' });
   } catch (err) {
     console.error(err);
@@ -279,12 +295,17 @@ const toggleFormStatus = async (req, res) => {
   const { status, end_date } = req.body; // 'active' or 'closed'
   const { id } = req.params;
   try {
-    let query = `UPDATE forms SET status=? WHERE id=? AND club_id=?`;
-    let params = [status, id, req.user.id];
+    let query = `UPDATE forms SET status=? WHERE id=?`;
+    let params = [status, id];
 
     if (status === 'active' && end_date) {
-      query = `UPDATE forms SET status=?, end_date=? WHERE id=? AND club_id=?`;
-      params = ['active', end_date, id, req.user.id];
+      query = `UPDATE forms SET status=?, end_date=? WHERE id=?`;
+      params = ['active', end_date, id];
+    }
+
+    if (req.user.role !== 'superadmin') {
+      query += ` AND club_id=?`;
+      params.push(req.user.club_id);
     }
 
     await db.query(query, params);

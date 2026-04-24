@@ -187,7 +187,7 @@ const SuperAdminDashboard = () => {
 
       {activeTab === 'analytics' && analytics && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
               <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Total Users</p>
               <h2 className="text-4xl text-white font-black">{analytics.totalUsers}</h2>

@@ -155,7 +155,7 @@ const { getBadge, getNextBadge } = require('../utils/badgeHelper');
 const getProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const [users] = await db.query('SELECT name, erp, email, role, course, branch, semester, college, avatar_url, COALESCE(total_points, 0) as total_points FROM users WHERE id = ?', [userId]);
+    const [users] = await db.query('SELECT name, erp, email, role, course, branch, semester, college, avatar_url, club_id, COALESCE(total_points, 0) as total_points FROM users WHERE id = ?', [userId]);
 
     if (users.length === 0) {
       res.status(404);

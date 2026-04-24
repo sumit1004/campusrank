@@ -65,7 +65,7 @@ const AdminForms = () => {
   const confirmReopen = async () => {
     if (!newEndDate) return toast.error('Please select a new end date');
     try {
-      await api.put(`/forms/${reopeningForm.id}/status`, { 
+      await api.put(`/forms/${reopeningForm.id}/status`, {
         status: 'active',
         end_date: newEndDate
       });
@@ -100,8 +100,8 @@ const AdminForms = () => {
 
   const getStatusBadge = (label) => {
     const map = {
-      'Open':        'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-      'Closed':      'bg-red-500/15 text-red-400 border-red-500/30',
+      'Open': 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+      'Closed': 'bg-red-500/15 text-red-400 border-red-500/30',
       'Coming Soon': 'bg-amber-500/15 text-amber-400 border-amber-500/30',
     };
     return map[label] || 'bg-gray-500/15 text-gray-400 border-gray-500/30';
@@ -222,11 +222,10 @@ const AdminForms = () => {
                   <button
                     onClick={() => handleToggleStatus(form)}
                     title={form.status === 'active' ? 'Close Form' : 'Reopen Form'}
-                    className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
-                      form.status === 'active'
-                        ? 'bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500/20'
-                        : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                    }`}
+                    className={`flex items-center gap-1.5 border px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${form.status === 'active'
+                      ? 'bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500/20'
+                      : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
+                      }`}
                   >
                     {form.status === 'active' ? <ToggleRight size={13} /> : <ToggleLeft size={13} />}
                     {form.status === 'active' ? 'Close' : 'Reopen'}

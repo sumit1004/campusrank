@@ -85,7 +85,7 @@ const DashboardLayout = () => {
               to={item.path}
               onClick={() => setIsSidebarOpen(false)}
               className={({ isActive }) =>
-                `flex items-center space-x-4 px-4 py-3 lg:px-5 lg:py-4 rounded-xl lg:rounded-2xl transition-all duration-300 group relative overflow-hidden ${isActive ? 'bg-gradient-to-r from-primary/20 to-transparent border border-primary/20 text-white shadow-[inset_4px_0_0_0_#6366F1]' : 'text-gray-400 hover:bg-white/5 hover:text-white font-medium'
+                `flex items-center space-x-4 px-4 py-3 lg:px-5 lg:py-4 rounded-xl lg:rounded-2xl transition-all duration-300 group relative overflow-hidden ${isActive ? ' text-white font-bold' : 'text-gray-400 hover:bg-white/5 hover:text-white font-medium'
                 }`
               }
             >
@@ -130,7 +130,7 @@ const DashboardLayout = () => {
 
 
             <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
-            <div 
+            <div
               onClick={() => navigate('/profile?openSettings=true')}
               className="flex items-center space-x-3 cursor-pointer p-1.5 md:p-2 md:pr-5 rounded-full border border-white/5 hover:border-white/10 hover:bg-white/5 transition-all bg-surface shadow-sm shrink-0"
             >
