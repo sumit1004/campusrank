@@ -217,10 +217,7 @@ const Leaderboard = () => {
                         <span className={`text-2xl font-black ${isMe ? 'text-indigo-400' : 'text-white'}`}>{student.total_points}</span>
                         <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Points</span>
                       </div>
-                      <div className="flex items-center gap-1 justify-end mt-0.5">
-                        <Minus size={10} className="text-gray-700" />
-                        <span className="text-[8px] font-bold text-gray-700 uppercase tracking-widest">Maintainance Grade</span>
-                      </div>
+
                     </div>
                   </motion.div>
                 );

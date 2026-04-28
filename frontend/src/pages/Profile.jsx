@@ -230,7 +230,7 @@ const Profile = () => {
         <div className="lg:col-span-1 grid grid-cols-3 lg:grid-cols-1 gap-2 sm:gap-6">
           {[
             { label: 'Total XP', value: currentTotalXP, suffix: 'XP', border: 'border-indigo-500/20', bg: 'bg-indigo-500/5', text: 'text-indigo-400' },
-            { label: 'Campus Rank', value: rank > 0 ? `#${rank}` : 'N/A', suffix: 'RANK', border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', text: 'text-yellow-400' },
+            { label: 'Campus Rank', value: rank ? `#${rank}` : 'Unranked', suffix: 'RANK', border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', text: 'text-yellow-400' },
             { label: 'Verified Assets', value: eCertsCount, suffix: 'UNITS', border: 'border-emerald-500/20', bg: 'bg-emerald-500/5', text: 'text-emerald-400' }
           ].map((stat, i) => (
             <motion.div key={i} variants={itemVariants} className={`bg-[#111319] border ${stat.border} ${stat.bg} p-3 sm:p-7 rounded-2xl sm:rounded-[2rem] relative overflow-hidden group shadow-lg transition-transform hover:-translate-y-1`}>

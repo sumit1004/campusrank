@@ -37,8 +37,8 @@ const Signup = () => {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full max-w-md glass-panel p-6 sm:p-8 md:p-10 rounded-3xl md:rounded-[2rem] z-10 border border-white/10 shadow-2xl relative">
         <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-tr from-secondary to-primary shadow-lg shadow-secondary/30 flex items-center justify-center text-white mb-6 transform -rotate-6 group-hover:rotate-0 transition-all">
-            <UserPlus size={32} />
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-surfaceLight border border-white/5 shadow-lg shadow-secondary/10 flex items-center justify-center mb-6 transform -rotate-6 group-hover:rotate-0 transition-all p-3">
+            <img src="/logo.png" alt="CampusRank Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Join CampusRank</h1>
           <p className="text-gray-400 font-medium">Start proving your achievements</p>

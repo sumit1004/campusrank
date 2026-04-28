@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getUser } from '../utils/auth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { Pickaxe, CheckCircle, XCircle, Award, PlusCircle, Clock, ShieldAlert, Activity } from 'lucide-react';
+import { Pickaxe, CheckCircle, XCircle, Award, PlusCircle, Clock, ShieldAlert, Activity, Upload, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getAssetUrl } from '../utils/urlHelper';
@@ -109,19 +109,54 @@ const AdminDashboard = () => {
         {/* 📊 STATS & QUEUE SECTION */}
         <div className="lg:col-span-3 space-y-6 sm:space-y-8">
           {/* Visual Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              { label: 'Manual Uploads', value: stats.total, color: 'bg-[#111827]/80' },
-              { label: 'Pending Review', value: stats.pending, color: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-100', highlight: 'text-indigo-400' },
-              { label: 'Approved Manual', value: stats.approved, color: 'bg-green-500/10 border-green-500/20 text-green-100', highlight: 'text-green-400' },
-              { label: 'E-Certificates', value: stats.eCertificates, color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-100', highlight: 'text-emerald-400' }
-            ].map((s, i) => (
-              <div key={i} className={`${s.color} border border-white/5 p-6 rounded-2xl shadow-lg relative overflow-hidden group`}>
-                <div className="absolute -right-5 -bottom-5 opacity-10 group-hover:scale-110 transition-transform"><Activity size={60} /></div>
-                <p className={`${s.highlight || 'text-gray-500'} text-[8px] font-black uppercase tracking-widest mb-1`}>{s.label}</p>
-                <h2 className="text-2xl font-black italic">{s.value}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {/* Manual Uploads */}
+            <div className="bg-[#111827]/50 border border-white/5 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-indigo-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                  <Upload size={18} />
+                </div>
+                <p className="text-gray-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Manual</p>
               </div>
-            ))}
+              <h2 className="text-2xl sm:text-4xl text-white font-black tabular-nums">{stats.total}</h2>
+            </div>
+
+            {/* Pending Review */}
+            <div className="bg-indigo-500/5 border border-indigo-500/10 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-indigo-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                  <Clock size={18} />
+                </div>
+                <p className="text-indigo-400/70 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Pending</p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl text-indigo-100 font-black tabular-nums">{stats.pending}</h2>
+            </div>
+
+            {/* Approved Manual */}
+            <div className="bg-green-500/5 border border-green-500/10 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-green-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-green-500/10 rounded-lg text-green-400">
+                  <CheckCircle size={18} />
+                </div>
+                <p className="text-green-400/70 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Approved</p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl text-green-100 font-black tabular-nums">{stats.approved}</h2>
+            </div>
+
+            {/* E-Certificates */}
+            <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-emerald-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                  <FileText size={18} />
+                </div>
+                <p className="text-emerald-400/70 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">E-Certs</p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl text-emerald-100 font-black tabular-nums">{stats.eCertificates}</h2>
+            </div>
           </div>
 
           {/* Pending Reviews Table */}

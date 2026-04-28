@@ -70,7 +70,9 @@ const DashboardLayout = () => {
       <aside className={`fixed lg:static top-0 left-0 h-full w-[280px] bg-surface/95 lg:bg-surface/50 border-r border-white/5 flex flex-col z-40 shrink-0 backdrop-blur-2xl transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-6 lg:p-8 flex items-center justify-between h-[80px] lg:h-[100px] border-b border-white/5">
           <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center font-black text-white shadow-lg border border-white/20 shadow-primary/30">CR</div>
+            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-surfaceLight flex items-center justify-center p-2 shadow-lg border border-white/20">
+               <img src="/logo.png" alt="CampusRank Logo" className="w-full h-full object-contain" />
+            </div>
             <span className="text-xl lg:text-2xl font-black tracking-tight text-white">CampusRank</span>
           </div>
           <button className="lg:hidden text-gray-400 hover:text-white" onClick={() => setIsSidebarOpen(false)}>

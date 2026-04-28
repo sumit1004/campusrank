@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 
 import api from '../services/api';
+import { getAssetUrl } from '../utils/urlHelper';
 
 const COLLEGE_NAME = 'Rungta International Skills University';
 const POWERED_BY = 'Powered by RIU';
@@ -261,7 +262,7 @@ const LeaderboardCard = ({ data, rank, isMain }) => {
           <div className={`relative ${isMain ? 'w-20 h-20 sm:w-48 sm:h-48' : 'w-14 h-14 sm:w-32 sm:h-32'} mx-auto overflow-hidden rounded-xl sm:rounded-3xl p-[2px] ${isMain ? 'bg-amber-500/50' : 'bg-white/10'}`}>
             <div className={`w-full h-full rounded-xl sm:rounded-3xl overflow-hidden ${config.imgBg} relative`}>
               <img
-                src={SUMIT_IMG}
+                src={data.avatar_url ? getAssetUrl(data.avatar_url) : SUMIT_IMG}
                 alt={data.name}
                 className="w-full h-full object-cover mix-blend-luminosity hover:mix-blend-normal transition-all duration-500"
               />
@@ -389,6 +390,7 @@ const Landing = () => {
                 name: r?.name || `User ${idx + 1}`,
                 club: r?.club_name || r?.club || 'Campus',
                 points: Number(r?.total_points ?? r?.points ?? 0),
+                avatar_url: r?.avatar_url
               }))
               .filter((r) => r.name);
             if (normalized.length >= 3) setTop3(normalized);
@@ -840,7 +842,7 @@ const Landing = () => {
             {
               number: '01',
               title: 'Upload Certificate',
-              desc: 'Visual progress, minimal effort. Our AI instantly parses your document for key metadata and validates authenticity.',
+              desc: ' Our AI instantly parses your document for key metadata and validates authenticity.',
               icon: Upload,
               color: {
                 gradient: 'linear-gradient(135deg, #4F46E5, #3B82F6)',
@@ -851,7 +853,7 @@ const Landing = () => {
             {
               number: '02',
               title: 'Admin Verification',
-              desc: 'Visual progress, minimal effort. Human-in-the-loop validation ensures 100% data integrity and campus-wide trust.',
+              desc: 'Human-in-the-loop validation ensures 100% data integrity and campus-wide trust.',
               icon: ShieldCheck,
               color: {
                 gradient: 'linear-gradient(135deg, #10B981, #34D399)',
@@ -861,7 +863,7 @@ const Landing = () => {
             {
               number: '03',
               title: 'Earn Points',
-              desc: 'Visual progress, minimal effort. Your verified achievements translate directly into campus rank and exclusive rewards.',
+              desc: ' Your verified achievements translate directly into campus rank and exclusive rewards.',
               icon: Gem,
               color: {
                 gradient: 'linear-gradient(135deg, #8B5CF6, #D946EF)',
@@ -1244,8 +1246,8 @@ const Landing = () => {
       <footer className={`border-t ${palette.border} bg-white/5 py-5 backdrop-blur-xl`}>
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-400 text-white shadow-[0_18px_50px_rgba(99,102,241,0.25)]">
-              <BadgeCheck size={18} />
+            <div className="mx-auto w-12 h-12 flex items-center justify-center ">
+              <img src="/logo.png" alt="CampusRank Logo" className="w-full h-full object-contain" />
             </div>
             <div className="leading-tight">
               <div className="text-sm font-extrabold">CampusRank</div>

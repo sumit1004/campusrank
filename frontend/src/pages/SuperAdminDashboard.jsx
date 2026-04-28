@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { getUser } from '../utils/auth';
 import api from '../services/api';
 import toast from 'react-hot-toast';
-import { ShieldCheck, Users, Activity, FileText, Search, UserMinus, UserPlus, Bell, ClipboardList, Star, X } from 'lucide-react';
+import { ShieldCheck, Users, Activity, FileText, Search, UserMinus, UserPlus, Bell, ClipboardList, Star, X, Upload, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getAssetUrl } from '../utils/urlHelper';
 
@@ -188,26 +188,65 @@ const SuperAdminDashboard = () => {
 
       {activeTab === 'analytics' && analytics && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
-              <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Total Users</p>
-              <h2 className="text-4xl text-white font-black">{analytics.totalUsers}</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* Total Users */}
+            <div className="bg-[#111827]/50 border border-white/5 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-blue-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                  <Users size={18} />
+                </div>
+                <p className="text-gray-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Total Users</p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl text-white font-black tabular-nums">{analytics.totalUsers}</h2>
             </div>
-            <div className="bg-[#111827] border border-white/5 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
-              <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">Manual Uploads</p>
-              <h2 className="text-4xl text-white font-black">{analytics.totalCerts}</h2>
+
+            {/* Manual Uploads */}
+            <div className="bg-[#111827]/50 border border-white/5 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-indigo-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                  <Upload size={18} />
+                </div>
+                <p className="text-gray-500 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Uploads</p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl text-white font-black tabular-nums">{analytics.totalCerts}</h2>
             </div>
-            <div className="bg-indigo-500/10 border border-indigo-500/20 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
-              <p className="text-indigo-400 text-[10px] font-black uppercase tracking-widest mb-2">Approved Manual</p>
-              <h2 className="text-4xl text-indigo-100 font-black">{analytics.approvedCerts}</h2>
+
+            {/* Approved */}
+            <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-emerald-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
+                  <CheckCircle size={18} />
+                </div>
+                <p className="text-emerald-400/70 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Approved</p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl text-emerald-100 font-black tabular-nums">{analytics.approvedCerts}</h2>
             </div>
-            <div className="bg-purple-500/10 border border-purple-500/20 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
-              <p className="text-purple-400 text-[10px] font-black uppercase tracking-widest mb-2">Pending Manual</p>
-              <h2 className="text-4xl text-purple-100 font-black">{analytics.pendingCerts}</h2>
+
+            {/* Pending */}
+            <div className="bg-purple-500/5 border border-purple-500/10 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-purple-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+                  <Activity size={18} />
+                </div>
+                <p className="text-purple-400/70 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Pending</p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl text-purple-100 font-black tabular-nums">{analytics.pendingCerts}</h2>
             </div>
-            <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl flex flex-col justify-center text-center md:text-left">
-              <p className="text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-2">E-Certificates</p>
-              <h2 className="text-4xl text-emerald-100 font-black">{analytics.totalECerts}</h2>
+
+            {/* E-Certificates */}
+            <div className="bg-cyan-500/5 border border-cyan-500/10 p-4 sm:p-6 rounded-2xl flex flex-col justify-center relative overflow-hidden group col-span-2 lg:col-span-1">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-cyan-500/5 blur-2xl rounded-full translate-x-10 -translate-y-10 group-hover:bg-cyan-500/10 transition-all"></div>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-cyan-500/10 rounded-lg text-cyan-400">
+                  <FileText size={18} />
+                </div>
+                <p className="text-cyan-400/70 text-[9px] sm:text-[10px] font-black uppercase tracking-widest">E-Certs</p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl text-cyan-100 font-black tabular-nums">{analytics.totalECerts}</h2>
             </div>
           </div>
 
