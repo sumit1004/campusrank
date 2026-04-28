@@ -15,8 +15,10 @@ import Notifications from './pages/Notifications';
 import DashboardLayout from './layouts/DashboardLayout';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import VerifyCertificate from './pages/VerifyCertificate';
 
 // Import new Role/Protected Components
+
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleRoute from './components/RoleRoute';
 import AdminDashboard from './pages/AdminDashboard';
@@ -108,7 +110,13 @@ const AnimatedRoutes = () => {
           <Route path="/profile" element={<Profile />} />
         </Route>
         
+        {/* Public Verification Route */}
+        <Route path="/verify/:id" element={<VerifyCertificate />} />
+        <Route path="/verify-certificate/:id" element={<VerifyCertificate />} />
+
+        
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </AnimatePresence>
   );

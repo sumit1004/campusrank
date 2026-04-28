@@ -317,9 +317,11 @@ const Profile = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 relative z-10 max-h-[400px] lg:max-h-[550px] overflow-y-auto custom-scrollbar pr-2 pb-4">
             {certificates.filter(c => c.source === 'e_certificate').map((c, i) => {
-              const verifyUrl = encodeURIComponent(`https://campusrank.com/verify/${c.id}`);
+              const verifyUrl = encodeURIComponent(`${window.location.origin}/verify/${c.id}`);
+
               const shareText = encodeURIComponent(`I just earned a certificate for "${c.event_name}" from Rungta International Skills University ✨🚀`);
               const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${verifyUrl}&summary=${shareText}`;
+
 
               return (
                 <div key={i} className="bg-[#161a23] border border-white/5 p-4 sm:p-5 rounded-2xl sm:rounded-[1.5rem] group hover:border-emerald-500/30 hover:bg-[#1a1f2b] transition-all relative overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(16,185,129,0.1)] hover:-translate-y-1 flex flex-col">
