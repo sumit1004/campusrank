@@ -442,21 +442,21 @@ const Landing = () => {
   const MotionWrapper = prefersReducedMotion ? 'div' : motion.div;
 
   return (
-    <div className={`min-h-screen ${palette.pageBg} ${palette.text} overflow-x-hidden`}>
+    <div className={`min-h-screen ${palette.text} overflow-x-hidden`}>
       {/* HERO BACKDROP */}
       <div className="relative">
         <div className="absolute inset-0 -z-10">
           <img
             src={campusSrc}
             alt={`${COLLEGE_NAME} campus`}
-            className="h-[92vh] w-full object-cover"
+            className="h-[100vh] w-full object-cover"
             onError={() => {
               if (campusSrc !== CAMPUS_IMG_FALLBACK) setCampusSrc(CAMPUS_IMG_FALLBACK);
             }}
           />
-          <div className="absolute inset-0 bg-[#0B0F19]/65" />
+          <div className="absolute inset-0 bg-[rgb(0_0_0/56%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#0B0F19]" />
-          <div className="absolute inset-0 backdrop-blur-[10px]" />
+          <div className="absolute inset-0 backdrop-blur-[5px]" />
           <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-indigo-500/30 blur-3xl dark:bg-indigo-500/20" />
           <div className="pointer-events-none absolute -right-24 top-28 h-64 w-64 rounded-full bg-cyan-400/25 blur-3xl dark:bg-cyan-400/15" />
         </div>
