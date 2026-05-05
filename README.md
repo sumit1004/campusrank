@@ -268,11 +268,3 @@ To solve the issue of a student getting duplicate points (e.g., they manually up
 4.  **Complex Form Architectures**: Mapping relational flat tables (`submission_data`) into a wide format for Excel exports required complex nested loops and Map data structures in the backend to reconstruct the student entries accurately.
 
 ---
-
-## 16. Future Scope
-
-*   **Cloud Storage Integration**: Migrate local `/uploads` handling to AWS S3 or Firebase Storage to ensure true statelessness of the backend server, crucial for horizontal scaling.
-*   **Real-time WebSockets**: Implement Socket.io to push real-time notifications and leaderboard updates to active clients without relying on polling.
-*   **QR Code App**: Develop a mobile application for admins to scan student E-Certificates directly at events for instant attendance marking.
-*   **SSO Integration**: Integrate university Google Workspace or Microsoft Entra ID for seamless Single Sign-On (SSO) login.
-
