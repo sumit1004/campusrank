@@ -15,7 +15,22 @@ CampusRank solves these issues by introducing a centralized, gamified ecosystem:
 *   **Robust Security & Integrity**: Idempotent database operations and unique composite keys prevent students from claiming points multiple times for the same event.
 
 ## Screenshots
-<img src="Images/campus-rank.netlify.app_.png" width="300px"/>
+
+<p align="center">
+  <img src="Images/herosection.png" width="30%" />
+  &nbsp;&nbsp;
+  <img src="Images/student.png" width="30%" />
+  &nbsp;&nbsp;
+  <img src="Images/admin.png" width="30%" />
+</p>
+<p align="center">
+  <img src="Images/leaderboard.png" width="30%" />
+  &nbsp;&nbsp;
+  <img src="Images/profile.png" width="30%" />
+  &nbsp;&nbsp;
+</p>
+  <img src="Images/wholepage.png" width="30%" />
+  
 
 
 
