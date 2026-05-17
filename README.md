@@ -14,8 +14,13 @@ CampusRank solves these issues by introducing a centralized, gamified ecosystem:
 *   **Streamlined Event Management**: A built-in dynamic forms builder allows clubs to host registrations, manage team vs. solo events, and export participant data effortlessly.
 *   **Robust Security & Integrity**: Idempotent database operations and unique composite keys prevent students from claiming points multiple times for the same event.
 
----
+## Screenshots
+<img src="Images/campus-rank.netlify.app_.png" width="300px"/>
 
+
+
+
+---
 ## 4. System Architecture
 CampusRank follows a classic client-server architecture with a heavy emphasis on data integrity and read-optimized caching for the leaderboard.
 
